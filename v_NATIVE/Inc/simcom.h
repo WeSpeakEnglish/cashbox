@@ -31,6 +31,8 @@ typedef struct {
 
 extern SIM800 Sim800;
 extern xQueueHandle SIM800_CommandsQ;
+extern SemaphoreHandle_t xSemaphore;
+
 //extern Message[] SIM800_outMsg;
 //uint8_t CMD_Bufer[CMD_Queue_size][CMD_Length];
 //uint16_t CMD_index = 0;

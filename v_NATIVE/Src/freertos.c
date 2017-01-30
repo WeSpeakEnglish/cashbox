@@ -58,13 +58,14 @@
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 osThreadId keybScanTaskHandle;
-
+osThreadId parserTaskHandle;
 /* USER CODE BEGIN Variables */
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
 void KeybScanTask(void const * argument);
+void ParserExecuteTask(void const * argument);
 
 extern void MX_FATFS_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -102,6 +103,11 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of keybScanTask */
   osThreadDef(keybScanTask, KeybScanTask, osPriorityIdle, 0, 128);
   keybScanTaskHandle = osThreadCreate(osThread(keybScanTask), NULL);
+  
+  
+  /* definition and creation of keybScanTask */
+  osThreadDef(parserExecuteTask, ParserExecuteTask, osPriorityIdle, 0, 128);
+  parserTaskHandle = osThreadCreate(osThread(parserExecuteTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -122,7 +128,7 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    
+    SIM800_SendCMD();
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
@@ -136,13 +142,28 @@ void KeybScanTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    SIM800_ParseAnswers();
-    SIM800_SendCMD();
     osDelay(1);
   }
-  /* USER CODE END KeybScanTask */
+  
 }
 
+void ParserExecuteTask(void const * argument){
+  
+ xSemaphore = xSemaphoreCreateBinary();
+ 
+ for(;;)
+  {
+   if( xSemaphoreTake( xSemaphore, 1000) == pdTRUE )
+        {
+          SIM800_ParseAnswers();
+        }
+  }    
+}
+
+
+
+
+/* USER CODE END KeybScanTask */
 /* USER CODE BEGIN Application */
      
 /* USER CODE END Application */

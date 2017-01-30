@@ -11,7 +11,7 @@
 #define LV_SHIFTER_OE_GPIO_Port GPIOC
 
 
-
+SemaphoreHandle_t xSemaphore = NULL;
 
 uint8_t RX_Buffer2[RX_BUFFER_SIZE];                                                        //receive buffer for incoming data from GSM module
 
@@ -41,19 +41,12 @@ SIM800 Sim800;
 void SIM800_SendCMD(void){
 static Message Msg;
  
-
-  //Message  = 
-    if(xQueueReceive(SIM800_CommandsQ, &Msg, 10) == pdPASS){
+ //Transmit command to the SIM800
+ if(xQueueReceive(SIM800_CommandsQ, &Msg, 10) == pdPASS){
                                HAL_UART_Transmit_DMA(&huart2,(uint8_t *)Msg.pMessage , Msg.SizeOfMessage-1);
     }
   
   vTaskDelay(10);
-   // HAL_UART_Transmit_DMA(&huart2, (uint8_t *)GSM_ATcmd_Disable_Echo, sizeof(GSM_ATcmd_Disable_Echo)-1);
-
-   // HAL_UART_Transmit_DMA(&huart2, (uint8_t *)GSM_ATcmd_9600_Baud, sizeof(GSM_ATcmd_9600_Baud)-1);
-
-   // HAL_UART_Transmit_DMA(&huart2, (uint8_t *)GSM_ATcmd_SIM_Query, sizeof(GSM_ATcmd_SIM_Query)-1);
-
 }
 
 
@@ -109,6 +102,7 @@ void USART2_IRQHandler(void)
 {
 volatile uint8_t tmpval;  //  
 static uint8_t OldChar = '\0';
+static portBASE_TYPE xHigherPriorityTaskWoken;
 
         if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC) != RESET) {
       //      irq_handler(serial_irq_ids[id], TxIrq);
@@ -118,6 +112,7 @@ static uint8_t OldChar = '\0';
             tmpval = (uint8_t)(USART2->RDR & 0x00FF);
              if((tmpval == '\r') &&(OldChar != '\r')&&(OldChar != '\n')){
               Sim800.bufferIsReady = 1;
+              xSemaphoreGiveFromISR( xSemaphore, &xHigherPriorityTaskWoken );
               if(Sim800.pRX_Buffer == Sim800.RX_Buffer1){ // switch to the second buffer
                 Sim800.pRX_Buffer = Sim800.RX_Buffer2;
                 Sim800.RX_WR_index2 = 0;
@@ -149,8 +144,9 @@ static uint8_t OldChar = '\0';
             tmpval = huart2.Instance->RDR; // Clear RXNE bit
    //         __HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST);      
 }
-__HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST);      
- 
+__HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST); 
+
+ portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 
