@@ -1169,6 +1169,9 @@
     <group>
       <name>User</name>
       <file>
+        <name>$PROJ_DIR$\..\Src\dma.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\fatfs.c</name>
       </file>
       <file>
@@ -1182,6 +1185,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\parse_sim800.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\simcom.c</name>

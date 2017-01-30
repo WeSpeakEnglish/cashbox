@@ -52,6 +52,7 @@
 #include "usart.h"
 #include "stm32f3xx_hal.h"
 #include "simcom.h"
+#include "parse_sim800.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -135,9 +136,9 @@ void KeybScanTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    sendCommand();
-    
-  
+    SIM800_ParseAnswers();
+    SIM800_SendCMD();
+    osDelay(1);
   }
   /* USER CODE END KeybScanTask */
 }

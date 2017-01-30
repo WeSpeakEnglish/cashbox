@@ -2,12 +2,14 @@
 #define _SIMCOM_H
 #include <stdint.h>
 #include "dma.h"
-
+#include "cmsis_os.h"
 
 #define RX_BUFFER_SIZE 200
 #define SIMCOM_PWR_PORT GPIOA
 #define SIMCOM_PWR_PIN  GPIO_PIN_4
 
+#define CMD_Queue_size  16
+#define CMD_Length      128 
 
 typedef struct {
  uint8_t powered : 1;  // is power on or off
@@ -22,11 +24,19 @@ typedef struct {
  
 }SIM800;
 
+typedef struct {
+  char * pMessage;
+  uint16_t SizeOfMessage;
+}Message;
 
 extern SIM800 Sim800;
+extern xQueueHandle SIM800_CommandsQ;
+//extern Message[] SIM800_outMsg;
+//uint8_t CMD_Bufer[CMD_Queue_size][CMD_Length];
+//uint16_t CMD_index = 0;
 
-void sendCommand(void);
+void SIM800_SendCMD(void);
 void SIM800_Ini(void);
 void SIM800_PowerOnOff(void);
-
+uint32_t SIM800_AddCMD(char * Msg, uint16_t Length);
 #endif
