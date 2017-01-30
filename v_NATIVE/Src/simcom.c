@@ -1,4 +1,5 @@
 #include "simcom.h"
+#include "parse_sim800.h"
 #include "stm32f303xc.h"
 #include "stm32f3xx_hal.h"
 #include <stdlib.h>
@@ -44,6 +45,7 @@ static Message Msg;
  //Transmit command to the SIM800
  if(xQueueReceive(SIM800_CommandsQ, &Msg, 10) == pdPASS){
                                HAL_UART_Transmit_DMA(&huart2,(uint8_t *)Msg.pMessage , Msg.SizeOfMessage-1);
+                               SIM800_ParserID = Msg.ParserID;
     }
   
   vTaskDelay(10);
@@ -51,12 +53,13 @@ static Message Msg;
 
 
 
-uint32_t SIM800_AddCMD(char * Msg, uint16_t Length){ // add new commad to the Queue
+uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID){ // add new commad to the Queue
 Message Cmd;
 
   strcpy(&CMD_Bufer[CMD_index][0], Msg); 
   Cmd.pMessage =  &CMD_Bufer[CMD_index][0];
   Cmd.SizeOfMessage = Length;
+  Cmd.ParserID = ParserID;
  // Msg->SizeOfMessage
   CMD_index++;
   CMD_index %= CMD_Queue_size;
@@ -77,9 +80,9 @@ void SIM800_Ini(void){
  
  SIM800_CommandsQ = xQueueCreate(20, sizeof(Message));
   
-  SIM800_AddCMD((char *)GSM_ATcmd,sizeof(GSM_ATcmd));
-  SIM800_AddCMD((char *)GSM_ATcmd_Disable_Echo,sizeof(GSM_ATcmd_Disable_Echo));
-  SIM800_AddCMD((char *)GSM_ATcmd_SIM_Status,sizeof(GSM_ATcmd_SIM_Status));
+  SIM800_AddCMD((char *)GSM_ATcmd,sizeof(GSM_ATcmd),1);
+  SIM800_AddCMD((char *)GSM_ATcmd_Disable_Echo,sizeof(GSM_ATcmd_Disable_Echo),1);
+  SIM800_AddCMD((char *)GSM_ATcmd_SIM_Status,sizeof(GSM_ATcmd_SIM_Status),2);
  
  }
 

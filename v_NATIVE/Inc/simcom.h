@@ -27,6 +27,7 @@ typedef struct {
 typedef struct {
   char * pMessage;
   uint16_t SizeOfMessage;
+  uint16_t ParserID;        // id of parser for answer
 }Message;
 
 extern SIM800 Sim800;
@@ -40,5 +41,5 @@ extern SemaphoreHandle_t xSemaphore;
 void SIM800_SendCMD(void);
 void SIM800_Ini(void);
 void SIM800_PowerOnOff(void);
-uint32_t SIM800_AddCMD(char * Msg, uint16_t Length);
+uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID);
 #endif
