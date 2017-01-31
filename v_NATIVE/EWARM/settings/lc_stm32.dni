@@ -14,7 +14,7 @@ LeaveTargetRunning=_ 0
 stlinkserialNo=48341187
 stlinkfoundProbes=
 [DebugChecksum]
-Checksum=1283184932
+Checksum=1199152231
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -84,9 +84,9 @@ SumSortOrder=0
 [Disassemble mode]
 mode=0
 [Breakpoints2]
-Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\usart.c}.385.1" 0 0 1 "" 0 "" 0
+Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\usart.c}.388.1" 0 0 1 "" 0 "" 0
 Bp1=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Drivers\STM32F3xx_HAL_Driver\Src\stm32f3xx_hal_uart.c}.2730.5" 0 0 1 "" 0 "" 0
-Bp2=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\parse_sim800.c}.14.4" 0 0 1 "" 0 "" 0
+Bp2=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\parse_sim800.c}.68.5" 0 0 1 "" 0 "" 0
 Count=3
 [Log file]
 LoggingEnabled=_ 0

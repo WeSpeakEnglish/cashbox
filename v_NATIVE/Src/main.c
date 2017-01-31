@@ -110,7 +110,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   TIM16_Start(8,576); // start  timer 16
   TIM17_Start(8,576); // start  timer 16
-    SIM800_Ini();
+  SIM800_Ini();
   
   /* USER CODE END 2 */
 

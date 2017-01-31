@@ -59,6 +59,7 @@
 osThreadId defaultTaskHandle;
 osThreadId keybScanTaskHandle;
 osThreadId parserTaskHandle;
+osThreadId sim800_TaskHandle;
 /* USER CODE BEGIN Variables */
 /* USER CODE END Variables */
 
@@ -66,6 +67,7 @@ osThreadId parserTaskHandle;
 void StartDefaultTask(void const * argument);
 void KeybScanTask(void const * argument);
 void ParserExecuteTask(void const * argument);
+void SIM800_IniTask(void const * argument);
 
 extern void MX_FATFS_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -105,10 +107,12 @@ void MX_FREERTOS_Init(void) {
   keybScanTaskHandle = osThreadCreate(osThread(keybScanTask), NULL);
   
   
-  /* definition and creation of keybScanTask */
+  /* definition and creation of ParserExecute */
   osThreadDef(parserExecuteTask, ParserExecuteTask, osPriorityIdle, 0, 128);
   parserTaskHandle = osThreadCreate(osThread(parserExecuteTask), NULL);
 
+  osThreadDef(sim800_IniTask, SIM800_IniTask, osPriorityIdle, 0, 128);
+  sim800_TaskHandle = osThreadCreate(osThread(sim800_IniTask), NULL);
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -123,7 +127,8 @@ void StartDefaultTask(void const * argument)
 {
   /* init code for FATFS */
   MX_FATFS_Init();
-
+  
+  
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)
@@ -142,6 +147,7 @@ void KeybScanTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+    
     osDelay(1);
   }
   
@@ -153,13 +159,21 @@ void ParserExecuteTask(void const * argument){
  
  for(;;)
   {
-   if( xSemaphoreTake( xSemaphore, 1000) == pdTRUE )
+   if( xSemaphoreTake( xSemaphore, 60000) == pdTRUE )
         {
           SIM800_ParseAnswers();
         }
   }    
 }
 
+void SIM800_IniTask(void const * argument){
+ for(;;)
+  {
+      SIM800_IniCMD();
+      vTaskDelete( NULL );
+  }
+ 
+}
 
 
 
