@@ -45,7 +45,7 @@ void parse_CREG( void )
 {
 	char* tmpstr;
         
-        tmpstr = strstr((char const *)Sim800.pRX_Buffer, ",");
+        tmpstr = strstr((char const *)Sim800.pReadyBuffer, ",");
 	// if(tmpstr!=-1)
     if(tmpstr!=NULL)
 	{
@@ -62,7 +62,7 @@ void parse_Location(void)//possible optimisation (for)
   char *longitude = NULL;
   char *latitude = NULL;
   
-    longitude = strstr((char const *)Sim800.pRX_Buffer, gsmloc_str);
+    longitude = strstr((char const *)Sim800.pReadyBuffer, gsmloc_str);
     if(longitude){
     longitude = strstr(longitude,",")+1;//potints to longtitude
     latitude = strstr(longitude,",");

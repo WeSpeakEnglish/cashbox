@@ -40,7 +40,7 @@ const char pwd_str[] = "AT+SAPBR=3,1,\"PWD\",\"gdata\"\r";
 const char sapbr_str[] = "AT+SAPBR=1,1\r";
 const char sapbr_close_str[] = "AT+SAPBR=0,1\r";
 const char cgatt_str[] = "AT+CGATT?\r";
-const char gsmloc_snd_str[] = "AT+CIPGSMLOC=1,1";
+const char gsmloc_snd_str[] = "AT+CIPGSMLOC=1,1\r";
 
 
 
@@ -116,41 +116,35 @@ void SIM800_Ini(void){
 void SIM800_IniCMD(void){
   __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);  //Enable IDLE
   ResParse.byte = 0; //reset parsed bits
-  vTaskDelay(7000);
+  vTaskDelay(3000);
   SIM800_AddCMD((char *)GSM_ATcmd,sizeof(GSM_ATcmd),0); // AT to sinhronize
-  vTaskDelay(100);
-  //SIM800_AddCMD((char *)GSM_ATcmd_Disable_Echo,sizeof(GSM_ATcmd_Disable_Echo),1);
- // vTaskDelay(100);
+  vTaskDelay(1000);
+  SIM800_AddCMD((char *)GSM_ATcmd_Disable_Echo,sizeof(GSM_ATcmd_Disable_Echo),1);
+  vTaskDelay(1000);
  
      
    SIM800_AddCMD((char *)creg_str,sizeof(creg_str),2);
         ResParse.byte = 0;
-   vTaskDelay(100);
+   vTaskDelay(1000);
    SIM800_AddCMD((char *)cgreg_str,sizeof(cgreg_str),2);
  
-   vTaskDelay(100);
+   vTaskDelay(1000);
    SIM800_AddCMD((char *)contype_str,sizeof(contype_str),0);
-   vTaskDelay(100);
+   vTaskDelay(1000);
    SIM800_AddCMD((char *)apn_str,sizeof(apn_str),0);
-   vTaskDelay(100);
-   SIM800_AddCMD((char *)apn_str,sizeof(apn_str),0);
-   vTaskDelay(100);
+   vTaskDelay(1000);
    SIM800_AddCMD((char *)user_str,sizeof(user_str),0);
-   vTaskDelay(100);
-   SIM800_AddCMD((char *)user_str,sizeof(user_str),0);
-   vTaskDelay(100);
+   vTaskDelay(1000);
    SIM800_AddCMD((char *)pwd_str,sizeof(user_str),0);
-   vTaskDelay(100);
+   vTaskDelay(1000);
    SIM800_AddCMD((char *)sapbr_str,sizeof(sapbr_str),0);   
-   vTaskDelay(100);
+   vTaskDelay(1000);
    SIM800_AddCMD((char *)cgatt_str,sizeof(cgatt_str),0); 
 
-   vTaskDelay(100);
-   SIM800_AddCMD((char *)gsmloc_snd_str,sizeof(gsmloc_snd_str),3);   
-   
-  vTaskDelay(100);
+  vTaskDelay(1000);
   SIM800_AddCMD((char *)gsmloc_snd_str,sizeof(gsmloc_snd_str),3);
-  
+  vTaskDelay(10000);
+  vTaskDelay(100);
   vTaskDelete(NULL);   //  error 
    // }
    
@@ -241,11 +235,13 @@ static portBASE_TYPE xHigherPriorityTaskWoken;
         //    }
             OldChar = tmpval; 
             tmpval = huart2.Instance->RDR; // Clear RXNE bit
-   //         __HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST);      
+   //         __HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST); 
+            __HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST); 
+            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );    
 }
-__HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST); 
 
- portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+
+ 
 }
 
 
