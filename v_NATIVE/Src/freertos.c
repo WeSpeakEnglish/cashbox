@@ -143,23 +143,29 @@ void StartDefaultTask(void const * argument)
 void KeybScanTask(void const * argument)
 {
   
-  /* USER CODE BEGIN KeybScanTask */
+  /* USER CODE BEGIN KeybScanTask */ 
+  
+  while (Sim800.initialized == 0){
+    vTaskDelay(100);
+    taskYIELD();
+  }
   /* Infinite loop */
   for(;;)
   {
     
-    osDelay(1);
+  
+   vTaskDelete( NULL ); 
   }
   
 }
 
 void ParserExecuteTask(void const * argument){
   
- xSemaphore = xSemaphoreCreateBinary();
+ xSemaphoreUART2 = xSemaphoreCreateBinary();
  
  for(;;)
   {
-   if( xSemaphoreTake( xSemaphore, 60000) == pdTRUE )
+   if( xSemaphoreTake( xSemaphoreUART2, 60000) == pdTRUE )
         {
           SIM800_ParseAnswers();
         }

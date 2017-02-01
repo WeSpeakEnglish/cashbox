@@ -11,8 +11,11 @@
 #define CMD_Queue_size  16
 #define CMD_Length      128 
 
-#define MAX_HTTP_BODY_SIZE 	128 //100
-#define MAX_LOCATION_SIZE	12
+#define MAX_HTTP_BODY_SIZE 	        128 //100
+#define MAX_LOCATION_SIZE	        12
+#define MAX_PHONE_NUMBER_LENGTH         30
+
+#define TERMINAL_UID	9
 
  typedef struct 
 {
@@ -32,10 +35,18 @@ typedef struct washing_holder
 	uint8_t wm_id;
 }wash_holder;
 
+
+
+
 typedef struct {
  uint8_t powered : 1;  // is power on or off
+ volatile uint8_t parsed :  1;
+ volatile uint8_t initialized : 1;
+ 
  volatile uint8_t RX_Buffer1[RX_BUFFER_SIZE];  // double buffered RX
  volatile uint8_t RX_Buffer2[RX_BUFFER_SIZE];   
+ volatile uint8_t http_body[MAX_HTTP_BODY_SIZE];
+ volatile uint8_t phone_number[MAX_PHONE_NUMBER_LENGTH];
  volatile uint8_t * pRX_Buffer;   // point to current RX buffer
  volatile uint16_t * pRX_WR_index; // index of current RX buffer
  volatile uint16_t RX_WR_index1;  // how much of elements have been written to the first buffer
@@ -69,7 +80,7 @@ typedef struct {
 
 extern SIM800 Sim800;
 extern xQueueHandle SIM800_CommandsQ;
-extern SemaphoreHandle_t xSemaphore;
+extern SemaphoreHandle_t xSemaphoreUART2;
 
 void SIM800_IniCMD(void);
 void SIM800_SendCMD(void);

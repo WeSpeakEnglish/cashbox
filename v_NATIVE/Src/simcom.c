@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <usart.h>
+#include "HTTP.h"
+
 
 #define SIMCOM_PWR_PORT GPIOA
 #define SIMCOM_PWR_PIN  GPIO_PIN_4
@@ -12,7 +14,7 @@
 #define LV_SHIFTER_OE_GPIO_Port GPIOC
 
 
-SemaphoreHandle_t xSemaphore = NULL;
+SemaphoreHandle_t xSemaphoreUART2 = NULL;
 
 uint8_t RX_Buffer2[RX_BUFFER_SIZE];                                                        //receive buffer for incoming data from GSM module
 
@@ -31,7 +33,7 @@ const char cgreg_str[] = "AT+CGREG?\r";                                        /
 const char GSM_ATcmd_terminate[]="\r";                                       // terminate command
 const char GSM_ATcmd_Reject_call[]="ATH\r";                                  // Reject the incomming call
 const char GSM_ATcmd_Signal[]="AT+CSQ\r";                                    // Report signal quality
-
+const char cusd_str[] = "AT+CUSD=1,\"*205#\"\r";
 
 const char contype_str[] = "AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"\r";
 const char apn_str[] = "AT+SAPBR=3,1,\"APN\",\"internet\"\r";
@@ -41,12 +43,6 @@ const char sapbr_str[] = "AT+SAPBR=1,1\r";
 const char sapbr_close_str[] = "AT+SAPBR=0,1\r";
 const char cgatt_str[] = "AT+CGATT?\r";
 const char gsmloc_snd_str[] = "AT+CIPGSMLOC=1,1\r";
-
-
-
-
-
-
 
 const char       vendweb_data[] = "http://vendweb.ru/api/0.1/data";
 const char    vendweb_command[] = "http://vendweb.ru/api/0.1/commands";
@@ -58,9 +54,14 @@ xQueueHandle SIM800_CommandsQ;
 SIM800 Sim800;
 
 void SemaphoreUART2wait(void ){
-if( xSemaphoreTake( xSemaphore, 1000) == pdTRUE )  
-                             xSemaphoreGive(xSemaphore);
+  if( xSemaphoreTake( xSemaphoreUART2, 10000) == pdTRUE ){
+                             vTaskDelay(10);
+                             xSemaphoreGive(xSemaphoreUART2);
+  }
+
 }
+
+
 
 void SIM800_SendCMD(void){
 static Message Msg;
@@ -74,7 +75,25 @@ static Message Msg;
   vTaskDelay(10);
 }
 
-
+void SIM800_init_info_upload()
+{
+    char post_body[64];
+    char id_str[12] ={0,0,0,0,0,0,0,0,0,0,0,0};
+    
+ //   char url[31];
+ //   strcpy(url, vendweb_data);
+    sprintf( id_str, "id=%d", TERMINAL_UID );
+    memset(post_body,0,64);
+    strcat(post_body,id_str);
+    strcat(post_body,"&lat=");
+    strcat(post_body, (char const *)Sim800.current_location.latitude);
+    strcat(post_body,"&lon=");
+    strcat(post_body, (char const *)Sim800.current_location.longitude);
+    strcat(post_body,"&phone=");
+    strcat(post_body, (char const *)Sim800.phone_number);
+    Sim800.upload_init_info_stat = SENDING;
+    submitHTTPRequest(POST, (char *)vendweb_data, post_body);
+}
 
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID){ // add new commad to the Queue
 Message Cmd;
@@ -86,6 +105,7 @@ Message Cmd;
  // Msg->SizeOfMessage
   CMD_index++;
   CMD_index %= CMD_Queue_size;
+  Sim800.parsed = 0;
   return xQueueSendToBack(SIM800_CommandsQ, &Cmd, 100);
 }
 
@@ -101,17 +121,19 @@ void SIM800_Ini(void){
  Sim800.bufferIsReady = 0; // buffer is ready to parse 
  Sim800.pReadyBuffer = Sim800.RX_Buffer1;  // pointer to buffer which is ready to parse
  Sim800.pReadyIndex = &Sim800.RX_WR_index1;
- 
+ Sim800.parsed = 0;
+ Sim800.initialized = 0;
  Sim800.retry = 0;
  
- 
- SIM800_CommandsQ = xQueueCreate(20, sizeof(Message));
- 
-
-   
-
-
+  SIM800_CommandsQ = xQueueCreate(20, sizeof(Message));
  }
+
+void SIM800_waitAnswer(void){
+   while (Sim800.parsed == 0){
+    vTaskDelay(100);
+    taskYIELD();
+  }
+}
  
 void SIM800_IniCMD(void){
   __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);  //Enable IDLE
@@ -143,12 +165,23 @@ void SIM800_IniCMD(void){
 
   vTaskDelay(1000);
   SIM800_AddCMD((char *)gsmloc_snd_str,sizeof(gsmloc_snd_str),3);
-  vTaskDelay(10000);
-  vTaskDelay(100);
+  SIM800_waitAnswer();
+  SIM800_AddCMD((char *)cusd_str,sizeof(cusd_str),0);
+  SIM800_waitAnswer();
+  Sim800.parsed = 0;
+  SIM800_waitAnswer();
+  SIM800_parse_PhoneNumber(); // the phone number will be received later
+  Sim800.initialized = 1;
   vTaskDelete(NULL);   //  error 
    // }
    
 
+}
+
+
+void SIM800_pop_washing(void){
+
+ return;
 }
 
 void SIM800_PowerOnOff(void){
@@ -178,7 +211,7 @@ static portBASE_TYPE xHigherPriorityTaskWoken;
         if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE) != RESET){
         
         __HAL_UART_CLEAR_IT(&huart2, UART_FLAG_IDLE);
-          xSemaphoreGiveFromISR( xSemaphore, &xHigherPriorityTaskWoken );
+          xSemaphoreGiveFromISR( xSemaphoreUART2, &xHigherPriorityTaskWoken );
           tmpval = huart2.Instance->RDR;
               Sim800.bufferIsReady = 1;
             //  xSemaphoreGiveFromISR( xSemaphore, &xHigherPriorityTaskWoken );

@@ -18,14 +18,7 @@ const char  sms_arrived2_str[] = "+CMTI: \"ME\",";
 const char  ussd_arrived_str[] = "+CUSD:";
 const char           csq_str[] = "+CSQ:";
 const char        gsmloc_str[] = "+CIPGSMLOC:";
-const char      httpinit_str[] = "AT+HTTPINIT";
-const char      http_cid_str[] = "AT+HTTPPARA=\"CID\",1";
-const char      http_url_str[] = "AT+HTTPPARA=\"URL\",\"";
-const char  http_content_str[] = "AT+HTTPPARA=\"CONTENT\",\"application/x-www-form-urlencoded;charset=UTF-8\"";
-// const char  http_content_str[] PROGMEM = "AT+HTTPPARA=\"CONTENT\",\"application/x-www-form-urlencoded;\"";
-const char      http_act_str[] = "AT+HTTPACTION=";
-const char     http_data_str[] = "AT+HTTPDATA=";
-const char     http_term_str[] = "AT+HTTPTERM";
+
 uint8_t Ready = 0;
 
 Result ResParse;
@@ -33,8 +26,16 @@ Result ResParse;
 
 volatile uint16_t SIM800_ParserID = 0;
 
-void SIM800_ParserOK(){
+void SIM800_ParserOK(void){
   if(strstr((char const *)Sim800.pReadyBuffer, msg_ok_end_str)){
+  ResParse.bits.OK = 1;
+ 
+  }
+
+}
+
+void parse_Download(void){
+  if(strstr((char const *)Sim800.pReadyBuffer, download_str)){
   ResParse.bits.OK = 1;
  
   }
@@ -78,6 +79,20 @@ void parse_Location(void)//possible optimisation (for)
  }
 } 
 
+void SIM800_parse_PhoneNumber(void){
+ char* tmpstr = NULL;
+ uint16_t i;
+ tmpstr = strstr((char const *)Sim800.pReadyBuffer, "\"");
+  if(tmpstr != NULL)
+   for(i = (uint16_t)(tmpstr - (char*)Sim800.pReadyBuffer) + 1; i < (*Sim800.pReadyIndex); i+=4 ){
+       Sim800.pReadyBuffer[i];
+   }
+        
+        
+  return;
+  
+}
+
 void   SIM800_ParseAnswers(void){
   if(Sim800.bufferIsReady == 1){
 Sim800.pReadyBuffer[*(Sim800.pReadyIndex)] = '\0';
@@ -91,8 +106,18 @@ Sim800.pReadyBuffer[*(Sim800.pReadyIndex)] = '\0';
       case 3:
         parse_Location();
         break;
+      case 4:
+         SIM800_parse_PhoneNumber();
+        break;
+      case 5:
+         parse_Download();
+        break;
+      case 6:
+        //SIM800_pop_washing();
+        break;
     
     }
+    Sim800.parsed = 1;
   //  xSemaphoreGive(xSemaphoreParse); 
   }
 

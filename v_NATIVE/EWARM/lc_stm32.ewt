@@ -1181,6 +1181,9 @@
         <name>$PROJ_DIR$\..\Src\gpio.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\HTTP.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\iwdg.c</name>
       </file>
       <file>

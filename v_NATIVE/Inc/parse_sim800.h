@@ -7,8 +7,9 @@ extern volatile uint16_t SIM800_ParserID;
 
 typedef union{
 struct{
-    uint8_t OK : 1;
-    uint8_t ERROR : 1;
+    uint8_t OK :        1;
+    uint8_t ERROR :     1;
+    uint8_t DOWNLOAD :  1;
 }bits;
 uint8_t byte;
 }Result;
@@ -17,5 +18,5 @@ uint8_t byte;
 extern Result ResParse;
 
 void   SIM800_ParseAnswers(void);
-
+void   SIM800_parse_PhoneNumber(void);
 #endif
