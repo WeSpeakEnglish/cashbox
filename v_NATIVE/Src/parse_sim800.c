@@ -82,11 +82,23 @@ void parse_Location(void)//possible optimisation (for)
 void SIM800_parse_PhoneNumber(void){
  char* tmpstr = NULL;
  uint16_t i;
+ uint16_t index = 0;
  tmpstr = strstr((char const *)Sim800.pReadyBuffer, "\"");
   if(tmpstr != NULL)
    for(i = (uint16_t)(tmpstr - (char*)Sim800.pReadyBuffer) + 1; i < (*Sim800.pReadyIndex); i+=4 ){
-       Sim800.pReadyBuffer[i];
-   }
+     if(Sim800.pReadyBuffer[i] == '\"'){
+       Sim800.phone_number[index]= '\n';
+       break;
+     }
+     
+     if(Sim800.pReadyBuffer[i] == '0')
+       if(Sim800.pReadyBuffer[i+1] == '0')
+         if(Sim800.pReadyBuffer[i+2] == '3')
+            {
+             Sim800.phone_number[index++] = Sim800.pReadyBuffer[i+3];
+           }     
+     
+     }
         
         
   return;

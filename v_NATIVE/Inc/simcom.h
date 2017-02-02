@@ -15,7 +15,7 @@
 #define MAX_LOCATION_SIZE	        12
 #define MAX_PHONE_NUMBER_LENGTH         30
 
-#define TERMINAL_UID	9
+#define TERMINAL_UID	8
 
  typedef struct 
 {
@@ -82,9 +82,11 @@ extern SIM800 Sim800;
 extern xQueueHandle SIM800_CommandsQ;
 extern SemaphoreHandle_t xSemaphoreUART2;
 
-void SIM800_IniCMD(void);
-void SIM800_SendCMD(void);
-void SIM800_Ini(void);
+void SIM800_waitAnswer(uint8_t Cycles);
+void SIM800_IniCMD(void); // farther commands to open gprs session
+void SIM800_SendCMD(void); // the send CMD operation
+void SIM800_Ini(void); // ini sequence
+void SIM800_init_info_upload(void); //upload initialized info to the SERVER
 void SIM800_PowerOnOff(void);
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID);
 #endif

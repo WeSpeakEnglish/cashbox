@@ -60,11 +60,13 @@ osThreadId defaultTaskHandle;
 osThreadId keybScanTaskHandle;
 osThreadId parserTaskHandle;
 osThreadId sim800_TaskHandle;
+osThreadId main_TaskHandle;
 /* USER CODE BEGIN Variables */
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
+void MainTask(void const * argument);
 void KeybScanTask(void const * argument);
 void ParserExecuteTask(void const * argument);
 void SIM800_IniTask(void const * argument);
@@ -113,6 +115,11 @@ void MX_FREERTOS_Init(void) {
 
   osThreadDef(sim800_IniTask, SIM800_IniTask, osPriorityIdle, 0, 128);
   sim800_TaskHandle = osThreadCreate(osThread(sim800_IniTask), NULL);
+  
+  
+  osThreadDef(main_Task, MainTask, osPriorityIdle, 0, 128);
+  main_TaskHandle = osThreadCreate(osThread(main_Task), NULL);
+  
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -145,10 +152,6 @@ void KeybScanTask(void const * argument)
   
   /* USER CODE BEGIN KeybScanTask */ 
   
-  while (Sim800.initialized == 0){
-    vTaskDelay(100);
-    taskYIELD();
-  }
   /* Infinite loop */
   for(;;)
   {
@@ -181,7 +184,20 @@ void SIM800_IniTask(void const * argument){
  
 }
 
+void MainTask(void const * argument){
 
+ while (Sim800.initialized == 0){
+    vTaskDelay(100);
+    taskYIELD();
+  }
+  SIM800_init_info_upload();
+  /* Infinite loop */
+  for(;;)
+  {
+    vTaskDelete( NULL ); 
+  }
+
+}
 
 /* USER CODE END KeybScanTask */
 /* USER CODE BEGIN Application */
