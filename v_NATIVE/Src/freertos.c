@@ -190,7 +190,9 @@ void MainTask(void const * argument){
     vTaskDelay(100);
     taskYIELD();
   }
-  SIM800_init_info_upload();
+ SIM800_init_info_upload();
+
+ SIM800_info_upload();
   /* Infinite loop */
   for(;;)
   {

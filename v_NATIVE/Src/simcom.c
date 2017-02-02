@@ -6,6 +6,7 @@
 #include <string.h>
 #include <usart.h>
 #include "HTTP.h"
+#include "calculations.h"
 
 
 #define SIMCOM_PWR_PORT GPIOA
@@ -52,6 +53,9 @@ const char    vendweb_command[] = "http://vendweb.ru/api/0.1/commands";
 const char vendweb_collection[] = "http://vendweb.ru/api/0.1/collection";
 const char    vendweb_washing[] = "http://vendweb.ru/api/0.1/washing"; 
 
+const char sig_str[]  = "&signal=";
+const char bal_str[] = "&balance=";
+
 xQueueHandle SIM800_CommandsQ;
 
 SIM800 Sim800;
@@ -77,6 +81,27 @@ static Message Msg;
     }
   
   vTaskDelay(10);
+}
+void SIM800_info_upload(void)
+{
+    char post_body[35];
+    char id_str[8] ={0,0,0,0,0,0,0,0};
+
+    sprintf( id_str, "id=%d", TERMINAL_UID );
+    ///
+    Sim800.signal_quality = 90;
+    Sim800.current_balance.rub = 50;
+    Sim800.current_balance.cop = 19;
+    ///
+    memset(post_body,0,25);
+    strcat(post_body,id_str);
+    strcpy(post_body+strlen(post_body), sig_str);
+    Utoa((uint16_t)(Sim800.signal_quality), post_body+strlen(post_body));
+    strcpy(post_body+strlen(post_body), bal_str);
+    Utoa((uint16_t)(Sim800.current_balance.rub), post_body+strlen(post_body));
+    strcat(post_body,".");
+    Utoa((uint16_t)(Sim800.current_balance.cop), post_body+strlen(post_body));
+    submitHTTPRequest(POST, (char*)vendweb_data, post_body);
 }
 
 void SIM800_init_info_upload(void)
@@ -173,6 +198,7 @@ void SIM800_IniCMD(void){
    SIM800_waitAnswer(1);
   SIM800_AddCMD((char *)cusd_str,sizeof(cusd_str),0);
    SIM800_waitAnswer(2);
+   vTaskDelay(1000);
   SIM800_parse_PhoneNumber(); // the phone number will be received later
   vTaskDelay(100);
   Sim800.initialized = 1;
