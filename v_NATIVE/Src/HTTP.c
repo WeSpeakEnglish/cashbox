@@ -11,7 +11,7 @@ const char  http_content_str[] = "AT+HTTPPARA=\"CONTENT\",\"application/x-www-fo
 // const char  http_content_str[] PROGMEM = "AT+HTTPPARA=\"CONTENT\",\"application/x-www-form-urlencoded;\"";
 const char      http_act_str[] = "AT+HTTPACTION=";
 const char     http_data_str[] = "AT+HTTPDATA=";
-const char     http_term_str[] = "AT+HTTPTERM\r";
+const char     http_term_str[] = "AT+HTTPTERM";
 
 const char GSM_ATcmd_Enable_Echo[]="ATE1";         
 // enable command echo
@@ -80,9 +80,10 @@ void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
             break;
     }
     
-     SIM800_waitAnswer(1);
-  //   SIM800_AddCMD((char *)http_term_str,strlen(http_term_str),0);
-     vTaskDelay(3000);
+     SIM800_waitAnswer(2);
+     vTaskDelay(10000);
+     SIM800_AddCMD((char *)http_term_str,sizeof(http_term_str),0);
+     vTaskDelay(10000);
     // _SAPBR_CLOSE_13(http_link_buf);
     // queue_command(http_link_buf, msg, NULL);
 
