@@ -153,6 +153,7 @@ void SIM800_Ini(void){
  Sim800.parsed = 0;
  Sim800.initialized = 0;
  Sim800.retry = 0;
+ Sim800.flush_SMS = 1;
  
   SIM800_CommandsQ = xQueueCreate(20, sizeof(Message));
  }
@@ -238,7 +239,14 @@ static portBASE_TYPE xHigherPriorityTaskWoken;
         if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE) != RESET){
         
         __HAL_UART_CLEAR_IT(&huart2, UART_FLAG_IDLE);
-          xSemaphoreGiveFromISR( xSemaphoreUART2, &xHigherPriorityTaskWoken );
+        if (Sim800.flush_SMS){
+          if(Sim800.pRX_Buffer[11] == 'S' && Sim800.pRX_Buffer[12] == 'M');// stop flood 
+          else xSemaphoreGiveFromISR( xSemaphoreUART2, &xHigherPriorityTaskWoken );
+          
+        } 
+        else
+        xSemaphoreGiveFromISR( xSemaphoreUART2, &xHigherPriorityTaskWoken );
+        
           tmpval = huart2.Instance->RDR;
               Sim800.bufferIsReady = 1;
               if(Sim800.pRX_Buffer == Sim800.RX_Buffer1){ // switch to the second buffer

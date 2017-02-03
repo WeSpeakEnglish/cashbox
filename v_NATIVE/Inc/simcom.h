@@ -42,6 +42,7 @@ typedef struct {
  uint8_t powered : 1;  // is power on or off
  volatile uint8_t parsed :  1;
  volatile uint8_t initialized : 1;
+ volatile uint8_t flush_SMS : 1; // SMS is not expected
  
  volatile uint8_t RX_Buffer1[RX_BUFFER_SIZE];  // double buffered RX
  volatile uint8_t RX_Buffer2[RX_BUFFER_SIZE];   

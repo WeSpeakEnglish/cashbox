@@ -47,23 +47,23 @@ void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
         case POST:
             strcpy(http_link_buf, http_data_str);
               
-            Itoa(strlen(post_body) - 1, http_link_buf + strlen(http_link_buf));
+            Itoa(strlen(post_body), http_link_buf + strlen(http_link_buf));
             strcat(http_link_buf, ",");
             sprintf( http_link_buf + strlen(http_link_buf), "%ld", 1200000 );
             SIM800_AddCMD((char *)http_link_buf,strlen(http_link_buf),0);
             SIM800_waitAnswer(1);
-            SIM800_AddCMD((char *)post_body,strlen(post_body),1);
+            SIM800_AddCMD((char *)post_body,strlen(post_body)+1,1);
             SIM800_waitAnswer(1);
             strcpy(http_link_buf, http_act_str);
-            strcat(http_link_buf,"1\r");
+            strcat(http_link_buf,"1");
             //DEBUG.println(http_link_buf);
             if(strstr(post_body,"wm")!=NULL)
             {
          //       DEBUG.println("wm_snd");
-                SIM800_AddCMD((char *)http_link_buf,strlen(http_link_buf),6);
+                SIM800_AddCMD((char *)http_link_buf,strlen(http_link_buf)+1,6);
             }
             else
-                SIM800_AddCMD((char *)http_link_buf,strlen(http_link_buf),0);
+                SIM800_AddCMD((char *)http_link_buf,strlen(http_link_buf)+1,0);
     //        SIM800_waitAnswer(1);
             // _HTTP_TERM_12(http_link_buf);
             // queue_command(http_link_buf, msg, NULL);
@@ -71,8 +71,8 @@ void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
 
         case HEAD:
             strcpy(http_link_buf, http_act_str);
-            strcat(http_link_buf,"2\r");
-            SIM800_AddCMD((char *)http_link_buf,strlen(http_link_buf),0);
+            strcat(http_link_buf,"2");
+            SIM800_AddCMD((char *)http_link_buf,strlen(http_link_buf)+1,0);
             SIM800_waitAnswer(1);
             break;
 
@@ -81,7 +81,7 @@ void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
     }
     
      SIM800_waitAnswer(2);
-     vTaskDelay(10000);
+//     vTaskDelay(10000);
      SIM800_AddCMD((char *)http_term_str,sizeof(http_term_str),0);
      vTaskDelay(10000);
     // _SAPBR_CLOSE_13(http_link_buf);

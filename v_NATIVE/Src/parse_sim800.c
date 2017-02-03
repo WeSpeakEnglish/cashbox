@@ -87,7 +87,7 @@ void SIM800_parse_PhoneNumber(void){
   if(tmpstr != NULL)
    for(i = (uint16_t)(tmpstr - (char*)Sim800.pReadyBuffer) + 1; i < (*Sim800.pReadyIndex); i+=4 ){
      if(Sim800.pReadyBuffer[i] == '\"'){
-       Sim800.phone_number[index]= '\n';
+       Sim800.phone_number[index]= '\0';
        break;
      }
      
