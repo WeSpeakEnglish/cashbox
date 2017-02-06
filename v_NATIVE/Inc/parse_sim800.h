@@ -17,6 +17,10 @@ uint8_t byte;
 //extern SemaphoreHandle_t xSemaphoreParse;
 extern Result ResParse;
 
-void   SIM800_ParseAnswers(void);
-void   SIM800_parse_PhoneNumber(void);
+void    SIM800_ParseAnswers(void);
+void    SIM800_parse_PhoneNumber(void);
+void    SIM800_parse_Signal(void);
+void    SIM800_parse_Balance(void);
+void    SIM800_Parse_CGAT(void);
+void    SIM800_Parse_WM(void);
 #endif

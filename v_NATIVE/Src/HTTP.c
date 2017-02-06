@@ -12,26 +12,38 @@ const char  http_content_str[] = "AT+HTTPPARA=\"CONTENT\",\"application/x-www-fo
 const char      http_act_str[] = "AT+HTTPACTION=";
 const char     http_data_str[] = "AT+HTTPDATA=";
 const char     http_term_str[] = "AT+HTTPTERM";
+const char     http_read_str[] = "AT+HTTPREAD";
+
 
 const char GSM_ATcmd_Enable_Echo[]="ATE1";         
+
 // enable command echo
+
+void submitHTTP_init(void){
+      SIM800_AddCMD((char *)httpinit_str,sizeof(httpinit_str),1);
+      SIM800_waitAnswer(1);
+};
+void submitHTTP_terminate(void){
+     SIM800_AddCMD((char *)http_term_str,sizeof(http_term_str),0);
+     SIM800_waitAnswer(1);
+};
+
 void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
 
 
     char http_link_buf[80];
     
-  SIM800_AddCMD((char *)GSM_ATcmd_Enable_Echo,sizeof(GSM_ATcmd_Enable_Echo),1);
-  SIM800_waitAnswer(1); 
-    //char msg[9];
-      SIM800_AddCMD((char *)httpinit_str,sizeof(httpinit_str),1);
-      SIM800_waitAnswer(1);
+   //char msg[9];
+
+     
       SIM800_AddCMD((char *)http_cid_str,sizeof(http_cid_str),0);
       SIM800_waitAnswer(1); 
       strcpy(http_link_buf, http_url_str);
       strcat(http_link_buf,http_link);
-      strcat(http_link_buf,"\"");
+      strcat(http_link_buf,"\"\r");
       SIM800_AddCMD((char *)http_link_buf,sizeof(http_link_buf),0);
       SIM800_waitAnswer(1); 
+      vTaskDelay(10000);
       SIM800_AddCMD((char *)http_content_str,sizeof(http_content_str),0);
       SIM800_waitAnswer(1);
     
@@ -82,8 +94,12 @@ void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
     
      SIM800_waitAnswer(2);
 //     vTaskDelay(10000);
-     SIM800_AddCMD((char *)http_term_str,sizeof(http_term_str),0);
-     vTaskDelay(10000);
+    if(Sim800.READ_HTTP){
+      SIM800_AddCMD((char *)http_read_str,sizeof(http_read_str),0);
+      SIM800_waitAnswer(1);
+      Sim800.READ_HTTP = 0;
+    }
+
     // _SAPBR_CLOSE_13(http_link_buf);
     // queue_command(http_link_buf, msg, NULL);
 

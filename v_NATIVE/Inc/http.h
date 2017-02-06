@@ -11,5 +11,6 @@
 typedef enum {GET, POST, HEAD} HTTP_Method;    	// 'keys' for HTTP functions
 
 void submitHTTPRequest( HTTP_Method method, char* p_http_link, char* p_post_body);
-
+void submitHTTP_init(void);
+void submitHTTP_terminate(void);
 #endif

@@ -43,6 +43,8 @@ typedef struct {
  volatile uint8_t parsed :  1;
  volatile uint8_t initialized : 1;
  volatile uint8_t flush_SMS : 1; // SMS is not expected
+ volatile uint8_t READ_HTTP: 1;
+ volatile uint8_t CGATT_READY: 1;
  
  volatile uint8_t RX_Buffer1[RX_BUFFER_SIZE];  // double buffered RX
  volatile uint8_t RX_Buffer2[RX_BUFFER_SIZE];   
@@ -71,6 +73,12 @@ typedef struct {
  volatile uint8_t collection_stat;
  volatile uint8_t washing_stat;
  
+ struct{
+   uint16_t  price[8];
+   uint8_t   start[8];    
+  }
+ WM; 
+ 
 }SIM800;
 
 typedef struct {
@@ -90,5 +98,11 @@ void SIM800_Ini(void); // ini sequence
 void SIM800_info_upload(void); //info upload
 void SIM800_init_info_upload(void); //upload initialized info to the SERVER
 void SIM800_PowerOnOff(void);
+void SIM800_GPRS_open(void); // open GPRS session
+void SIM800_GPRS_close(void); // close GPRS session
+void SIM800_get_Balance(void);
+void SIM800_get_Signal(void);
+void SIM800_command(void);
+void parse_CGAT(void); 
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID);
 #endif

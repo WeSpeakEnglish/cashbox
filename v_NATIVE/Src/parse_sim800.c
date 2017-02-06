@@ -57,6 +57,14 @@ void parse_CREG( void )
 	}
 }
 
+void SIM800_Parse_CGAT(void){
+  Sim800.CGATT_READY = 0;
+  if(strstr((char const *)Sim800.pReadyBuffer,"CGATT: 1")){
+    Sim800.CGATT_READY = 1;
+  }
+    
+}
+
 void parse_Location(void)//possible optimisation (for)
 {
     //string format: +CIPGSMLOC: 0,37.735329,55.785633,2016/11/10,13:19:54
@@ -105,7 +113,89 @@ void SIM800_parse_PhoneNumber(void){
   
 }
 
-void   SIM800_ParseAnswers(void){
+void  SIM800_parse_Signal(void){  //parser of signal level
+  char * pParse;
+  uint16_t Signal;
+  pParse = strstr((char const *)Sim800.pReadyBuffer, ",");
+  if(pParse != NULL){
+    pParse--;
+    Signal = *(pParse--) - 0x30;
+    if(*pParse != ' ')Signal += (*(pParse) - 0x30)*10;
+  }
+  if(Signal == 99) Signal = 0;
+ Signal = (Signal * 100) / 31;
+ Sim800.signal_quality = Signal;
+return;
+}
+
+void  SIM800_parse_Balance(void){
+  
+ char* tmpstr = NULL;
+ uint16_t i;
+ uint16_t index = 0;
+ tmpstr = strstr((char const *)Sim800.pReadyBuffer, "0440002E"); // rubles
+
+ if(tmpstr != NULL){
+   tmpstr -=4;
+        if(tmpstr[0] == '0')
+         if(tmpstr[1] == '0')
+          if(tmpstr[2] == '3')
+            {
+             Sim800.current_balance.cop = tmpstr[3] - 0x30;
+           } 
+   tmpstr -=4;
+        if(tmpstr[0] == '0')
+         if(tmpstr[1] == '0')
+          if(tmpstr[2] == '3')
+            {
+             Sim800.current_balance.cop += (tmpstr[3] - 0x30)*10;
+           } 
+   tmpstr -=8;
+   index = 1;
+   Sim800.current_balance.rub = 0;
+   for(i = 0; i < 5; i++){
+     
+     
+        if(tmpstr[0] == '0')
+         if(tmpstr[1] == '0')
+          if(tmpstr[2] == '3')
+            {
+             Sim800.current_balance.rub += (tmpstr[3] - 0x30)*index;
+           }
+        if(*(tmpstr-1) == '\"') break;
+        index *=10;
+        tmpstr -= 4;
+   }
+ }
+ return;
+}
+
+void  SIM800_Parse_WM(void){
+uint8_t wm;   
+uint8_t    i = 0;
+uint8_t i2 = 1;
+uint8_t mul = 1;
+volatile  uint8_t * str = Sim800.pReadyBuffer;
+while(str[i] != '\0'){
+  if(str[i++] == 'w')     
+    if(str[i++] == 'm')          
+     wm = str[i] - 0x30 -1;
+  if(str[i] == ','){
+    Sim800.WM.start[wm] =str[i+1] - 0x30;
+    Sim800.WM.price[wm] = 0;
+    i2 = 1;  
+    mul = 1;
+  while((str[i-i2] < 0x3A)&&( i > i2)){     
+     Sim800.WM.price[wm] += (str[i-i2] - 0x30)*mul;
+     mul*=10;
+     i2++;
+   }      
+  }
+ }
+ return;
+}
+
+void   SIM800_ParseAnswers(void){ //parsers selector
   if(Sim800.bufferIsReady == 1){
 Sim800.pReadyBuffer[*(Sim800.pReadyIndex)] = '\0';
       switch(SIM800_ParserID){
@@ -119,13 +209,20 @@ Sim800.pReadyBuffer[*(Sim800.pReadyIndex)] = '\0';
         parse_Location();
         break;
       case 4:
-         SIM800_parse_PhoneNumber();
+        SIM800_parse_PhoneNumber();
         break;
       case 5:
-         parse_Download();
+        parse_Download();
         break;
       case 6:
+        SIM800_parse_Signal();
         //SIM800_pop_washing();
+        break;
+      case 7:
+        SIM800_Parse_CGAT();
+        break;
+      case 8:
+     //   SIM800_Parse_WM();
         break;
     
     }

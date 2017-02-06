@@ -193,6 +193,7 @@ void MainTask(void const * argument){
  SIM800_init_info_upload();
 
  SIM800_info_upload();
+ SIM800_command();
   /* Infinite loop */
   for(;;)
   {

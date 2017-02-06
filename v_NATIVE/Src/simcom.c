@@ -35,7 +35,8 @@ const char cgreg_str[] = "AT+CGREG?";                                        // 
 const char GSM_ATcmd_terminate[]="\r";                                       // terminate command
 const char GSM_ATcmd_Reject_call[]="ATH";                                  // Reject the incomming call
 const char GSM_ATcmd_Signal[]="AT+CSQ";                                    // Report signal quality
-const char cusd_str[] = "AT+CUSD=1,\"*205#\"";
+const char cusd_str[] = "AT+CUSD=1,\"*205#\"";                             // get number
+const char get_balance_str[] = "AT+CUSD=1,\"*100#\"";                      // get balance
 
 const char contype_str[] = "AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"";
 const char apn_str[] = "AT+SAPBR=3,1,\"APN\",\"internet\"";
@@ -46,6 +47,12 @@ const char sapbr_close_str[] = "AT+SAPBR=0,1";
 const char cgatt_str[] = "AT+CGATT?";
 const char gsmloc_snd_str[] = "AT+CIPGSMLOC=1,1";
 const char sapbr_contextIP_str[] = "AT+SAPBR=2,1";
+
+///SMS commands
+const char sms_DeleteAll[] = "AT+CMGDA=\"DEL ALL\"";
+const char sms_TextModeSet[] = "AT+CMGF=1";
+
+
 
 const char       vendweb_data[] = "http://vendweb.ru/api/0.1/data";
 //const char       vendweb_data[] = "http://wow-only.ru/";
@@ -88,11 +95,7 @@ void SIM800_info_upload(void)
     char id_str[8] ={0,0,0,0,0,0,0,0};
 
     sprintf( id_str, "id=%d", TERMINAL_UID );
-    ///
-    Sim800.signal_quality = 90;
-    Sim800.current_balance.rub = 50;
-    Sim800.current_balance.cop = 19;
-    ///
+
     memset(post_body,0,25);
     strcat(post_body,id_str);
     strcpy(post_body+strlen(post_body), sig_str);
@@ -101,7 +104,49 @@ void SIM800_info_upload(void)
     Utoa((uint16_t)(Sim800.current_balance.rub), post_body+strlen(post_body));
     strcat(post_body,".");
     Utoa((uint16_t)(Sim800.current_balance.cop), post_body+strlen(post_body));
+    SIM800_GPRS_open();
+    submitHTTP_init();
     submitHTTPRequest(POST, (char*)vendweb_data, post_body);
+    submitHTTP_terminate();
+    SIM800_GPRS_close();
+}
+
+void SIM800_command(void)
+{
+    char post_body[35];
+    char id_str[8] ={0,0,0,0,0,0,0,0};
+
+    sprintf( id_str, "id=%d", TERMINAL_UID );
+
+    memset(post_body,0,25);
+    strcat(post_body,id_str);
+    SIM800_GPRS_open();
+    Sim800.READ_HTTP =1;
+    submitHTTP_init();
+    submitHTTPRequest(POST, (char*)vendweb_command, post_body);
+    SIM800_Parse_WM();
+    submitHTTP_terminate(); 
+    SIM800_GPRS_close();
+}
+
+void SIM800_get_Signal(void){
+  SIM800_AddCMD((char *)GSM_ATcmd_Signal,sizeof(GSM_ATcmd_Signal),6);
+  SIM800_waitAnswer(1); 
+return;
+}
+
+void SIM800_get_Balance(void){
+  SIM800_AddCMD((char *)sms_TextModeSet,sizeof(sms_TextModeSet),1);
+  SIM800_waitAnswer(1);
+  SIM800_AddCMD((char *)sms_DeleteAll,sizeof(sms_DeleteAll),1);
+  SIM800_waitAnswer(1); 
+  SIM800_AddCMD((char *)get_balance_str,sizeof(get_balance_str),1);
+  SIM800_waitAnswer(2);  
+ // vTaskDelay(3000);
+ // SIM800_parse_Balance();   
+  SIM800_parse_Balance();
+  
+return;
 }
 
 void SIM800_init_info_upload(void)
@@ -111,6 +156,7 @@ void SIM800_init_info_upload(void)
     
  //   char url[31];
  //   strcpy(url, vendweb_data);
+
     sprintf( id_str, "id=%d", TERMINAL_UID );
     memset(post_body,0,64);
     strcat(post_body,id_str);
@@ -121,7 +167,12 @@ void SIM800_init_info_upload(void)
     strcat(post_body,"&phone=");
     strcat(post_body, (char const *)Sim800.phone_number);
     Sim800.upload_init_info_stat = SENDING;
+    SIM800_GPRS_open();
+    submitHTTP_init();
     submitHTTPRequest(POST, (char *)vendweb_data, post_body);
+    submitHTTP_terminate();
+    SIM800_GPRS_close();
+    
 }
 
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID){ // add new commad to the Queue
@@ -154,6 +205,7 @@ void SIM800_Ini(void){
  Sim800.initialized = 0;
  Sim800.retry = 0;
  Sim800.flush_SMS = 1;
+ Sim800.CGATT_READY = 0;
  
   SIM800_CommandsQ = xQueueCreate(20, sizeof(Message));
  }
@@ -165,24 +217,13 @@ void SIM800_waitAnswer(uint8_t Cycles){
     vTaskDelay(100);
     taskYIELD();
   }
+   vTaskDelay(100);
   }
 }
  
-void SIM800_IniCMD(void){
-  __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);  //Enable IDLE
-  ResParse.byte = 0; //reset parsed bits
-  vTaskDelay(3000);
-  SIM800_AddCMD((char *)GSM_ATcmd,sizeof(GSM_ATcmd),0); // AT to sinhronize
-  vTaskDelay(4000);
-  SIM800_AddCMD((char *)GSM_ATcmd_Disable_Echo,sizeof(GSM_ATcmd_Disable_Echo),1);
-  SIM800_waitAnswer(1); 
-     
-   SIM800_AddCMD((char *)creg_str,sizeof(creg_str),2);
-   SIM800_waitAnswer(1);
 
-   SIM800_AddCMD((char *)cgreg_str,sizeof(cgreg_str),2);
-   SIM800_waitAnswer(1);
-
+void SIM800_GPRS_open(void){
+  uint8_t i;
    SIM800_AddCMD((char *)contype_str,sizeof(contype_str),0);
    SIM800_waitAnswer(1);
    SIM800_AddCMD((char *)apn_str,sizeof(apn_str),0);
@@ -193,17 +234,52 @@ void SIM800_IniCMD(void){
    SIM800_waitAnswer(1);
    SIM800_AddCMD((char *)sapbr_str,sizeof(sapbr_str),0);   
    SIM800_waitAnswer(1);
-   SIM800_AddCMD((char *)cgatt_str,sizeof(cgatt_str),0); 
+
+   for(i = 0; i< 5; i++){
+     if(Sim800.CGATT_READY) 
+       break;
+   SIM800_AddCMD((char *)cgatt_str,sizeof(cgatt_str),7);  
    SIM800_waitAnswer(1);
-  SIM800_AddCMD((char *)gsmloc_snd_str,sizeof(gsmloc_snd_str),3);
+   }
+}
+
+void SIM800_GPRS_close(void){
+   SIM800_AddCMD((char *)sapbr_close_str,sizeof(sapbr_close_str),0);
+   SIM800_waitAnswer(1);
+}
+
+void SIM800_IniCMD(void){
+  __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);  //Enable IDLE
+  ResParse.byte = 0; //reset parsed bits
+  vTaskDelay(3000);
+  SIM800_AddCMD((char *)GSM_ATcmd,sizeof(GSM_ATcmd),0); // AT to sinhronize
+  vTaskDelay(4000);
+  SIM800_AddCMD((char *)GSM_ATcmd_Disable_Echo,sizeof(GSM_ATcmd_Disable_Echo),1);
+  SIM800_waitAnswer(1); 
+  
+  SIM800_get_Signal();
+
+   SIM800_AddCMD((char *)creg_str,sizeof(creg_str),2);
+   SIM800_waitAnswer(1);
+
+   SIM800_AddCMD((char *)cgreg_str,sizeof(cgreg_str),2);
+   SIM800_waitAnswer(1);
+   
+   
+   
+   SIM800_GPRS_open();
+   
+   SIM800_AddCMD((char *)gsmloc_snd_str,sizeof(gsmloc_snd_str),3);
    SIM800_waitAnswer(1);
   SIM800_AddCMD((char *)cusd_str,sizeof(cusd_str),0);
    SIM800_waitAnswer(2);
    vTaskDelay(1000);
   SIM800_parse_PhoneNumber(); // the phone number will be received later
   vTaskDelay(100);
+  
+  SIM800_GPRS_close();
+  SIM800_get_Balance();
   Sim800.initialized = 1;
-
   vTaskDelete(NULL);   //  error 
    // }
 }
@@ -240,7 +316,9 @@ static portBASE_TYPE xHigherPriorityTaskWoken;
         
         __HAL_UART_CLEAR_IT(&huart2, UART_FLAG_IDLE);
         if (Sim800.flush_SMS){
-          if(Sim800.pRX_Buffer[11] == 'S' && Sim800.pRX_Buffer[12] == 'M');// stop flood 
+          if((strstr((char const *)Sim800.pRX_Buffer, "+CMTI:"))!= NULL){
+               ;// stop flood 
+          }
           else xSemaphoreGiveFromISR( xSemaphoreUART2, &xHigherPriorityTaskWoken );
           
         } 
