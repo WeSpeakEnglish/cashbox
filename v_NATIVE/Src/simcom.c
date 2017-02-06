@@ -7,7 +7,7 @@
 #include <usart.h>
 #include "HTTP.h"
 #include "calculations.h"
-
+#include "sms.h"
 
 #define SIMCOM_PWR_PORT GPIOA
 #define SIMCOM_PWR_PIN  GPIO_PIN_4
@@ -36,7 +36,7 @@ const char GSM_ATcmd_terminate[]="\r";                                       // 
 const char GSM_ATcmd_Reject_call[]="ATH";                                  // Reject the incomming call
 const char GSM_ATcmd_Signal[]="AT+CSQ";                                    // Report signal quality
 const char cusd_str[] = "AT+CUSD=1,\"*205#\"";                             // get number
-const char get_balance_str[] = "AT+CUSD=1,\"*100#\"";                      // get balance
+
 
 const char contype_str[] = "AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"";
 const char apn_str[] = "AT+SAPBR=3,1,\"APN\",\"internet\"";
@@ -48,9 +48,7 @@ const char cgatt_str[] = "AT+CGATT?";
 const char gsmloc_snd_str[] = "AT+CIPGSMLOC=1,1";
 const char sapbr_contextIP_str[] = "AT+SAPBR=2,1";
 
-///SMS commands
-const char sms_DeleteAll[] = "AT+CMGDA=\"DEL ALL\"";
-const char sms_TextModeSet[] = "AT+CMGF=1";
+
 
 
 
@@ -101,9 +99,11 @@ void SIM800_info_upload(void)
     strcpy(post_body+strlen(post_body), sig_str);
     Utoa((uint16_t)(Sim800.signal_quality), post_body+strlen(post_body));
     strcpy(post_body+strlen(post_body), bal_str);
+    SIM800_get_Balance();
     Utoa((uint16_t)(Sim800.current_balance.rub), post_body+strlen(post_body));
     strcat(post_body,".");
     Utoa((uint16_t)(Sim800.current_balance.cop), post_body+strlen(post_body));
+    
     SIM800_GPRS_open();
     submitHTTP_init();
     submitHTTPRequest(POST, (char*)vendweb_data, post_body);
@@ -135,19 +135,7 @@ void SIM800_get_Signal(void){
 return;
 }
 
-void SIM800_get_Balance(void){
-  SIM800_AddCMD((char *)sms_TextModeSet,sizeof(sms_TextModeSet),1);
-  SIM800_waitAnswer(1);
-  SIM800_AddCMD((char *)sms_DeleteAll,sizeof(sms_DeleteAll),1);
-  SIM800_waitAnswer(1); 
-  SIM800_AddCMD((char *)get_balance_str,sizeof(get_balance_str),1);
-  SIM800_waitAnswer(2);  
- // vTaskDelay(3000);
- // SIM800_parse_Balance();   
-  SIM800_parse_Balance();
-  
-return;
-}
+
 
 void SIM800_init_info_upload(void)
 {
@@ -254,6 +242,8 @@ void SIM800_IniCMD(void){
   vTaskDelay(3000);
   SIM800_AddCMD((char *)GSM_ATcmd,sizeof(GSM_ATcmd),0); // AT to sinhronize
   vTaskDelay(4000);
+  
+    
   SIM800_AddCMD((char *)GSM_ATcmd_Disable_Echo,sizeof(GSM_ATcmd_Disable_Echo),1);
   SIM800_waitAnswer(1); 
   
@@ -278,7 +268,7 @@ void SIM800_IniCMD(void){
   vTaskDelay(100);
   
   SIM800_GPRS_close();
-  SIM800_get_Balance();
+
   Sim800.initialized = 1;
   vTaskDelete(NULL);   //  error 
    // }
@@ -317,13 +307,18 @@ static portBASE_TYPE xHigherPriorityTaskWoken;
         __HAL_UART_CLEAR_IT(&huart2, UART_FLAG_IDLE);
         if (Sim800.flush_SMS){
           if((strstr((char const *)Sim800.pRX_Buffer, "+CMTI:"))!= NULL){
-               ;// stop flood 
+               Sim800.SMS_received = 1;// stop flood 
           }
+        
           else xSemaphoreGiveFromISR( xSemaphoreUART2, &xHigherPriorityTaskWoken );
           
-        } 
-        else
+       }  
+        else{
+        if((strstr((char const *)Sim800.pRX_Buffer, "+CMTI:"))!= NULL){
+               Sim800.SMS_received = 1;// stop flood 
+          }  
         xSemaphoreGiveFromISR( xSemaphoreUART2, &xHigherPriorityTaskWoken );
+        }
         
           tmpval = huart2.Instance->RDR;
               Sim800.bufferIsReady = 1;

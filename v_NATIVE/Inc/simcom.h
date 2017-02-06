@@ -43,6 +43,7 @@ typedef struct {
  volatile uint8_t parsed :  1;
  volatile uint8_t initialized : 1;
  volatile uint8_t flush_SMS : 1; // SMS is not expected
+ volatile uint8_t SMS_received : 1;
  volatile uint8_t READ_HTTP: 1;
  volatile uint8_t CGATT_READY: 1;
  

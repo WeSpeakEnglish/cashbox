@@ -1199,6 +1199,9 @@
         <name>$PROJ_DIR$\..\Src\simcom.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\sms.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\spi.c</name>
       </file>
       <file>

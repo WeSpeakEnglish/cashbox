@@ -35,7 +35,6 @@ void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
     
    //char msg[9];
 
-     
       SIM800_AddCMD((char *)http_cid_str,sizeof(http_cid_str),0);
       SIM800_waitAnswer(1); 
       strcpy(http_link_buf, http_url_str);
