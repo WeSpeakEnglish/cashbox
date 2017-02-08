@@ -77,9 +77,14 @@ typedef struct {
  
  struct{
    uint16_t  price[8];
-   uint8_t   start[8];    
+   uint8_t   start[8];
+   uint8_t   index[8];
   }
  WM; 
+ struct{
+uint16_t  price[8];
+uint8_t   index[8];
+ }WM_SD;
  
 }SIM800;
 

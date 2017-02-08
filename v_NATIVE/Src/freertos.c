@@ -194,10 +194,6 @@ void SIM800_IniTask(void const * argument){
 
 void MainTask(void const * argument){
 
- ///while (Sim800.initialized == 0){
- //   vTaskDelay(100);
- //   taskYIELD();
-  //}
 vTaskDelay(80000);
 if(!Sim800.initialized)
       SD_GetData();

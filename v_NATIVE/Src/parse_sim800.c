@@ -170,8 +170,6 @@ void  SIM800_parse_Balance(void){
  return;
 }
 
-
-
 void  SIM800_Parse_WM(void){
 uint8_t wm;   
 uint8_t    i = 0;
@@ -189,6 +187,7 @@ while(str[i] != '\0'){
     mul = 1;
   while((str[i-i2] < 0x3A)&&( i > i2)){     
      Sim800.WM.price[wm] += (str[i-i2] - 0x30)*mul;
+     Sim800.WM.index[wm] = wm + 1; //existed indexes
      mul*=10;
      i2++;
    }      
