@@ -53,6 +53,7 @@
 #include "stm32f3xx_hal.h"
 #include "simcom.h"
 #include "parse_sim800.h"
+#include "sd_files.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -117,7 +118,7 @@ void MX_FREERTOS_Init(void) {
   sim800_TaskHandle = osThreadCreate(osThread(sim800_IniTask), NULL);
   
   
-  osThreadDef(main_Task, MainTask, osPriorityIdle, 0, 128);
+  osThreadDef(main_Task, MainTask, osPriorityIdle, 0, 512);
   main_TaskHandle = osThreadCreate(osThread(main_Task), NULL);
   
   /* USER CODE BEGIN RTOS_THREADS */
@@ -176,9 +177,16 @@ void ParserExecuteTask(void const * argument){
 }
 
 void SIM800_IniTask(void const * argument){
+
+    vTaskDelay(1000);
+  
  for(;;)
   {
-      SIM800_IniCMD();
+       SIM800_IniCMD();
+       SIM800_init_info_upload();
+        SIM800_info_upload();
+         SIM800_command();
+         Sim800.initialized = 1;
       vTaskDelete( NULL );
   }
  
@@ -186,14 +194,13 @@ void SIM800_IniTask(void const * argument){
 
 void MainTask(void const * argument){
 
- while (Sim800.initialized == 0){
-    vTaskDelay(100);
-    taskYIELD();
-  }
- SIM800_init_info_upload();
-
- SIM800_info_upload();
- SIM800_command();
+ ///while (Sim800.initialized == 0){
+ //   vTaskDelay(100);
+ //   taskYIELD();
+  //}
+vTaskDelay(80000);
+if(!Sim800.initialized)
+      SD_GetData();
   /* Infinite loop */
   for(;;)
   {

@@ -1196,6 +1196,9 @@
         <name>$PROJ_DIR$\..\Src\parse_sim800.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\sd_files.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\simcom.c</name>
       </file>
       <file>
@@ -1304,7 +1307,7 @@
     <group>
       <name>FatFs</name>
       <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\diskio.c</name>
+        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\diskio_spi.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\ff.c</name>

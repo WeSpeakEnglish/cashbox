@@ -46,6 +46,7 @@ typedef struct {
  volatile uint8_t SMS_received : 1;
  volatile uint8_t READ_HTTP: 1;
  volatile uint8_t CGATT_READY: 1;
+ volatile uint8_t gotInfoFromServer: 1;
  
  volatile uint8_t RX_Buffer1[RX_BUFFER_SIZE];  // double buffered RX
  volatile uint8_t RX_Buffer2[RX_BUFFER_SIZE];   

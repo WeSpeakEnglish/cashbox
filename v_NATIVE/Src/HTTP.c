@@ -42,7 +42,7 @@ void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
       strcat(http_link_buf,"\"\r");
       SIM800_AddCMD((char *)http_link_buf,sizeof(http_link_buf),0);
       SIM800_waitAnswer(1); 
-      vTaskDelay(10000);
+      vTaskDelay(1000);
       SIM800_AddCMD((char *)http_content_str,sizeof(http_content_str),0);
       SIM800_waitAnswer(1);
     

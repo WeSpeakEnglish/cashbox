@@ -268,9 +268,9 @@ void SIM800_IniCMD(void){
   vTaskDelay(100);
   
   SIM800_GPRS_close();
-
-  Sim800.initialized = 1;
-  vTaskDelete(NULL);   //  error 
+  
+ 
+ // vTaskDelete(NULL);   //  error 
    // }
 }
 

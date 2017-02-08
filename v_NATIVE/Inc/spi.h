@@ -67,7 +67,7 @@ extern void Error_Handler(void);
 void MX_SPI3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void spi_change_speed(SPI_HandleTypeDef* spiHandle, uint32_t prescaler);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
