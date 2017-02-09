@@ -197,6 +197,8 @@ void MainTask(void const * argument){
 vTaskDelay(80000);
 if(!Sim800.initialized)
       SD_GetData();
+else 
+      SD_SetData();
   /* Infinite loop */
   for(;;)
   {

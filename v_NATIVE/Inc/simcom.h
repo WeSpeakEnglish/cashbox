@@ -16,6 +16,7 @@
 #define MAX_PHONE_NUMBER_LENGTH         30
 
 #define TERMINAL_UID	8
+#define MAX_WASHINGS    8
 
  typedef struct 
 {
@@ -76,14 +77,14 @@ typedef struct {
  volatile uint8_t washing_stat;
  
  struct{
-   uint16_t  price[8];
-   uint8_t   start[8];
-   uint8_t   index[8];
+   uint16_t  price[MAX_WASHINGS];
+   uint8_t   start[MAX_WASHINGS];
+   uint8_t   index[MAX_WASHINGS];
   }
  WM; 
  struct{
-uint16_t  price[8];
-uint8_t   index[8];
+uint16_t  price[MAX_WASHINGS];
+uint8_t   index[MAX_WASHINGS];
  }WM_SD;
  
 }SIM800;
