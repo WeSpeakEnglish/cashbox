@@ -54,6 +54,7 @@
 #include "simcom.h"
 #include "parse_sim800.h"
 #include "sd_files.h"
+#include "ccTalk.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -150,15 +151,43 @@ void StartDefaultTask(void const * argument)
 /* KeybScanTask function */
 void KeybScanTask(void const * argument)
 {
-  
+  uint16_t counter = 0;
   /* USER CODE BEGIN KeybScanTask */ 
+  ccTalkSendCMD(CC_INIT);
+  /*
+  do{
+   while (ccTalk.readyBuff == 0){
+    vTaskDelay(100);
+    taskYIELD();
+   }
+  taskYIELD();
+  }while(!ccTalkParseOK());
+  */
+  
+  osDelay(5000);
+  ccTalkSendCMD(CC_MASTER_READY);
+  /*
+    do{
+   while (ccTalk.readyBuff == 0){
+    vTaskDelay(100);
+    taskYIELD();
+   }
+  taskYIELD();
+  }while(!ccTalkParseOK());
+  */
+  osDelay(5000);
   
   /* Infinite loop */
   for(;;)
   {
-    
-  
-   vTaskDelete( NULL ); 
+   counter++;
+   ccTalkSendCMD(CC_REQUEST);
+   if(counter == 100){
+     ccTalkSendCMD(CC_CLOSE);
+     vTaskDelete( NULL );
+   }
+   vTaskDelay(500);
+   taskYIELD();
   }
   
 }

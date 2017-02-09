@@ -1172,6 +1172,9 @@
         <name>$PROJ_DIR$\..\Src\calculations.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\cctalk.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\dma.c</name>
       </file>
       <file>

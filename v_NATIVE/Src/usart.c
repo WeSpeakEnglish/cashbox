@@ -63,7 +63,7 @@ void MX_UART5_Init(void)
 {
 
   huart5.Instance = UART5;
-  huart5.Init.BaudRate = 115200;
+  huart5.Init.BaudRate = 9600;
   huart5.Init.WordLength = UART_WORDLENGTH_8B;
   huart5.Init.StopBits = UART_STOPBITS_1;
   huart5.Init.Parity = UART_PARITY_NONE;
@@ -173,7 +173,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* USER CODE BEGIN UART5_MspInit 1 */
-
+   __HAL_UART_ENABLE_IT(&huart5, UART_IT_RXNE);
+   __HAL_UART_CLEAR_FLAG(&huart5, UART_FLAG_IDLE);
+   NVIC_EnableIRQ(UART5_IRQn);
+ //  NVIC_SetPriority (UART5_IRQn, 7);
   /* USER CODE END UART5_MspInit 1 */
   }
   else if(uartHandle->Instance==USART1)
