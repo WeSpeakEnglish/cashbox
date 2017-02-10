@@ -1193,6 +1193,9 @@
         <name>$PROJ_DIR$\..\Src\iwdg.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\keyboard.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
       </file>
       <file>

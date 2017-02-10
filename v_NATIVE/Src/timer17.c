@@ -1,4 +1,5 @@
 #include "timer17.h"
+#include "keyboard.h"
 #include "stm32f3xx_hal.h"
 
 void TIM17_Reset(void){
@@ -22,10 +23,21 @@ NVIC_DisableIRQ(TIM1_TRG_COM_TIM17_IRQn);
 
 void TIM1_TRG_COM_TIM17_IRQHandler(void){
 static uint32_t InsideCounter = 0;  
+   if (TIM17->SR & TIM_SR_UIF)
+   {
+      TIM17->SR &= ~TIM_SR_UIF;
+      TIM17->CNT=0; // reset counter 
+      
+      if(!(InsideCounter%10))
+                  ScanKeyboard();
+      
+      InsideCounter++;
 
-TIM17->SR&=~TIM_SR_UIF; // сбрасываю флаг прерывани€
-TIM17->CNT=0; // обнул€ю счетчик... 
+   }
+
+
+
 //EXTI->IMR|=EXTI_IMR_MR0; //разрешаю внешние прерывани€
-InsideCounter++;
+
 }
 
