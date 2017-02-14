@@ -46,8 +46,6 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-
-
 /* USER CODE BEGIN Includes */     
 #include "usart.h"
 #include "stm32f3xx_hal.h"
@@ -55,6 +53,8 @@
 #include "parse_sim800.h"
 #include "sd_files.h"
 #include "ccTalk.h"
+#include "lcd.h"    
+#include "keyboard.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -63,6 +63,7 @@ osThreadId keybScanTaskHandle;
 osThreadId parserTaskHandle;
 osThreadId sim800_TaskHandle;
 osThreadId main_TaskHandle;
+osThreadId nv_9_TaskHandle;
 /* USER CODE BEGIN Variables */
 /* USER CODE END Variables */
 
@@ -72,6 +73,7 @@ void MainTask(void const * argument);
 void KeybScanTask(void const * argument);
 void ParserExecuteTask(void const * argument);
 void SIM800_IniTask(void const * argument);
+void NV_9_Task(void const * argument);
 
 extern void MX_FATFS_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -101,13 +103,15 @@ void MX_FREERTOS_Init(void) {
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
-  /* Create the thread(s) */
+  /* Create the thread(s) */  
+  
+  /* USER CODE BEGIN RTOS_THREADS */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of keybScanTask */
-  osThreadDef(keybScanTask, KeybScanTask, osPriorityIdle, 0, 128);
+  osThreadDef(keybScanTask, KeybScanTask, osPriorityIdle, 0, 256);
   keybScanTaskHandle = osThreadCreate(osThread(keybScanTask), NULL);
   
   
@@ -115,15 +119,16 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(parserExecuteTask, ParserExecuteTask, osPriorityIdle, 0, 128);
   parserTaskHandle = osThreadCreate(osThread(parserExecuteTask), NULL);
 
-  osThreadDef(sim800_IniTask, SIM800_IniTask, osPriorityIdle, 0, 128);
+  osThreadDef(sim800_IniTask, SIM800_IniTask, osPriorityBelowNormal, 0, 128);
   sim800_TaskHandle = osThreadCreate(osThread(sim800_IniTask), NULL);
   
   
   osThreadDef(main_Task, MainTask, osPriorityIdle, 0, 512);
   main_TaskHandle = osThreadCreate(osThread(main_Task), NULL);
   
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
+
+  osThreadDef(nv_9_Task, NV_9_Task, osPriorityIdle, 0, 512);
+  nv_9_TaskHandle = osThreadCreate(osThread(nv_9_Task), NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -151,43 +156,18 @@ void StartDefaultTask(void const * argument)
 /* KeybScanTask function */
 void KeybScanTask(void const * argument)
 {
-  uint16_t counter = 0;
-  /* USER CODE BEGIN KeybScanTask */ 
-  ccTalkSendCMD(CC_INIT);
-  /*
-  do{
-   while (ccTalk.readyBuff == 0){
-    vTaskDelay(100);
-    taskYIELD();
-   }
-  taskYIELD();
-  }while(!ccTalkParseOK());
-  */
-  
-  osDelay(5000);
-  ccTalkSendCMD(CC_MASTER_READY);
-  /*
-    do{
-   while (ccTalk.readyBuff == 0){
-    vTaskDelay(100);
-    taskYIELD();
-   }
-  taskYIELD();
-  }while(!ccTalkParseOK());
-  */
-  osDelay(5000);
   
   /* Infinite loop */
   for(;;)
   {
-   counter++;
-   ccTalkSendCMD(CC_REQUEST);
-   if(counter == 100){
-     ccTalkSendCMD(CC_CLOSE);
-     vTaskDelete( NULL );
-   }
-   vTaskDelay(500);
-   taskYIELD();
+    if(LCD.init){
+      if(Keyboard.keyReady){
+       lcd_putch(Keyboard.keyCode);
+       Keyboard.keyReady = 0;
+      }
+    }
+ 
+   vTaskDelay(10);
   }
   
 }
@@ -207,23 +187,24 @@ void ParserExecuteTask(void const * argument){
 
 void SIM800_IniTask(void const * argument){
 
-    vTaskDelay(1000);
+ lcd_init();
+ vTaskDelay(800);
   
  for(;;)
   {
-       SIM800_IniCMD();
-       SIM800_init_info_upload();
-        SIM800_info_upload();
-         SIM800_command();
-         Sim800.initialized = 1;
-      vTaskDelete( NULL );
+     SIM800_IniCMD();
+     SIM800_init_info_upload();
+     SIM800_info_upload();
+     SIM800_command();
+     Sim800.initialized = 1;
+     vTaskDelete( NULL );
   }
  
 }
 
 void MainTask(void const * argument){
 
-vTaskDelay(80000);
+vTaskDelay(75000);
 if(!Sim800.initialized)
       SD_GetData();
 else 
@@ -238,7 +219,33 @@ else
 
 /* USER CODE END KeybScanTask */
 /* USER CODE BEGIN Application */
-     
+void NV_9_Task(void const * argument){
+/* USER CODE BEGIN KeybScanTask */ 
+  uint8_t counter = 0;
+  ccTalkSendCMD(CC_INIT);
+  osDelay(5000);
+  ccTalkSendCMD(CC_MASTER_READY);
+  osDelay(5000); 
+  
+    for(;;)
+  {
+    if(LCD.init){
+      if(Keyboard.keyReady){
+       lcd_putch(Keyboard.keyCode);
+       Keyboard.keyReady = 0;
+      }
+    }
+  
+   ccTalkSendCMD(CC_REQUEST);
+   if(counter == 100){
+     ccTalkSendCMD(CC_CLOSE);
+     vTaskDelete( NULL ); 
+   } 
+   counter++;
+   vTaskDelay(1000);
+  }
+
+}    
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

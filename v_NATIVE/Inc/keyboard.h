@@ -7,6 +7,7 @@ typedef struct{
  uint8_t keyCode;
 } KBD;
 
+extern KBD Keyboard;
 void ScanKeyboard(void);
 
 

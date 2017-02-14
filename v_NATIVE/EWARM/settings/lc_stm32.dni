@@ -16,7 +16,7 @@ stlinkfoundProbes=
 stlinkResetStyle=0
 stlinkResetStrategy=1
 [DebugChecksum]
-Checksum=-270968444
+Checksum=824681645
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -45,8 +45,11 @@ ITMportsLogFile=0
 ITMlogFile=$PROJ_DIR$\ITM.log
 [struct_types]
 Fmt0=money-cop	3	0
+Fmt1=union <Unnamed 28>-code	4	0
 [watch_formats]
-Fmt0={W}1:ReadValue	4	0
+Fmt0={W}1:Data	1	0
+Fmt1={W}1:ReadValue	4	0
+Fmt2={W}1:ScanCode	4	0
 [Trace2]
 Enabled=0
 ShowSource=0
@@ -101,7 +104,9 @@ Category=_ 0
 LoggingEnabled=_ 0
 LogFile=_ ""
 [Aliases]
-Count=0
+A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
+A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
+Count=2
 SuppressDialog=0
 [DriverProfiling]
 Enabled=0

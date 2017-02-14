@@ -28,7 +28,7 @@ static uint32_t InsideCounter = 0;
       TIM17->SR &= ~TIM_SR_UIF;
       TIM17->CNT=0; // reset counter 
       
-      if(!(InsideCounter%10))
+      if(!(InsideCounter%5))
                   ScanKeyboard();
       
       InsideCounter++;

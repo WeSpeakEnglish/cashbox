@@ -1196,6 +1196,9 @@
         <name>$PROJ_DIR$\..\Src\keyboard.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\lcd.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
       </file>
       <file>
