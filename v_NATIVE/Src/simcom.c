@@ -296,16 +296,24 @@ void SIM800_PowerOnOff(void){
 
 void USART2_IRQHandler(void)
 {
-volatile uint8_t tmpval;  //  
+volatile uint32_t tmpval;  //  
 static portBASE_TYPE xHigherPriorityTaskWoken;
 
         if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC) != RESET) {
-            __HAL_UART_CLEAR_IT(&huart2, UART_FLAG_TC);
+          if (__HAL_UART_GET_IT_SOURCE(&huart2, UART_IT_TC) != RESET) {
+            __HAL_UART_CLEAR_FLAG(&huart2, UART_CLEAR_TCF);
+          }
+        }
+        if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_ORE) != RESET) {
+          //  if (__HAL_UART_GET_IT_SOURCE(&huart2, UART_IT_ORE) != RESET) {
+                __HAL_UART_CLEAR_FLAG(&huart2, UART_CLEAR_OREF);
+         //   }
         }
         if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE) != RESET){
+          if (__HAL_UART_GET_IT_SOURCE(&huart2, UART_IT_IDLE) != RESET) {
         
-        __HAL_UART_CLEAR_IT(&huart2, UART_FLAG_IDLE);
-        if (Sim800.flush_SMS){
+          __HAL_UART_CLEAR_IT(&huart2, UART_CLEAR_IDLEF);
+          if (Sim800.flush_SMS){
           if((strstr((char const *)Sim800.pRX_Buffer, "+CMTI:"))!= NULL){
                Sim800.SMS_received = 1;// stop flood 
           }
@@ -337,22 +345,26 @@ static portBASE_TYPE xHigherPriorityTaskWoken;
                 Sim800.pReadyBuffer = Sim800.RX_Buffer2;
                 Sim800.pReadyIndex = &Sim800.RX_WR_index2;
               }
-        
+         }
         }
         if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE) != RESET) {
-            tmpval = (uint8_t)(USART2->RDR & 0x00FF);
+          if (__HAL_UART_GET_IT_SOURCE(&huart2, UART_IT_RXNE) != RESET) {
+            tmpval = huart2.Instance->RDR;
               
-            Sim800.pRX_Buffer[(*Sim800.pRX_WR_index)] = tmpval;
+            Sim800.pRX_Buffer[(*Sim800.pRX_WR_index)] = (uint8_t)tmpval;
             *Sim800.pRX_WR_index +=1;
             // protection
             if (*(Sim800.pRX_WR_index) == RX_BUFFER_SIZE){
             *(Sim800.pRX_WR_index) = 0;
               }
             tmpval = huart2.Instance->RDR; // Clear RXNE bit
-            __HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST); 
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );    
-}
- 
+            UNUSED(tmpval);
+            __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_RXNE);
+         //   __HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST); 
+
+          }
+      }
+  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );  
 }
 
 

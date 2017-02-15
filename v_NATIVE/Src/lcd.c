@@ -78,7 +78,7 @@ void lcd_goto(unsigned char pos) //set cursor position
 {
  //first line:  0..20
  //second line: 40..60
- HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_SET);
+ HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_RESET);
  lcd_write(0x80+pos);
 }   
 
