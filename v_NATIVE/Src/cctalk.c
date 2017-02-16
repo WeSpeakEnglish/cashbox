@@ -13,7 +13,7 @@ const uint8_t ccOpen[]                  = {0,2,1,231,255,255,24};
 const uint8_t ccMasterReady[]           = {0,1,1,228,255,27};
 const uint8_t DisableEscrowMode[]       = {0,1,1,153,0,101};//
 const uint8_t ccRequest[]               = {0,0,1,29,226};
-
+const uint8_t ccReadBufferedBill[]      = {2,0,1,159,94};
 const uint8_t SimplePool[]              = {2,0,1,254,255};
 
 
@@ -61,7 +61,7 @@ uint8_t ccTalkParseOK(void){ //if command receive
 }
 
 void ccTalkParseStatus(void){
- char Str[20];
+ char Str[80];
  char StrShot[5];
  uint8_t i;
  
@@ -71,23 +71,36 @@ void ccTalkParseStatus(void){
   vTaskDelay(10);
   taskYIELD();
   }
-  lcd_goto(0);
+  lcd_clear();
+  lcd_goto(3);
 
-for(i=0; i<11; i++){
+for(i=0; i<ccTalk.readySymbols; i++){
   
    sprintf(StrShot,"%d,", ccTalk.buffer[i]);
    strcat(Str,StrShot);
-}
-
- // sprintf(Str,"%d,%d,%d,%d,%d,%d,%d,%d",ccTalk.buffer[5],ccTalk.buffer[6],ccTalk.buffer[5],ccTalk.buffer[7],ccTalk.buffer[8],ccTalk.buffer[9],ccTalk.buffer[10],ccTalk.buffer[11]);
    
+   
+}
+/*
+lcd_goto(41);  
+ 
+   memset(Str,0,sizeof(Str));
+   sprintf(StrShot,"%d,",  ccTalkChecksum((uint8_t *)ccOpen, sizeof(ccOpen) - 1));
+   strcat(Str,StrShot);
+   sprintf(StrShot,"%d,", ccTalkChecksum((uint8_t *)ccMasterReady, sizeof(ccMasterReady) - 1));
+   strcat(Str,StrShot);
+   sprintf(StrShot,"%d,", ccTalkChecksum((uint8_t *)ccRequest, sizeof(ccRequest) - 1));
+   strcat(Str,StrShot);
+   lcd_puts((char const *)Str);
+ // sprintf(Str,"%d,%d,%d,%d,%d,%d,%d,%d",ccTalk.buffer[5],ccTalk.buffer[6],ccTalk.buffer[5],ccTalk.buffer[7],ccTalk.buffer[8],ccTalk.buffer[9],ccTalk.buffer[10],ccTalk.buffer[11]);
+   */
   lcd_puts((char const *)Str);
  return;
 }
 
 void ccTalkSendCMD(uint8_t Des){
   ccTalk.readyBuff = 0;
-  ccTalk.IndWR = 0;  
+ // ccTalk.IndWR = 0;  
   switch(Des){    
     case CC_OPEN:
       HAL_UART_Transmit(&huart5,(uint8_t *)ccOpen , sizeof(ccOpen),10);
@@ -105,8 +118,11 @@ void ccTalkSendCMD(uint8_t Des){
       HAL_UART_Transmit(&huart5,(uint8_t *)SimplePool , sizeof(SimplePool),10);      
                   break;
     case CC_DISABLEESCROW: 
-      HAL_UART_Transmit(&huart5,(uint8_t *)SimplePool , sizeof(SimplePool),10);      
+      HAL_UART_Transmit(&huart5,(uint8_t *)DisableEscrowMode , sizeof(DisableEscrowMode),10);      
                   break;
+    case CC_READBUFFEREDBILL:              
+      HAL_UART_Transmit(&huart5,(uint8_t *)ccReadBufferedBill , sizeof(ccReadBufferedBill),10);      
+                  break;             
     }
 }
 
@@ -121,19 +137,22 @@ volatile uint32_t tmpval;  //
         }
         if (__HAL_UART_GET_FLAG(&huart5, UART_FLAG_ORE) != RESET) {
           //  if (__HAL_UART_GET_IT_SOURCE(&huart2, UART_IT_ORE) != RESET) {
-                __HAL_UART_CLEAR_FLAG(&huart5, UART_CLEAR_OREF);
+          __HAL_UART_SEND_REQ(&huart5, UART_RXDATA_FLUSH_REQUEST);    
+          __HAL_UART_CLEAR_FLAG(&huart5, UART_CLEAR_OREF);
          //   }
         }
         if(__HAL_UART_GET_FLAG(&huart5, UART_FLAG_IDLE) != RESET){
          // if (__HAL_UART_GET_IT_SOURCE(&huart5, UART_IT_IDLE) != RESET) {
         
-          __HAL_UART_CLEAR_IT(&huart5, UART_CLEAR_IDLEF);
+          
            ccTalk.buffer[ccTalk.IndWR] = '\0';
            ccTalk.readyBuff = 1;
+           ccTalk.readySymbols = ccTalk.IndWR;
            ccTalk.IndWR = 0;     
      
         
-          tmpval = huart5.Instance->RDR;
+       //   tmpval = huart5.Instance->RDR;
+          __HAL_UART_CLEAR_IT(&huart5, UART_CLEAR_IDLEF);
       //   }
         }
         if (__HAL_UART_GET_FLAG(&huart5, UART_FLAG_RXNE) != RESET) {
@@ -147,6 +166,7 @@ volatile uint32_t tmpval;  //
             tmpval = huart5.Instance->RDR; // Clear RXNE bit
             UNUSED(tmpval);
             __HAL_UART_CLEAR_FLAG(&huart5, UART_FLAG_RXNE);
+            __HAL_UART_SEND_REQ(&huart5, UART_RXDATA_FLUSH_REQUEST); 
           }
       }
 }

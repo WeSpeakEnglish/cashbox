@@ -360,7 +360,7 @@ static portBASE_TYPE xHigherPriorityTaskWoken;
             tmpval = huart2.Instance->RDR; // Clear RXNE bit
             UNUSED(tmpval);
             __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_RXNE);
-         //   __HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST); 
+            __HAL_UART_SEND_REQ(&huart2, UART_RXDATA_FLUSH_REQUEST); 
 
           }
       }

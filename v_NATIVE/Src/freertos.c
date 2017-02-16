@@ -228,8 +228,12 @@ else
        Keyboard.keyReady = 0;
       }
     }
-  
-   ccTalkSendCMD(CC_REQUEST);
+taskENTER_CRITICAL(); 
+   {
+    ccTalkSendCMD(CC_READBUFFEREDBILL);
+}
+taskEXIT_CRITICAL();    
+   
    ccTalkParseStatus();
    //if(counter == 100){
   //   ccTalkSendCMD(CC_CLOSE);
