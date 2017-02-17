@@ -7,13 +7,15 @@
 #include "lcd.h"
 #include <stdio.h>
 #include <string.h>
+#include <vend.h>
+#include "calculations.h"
 
 // several commands what we need for
 const uint8_t ccOpen[]                  = {0,2,1,231,255,255,24};
 const uint8_t ccMasterReady[]           = {0,1,1,228,255,27};
 const uint8_t DisableEscrowMode[]       = {0,1,1,153,0,101};//
 const uint8_t ccRequest[]               = {0,0,1,29,226};
-const uint8_t ccReadBufferedBill[]      = {2,0,1,159,94};
+const uint8_t ccReadBufferedBill[]      = {0,0,1,159,96};
 const uint8_t SimplePool[]              = {2,0,1,254,255};
 
 
@@ -60,47 +62,124 @@ uint8_t ccTalkParseOK(void){ //if command receive
 
 }
 
+#define PROCESSING_DELAY 1
+#define RUR_10          1
+#define RUR_50          2
+#define RUR_100         3
+#define RUR_500         4
+#define RUR_1000        5
+#define RUR_5000        6
+
+
+uint8_t byteDistance(uint8_t First, uint8_t Second){ // overflow byte calculate distance
+ uint8_t retVal;
+  if(Second < First){
+     retVal = 0xFF - First;
+     retVal += Second + 1;  
+  }
+  else 
+    retVal = Second - First;
+    
+   return retVal;
+}
+
 void ccTalkParseStatus(void){
  char Str[80];
- char StrShot[5];
+// char StrShot[5];
+ static int16_t OldCount =  -1;       // look on count if it goes to change...
+ static uint8_t counter =   0;            // counter to processing
+ static uint8_t OldBanknote = 0; //if we receive something new
  uint8_t i;
- 
+
+
  memset(Str,0,sizeof(Str));
 
   while(!ccTalk.readyBuff) {
   vTaskDelay(10);
   taskYIELD();
   }
+
   lcd_clear();
-  lcd_goto(3);
+  
+  
 
 for(i=0; i<ccTalk.readySymbols; i++){
-  
-   sprintf(StrShot,"%d,", ccTalk.buffer[i]);
-   strcat(Str,StrShot);
-   
-   
-}
-/*
-lcd_goto(41);  
- 
-   memset(Str,0,sizeof(Str));
-   sprintf(StrShot,"%d,",  ccTalkChecksum((uint8_t *)ccOpen, sizeof(ccOpen) - 1));
-   strcat(Str,StrShot);
-   sprintf(StrShot,"%d,", ccTalkChecksum((uint8_t *)ccMasterReady, sizeof(ccMasterReady) - 1));
-   strcat(Str,StrShot);
-   sprintf(StrShot,"%d,", ccTalkChecksum((uint8_t *)ccRequest, sizeof(ccRequest) - 1));
-   strcat(Str,StrShot);
-   lcd_puts((char const *)Str);
- // sprintf(Str,"%d,%d,%d,%d,%d,%d,%d,%d",ccTalk.buffer[5],ccTalk.buffer[6],ccTalk.buffer[5],ccTalk.buffer[7],ccTalk.buffer[8],ccTalk.buffer[9],ccTalk.buffer[10],ccTalk.buffer[11]);
-   */
+  if(ccTalk.buffer[i] == 1)
+    if(ccTalk.buffer[i+1] == 11){
+       if(ccTalk.GetIni){
+          ccTalk.GetIni = 0;
+          OldCount = ccTalk.buffer[i+4]; // ini value
+          break;
+         }
+      if(ccTalk.buffer[i+4]  != OldCount){
+        OldCount = ccTalk.buffer[i+4] ;
+        if(ccTalk.buffer[i+5]  != 0){
+          if(!ccTalk.OpCount){
+            ccTalk.OpCount++;
+            OldBanknote = ccTalk.buffer[i+5];
+          }
+          else {
+            if(OldBanknote == ccTalk.buffer[i+5])
+              ccTalk.OpCount++; 
+          }
+        }
+        if(ccTalk.OpCount == 2){
+          OldBanknote =0;
+          ccTalk.OpCount =0;
+          
+        if(counter < PROCESSING_DELAY) counter++;
+        
+        if(counter == PROCESSING_DELAY){
+                 if(OldCount < 0) {
+                  OldCount = ccTalk.buffer[i+4] ;
+                   break;
+                  }
+       
+        switch(ccTalk.buffer[i+5] ){
+          case RUR_10:
+            Vend.inserted_funds += 10;  
+            break;
+          case RUR_50:
+            Vend.inserted_funds += 50;  
+            break;
+          case RUR_100:
+            Vend.inserted_funds += 100;  
+            break;
+          case RUR_500:
+            Vend.inserted_funds += 500;  
+            break; 
+          case RUR_1000:
+            Vend.inserted_funds += 1000;  
+            break;
+          case RUR_5000:
+            Vend.inserted_funds += 5000;  
+            break; 
+        }
+        counter++;                      // out of range 
+      }
+     }
+    }
+   }
+      else{
+
+      counter = 0;
+      }
+
+     }
+
+  Utoa(Vend.inserted_funds, Str);
   lcd_puts((char const *)Str);
  return;
 }
 
 void ccTalkSendCMD(uint8_t Des){
+volatile uint32_t tmpval;
   ccTalk.readyBuff = 0;
  // ccTalk.IndWR = 0;  
+  __HAL_UART_DISABLE_IT(&huart5, UART_IT_RXNE);
+  __HAL_UART_DISABLE_IT(&huart5, UART_IT_IDLE);
+ 
+  
   switch(Des){    
     case CC_OPEN:
       HAL_UART_Transmit(&huart5,(uint8_t *)ccOpen , sizeof(ccOpen),10);
@@ -121,9 +200,15 @@ void ccTalkSendCMD(uint8_t Des){
       HAL_UART_Transmit(&huart5,(uint8_t *)DisableEscrowMode , sizeof(DisableEscrowMode),10);      
                   break;
     case CC_READBUFFEREDBILL:              
-      HAL_UART_Transmit(&huart5,(uint8_t *)ccReadBufferedBill , sizeof(ccReadBufferedBill),10);      
+      HAL_UART_Transmit(&huart5,(uint8_t *)ccReadBufferedBill , sizeof(ccReadBufferedBill),10);   
+
                   break;             
     }
+
+     __HAL_UART_ENABLE_IT(&huart5, UART_IT_RXNE);
+     __HAL_UART_ENABLE_IT(&huart5, UART_IT_IDLE);
+     __HAL_UART_SEND_REQ(&huart5, UART_RXDATA_FLUSH_REQUEST); 
+
 }
 
 void UART5_IRQHandler(void)
@@ -144,14 +229,11 @@ volatile uint32_t tmpval;  //
         if(__HAL_UART_GET_FLAG(&huart5, UART_FLAG_IDLE) != RESET){
          // if (__HAL_UART_GET_IT_SOURCE(&huart5, UART_IT_IDLE) != RESET) {
         
-          
            ccTalk.buffer[ccTalk.IndWR] = '\0';
            ccTalk.readyBuff = 1;
            ccTalk.readySymbols = ccTalk.IndWR;
            ccTalk.IndWR = 0;     
-     
-        
-       //   tmpval = huart5.Instance->RDR;
+         //   tmpval = huart5.Instance->RDR;
           __HAL_UART_CLEAR_IT(&huart5, UART_CLEAR_IDLEF);
       //   }
         }

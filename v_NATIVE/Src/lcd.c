@@ -74,10 +74,23 @@ void lcd_puts(char const * s) //print string
  while(*s) lcd_write(*s++);
 }
 
-void lcd_goto(unsigned char pos) //set cursor position
+//if we have 4-line display
+//lines is 0,1,2,3
+void lcd_goto(unsigned char line, unsigned char pos) //set cursor position
 {
  //first line:  0..20
  //second line: 40..60
+  switch (line){  // an addition var, that will be added to the position
+      case 1:
+        pos += 64;
+        break;
+      case 2:
+        pos += 20;
+        break;
+      case 3:
+        pos += 84;
+        break;  
+  } 
  HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_RESET);
  lcd_write(0x80+pos);
 }   
@@ -91,11 +104,10 @@ void lcd_init(void){
  lcd_write(0x30);	
  lcd_write(0x30);	
  lcd_write(0x30);	
- lcd_write(0x3A);		//set 8 bits mode
- lcd_write(0x08);		//disp off
- lcd_clear();				//очистка дисплея
-// lcd_write(0x06);		//установка режима курсора
- lcd_write(0x0C);		//включение дисплея (мигающий курсор)
+ lcd_write(0x3A);		        //set 8 bits mode
+ lcd_write(0x08);		        //disp off
+ lcd_clear();			        //clear display
+ lcd_write(0x0C);		        //switch off the cursor
  osDelay(20);
  
 }

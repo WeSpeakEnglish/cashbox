@@ -196,6 +196,7 @@ void SIM800_IniTask(void const * argument){
      SIM800_init_info_upload();
      SIM800_info_upload();
      SIM800_command();
+     SIM800_pop_washing();
      Sim800.initialized = 1;
      vTaskDelete( NULL );
   }
@@ -220,14 +221,10 @@ else
   vTaskDelay(500); 
   ccTalkSendCMD(CC_DISABLEESCROW);
   vTaskDelay(500); 
+  ccTalk.GetIni =1;
   for(;;)
   {
-   if(LCD.init){
-      if(Keyboard.keyReady){
-       lcd_putch(Keyboard.keyCode);
-       Keyboard.keyReady = 0;
-      }
-    }
+
 taskENTER_CRITICAL(); 
    {
     ccTalkSendCMD(CC_READBUFFEREDBILL);
@@ -235,10 +232,7 @@ taskENTER_CRITICAL();
 taskEXIT_CRITICAL();    
    
    ccTalkParseStatus();
-   //if(counter == 100){
-  //   ccTalkSendCMD(CC_CLOSE);
-  //   vTaskDelete( NULL ); 
- //  } 
+
    counter++;
     vTaskDelay(500); 
   }
@@ -247,33 +241,7 @@ taskEXIT_CRITICAL();
 
 /* USER CODE END KeybScanTask */
 /* USER CODE BEGIN Application */
-void NV_9_Task(void const * argument){
-/* USER CODE BEGIN KeybScanTask */ 
- uint8_t counter = 0;
-  //ccTalkSendCMD(CC_INIT);
-  //osDelay(5000);
- // ccTalkSendCMD(CC_MASTER_READY);
- // osDelay(5000); 
-  
-    for(;;)
-  {
-    if(LCD.init){
-      if(Keyboard.keyReady){
-       lcd_putch(Keyboard.keyCode);
-       Keyboard.keyReady = 0;
-      }
-    }
-  
-   ccTalkSendCMD(CC_REQUEST);
-   if(counter == 100){
-     ccTalkSendCMD(CC_CLOSE);
-     vTaskDelete( NULL ); 
-   } 
-   counter++;
-   vTaskDelay(1000);
-  }
 
-}    
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

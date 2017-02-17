@@ -72,28 +72,19 @@ void MX_FREERTOS_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
 /* USER CODE END PFP */
-
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
-
 int main(void)
 {
 /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration----------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+/* USER CODE END 1 */
+/* MCU Configuration----------------------------------------------------------*/
+/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* Configure the system clock */
+/* Configure the system clock */
   SystemClock_Config();
-
-  /* Initialize all configured peripherals */
+/* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_SPI3_Init();
@@ -113,15 +104,12 @@ int main(void)
   SIM800_Ini();
   
   /* USER CODE END 2 */
-
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
-
   /* Start scheduler */
    osKernelStart();
   
   /* We should never get here as control is now taken by the scheduler */
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)

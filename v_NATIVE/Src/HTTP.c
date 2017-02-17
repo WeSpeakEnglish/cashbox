@@ -28,7 +28,7 @@ void submitHTTP_terminate(void){
      SIM800_waitAnswer(1);
 };
 
-void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
+void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body, char read){
 
 
     char http_link_buf[80];
@@ -93,10 +93,9 @@ void submitHTTPRequest( HTTP_Method method, char* http_link, char* post_body){
     
      SIM800_waitAnswer(2);
 //     vTaskDelay(10000);
-    if(Sim800.READ_HTTP){
+    if(read){
       SIM800_AddCMD((char *)http_read_str,sizeof(http_read_str),0);
       SIM800_waitAnswer(1);
-      Sim800.READ_HTTP = 0;
     }
 
     // _SAPBR_CLOSE_13(http_link_buf);

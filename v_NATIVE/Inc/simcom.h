@@ -45,7 +45,6 @@ typedef struct {
  volatile uint8_t initialized : 1;
  volatile uint8_t flush_SMS : 1; // SMS is not expected
  volatile uint8_t SMS_received : 1;
- volatile uint8_t READ_HTTP: 1;
  volatile uint8_t CGATT_READY: 1;
  volatile uint8_t gotInfoFromServer: 1;
  
@@ -110,6 +109,7 @@ void SIM800_GPRS_open(void); // open GPRS session
 void SIM800_GPRS_close(void); // close GPRS session
 void SIM800_get_Balance(void);
 void SIM800_get_Signal(void);
+void SIM800_pop_washing(void);
 void SIM800_command(void);
 void parse_CGAT(void); 
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID);

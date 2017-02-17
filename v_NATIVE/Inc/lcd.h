@@ -10,7 +10,7 @@ uint8_t init: 1; //initilized
 void lcd_init(void);
 void lcd_clear(void);
 void lcd_puts(char const * s);
-void lcd_goto(unsigned char pos);
+void lcd_goto(unsigned char line, unsigned char pos);
 void lcd_putch(unsigned char c);
 
 extern lcd LCD;

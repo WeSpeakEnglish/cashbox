@@ -173,7 +173,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* USER CODE BEGIN UART5_MspInit 1 */
-   __HAL_UART_ENABLE_IT(&huart5, UART_IT_RXNE);
+   __HAL_UART_DISABLE_IT(&huart5, UART_IT_RXNE);
+   __HAL_UART_DISABLE_IT(&huart5, UART_IT_TC);
+   __HAL_UART_DISABLE_IT(&huart5, UART_IT_IDLE);
    __HAL_UART_CLEAR_FLAG(&huart5, UART_FLAG_IDLE);
    NVIC_EnableIRQ(UART5_IRQn);
  //  NVIC_SetPriority (UART5_IRQn, 7);
@@ -259,7 +261,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE BEGIN USART2_MspInit 1 */
    //__HAL_UART_ENABLE_IT(&huart2, UART_IT_TC);
-   __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+   __HAL_UART_DISABLE_IT(&huart2, UART_IT_RXNE);
    __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_IDLE);
    
    

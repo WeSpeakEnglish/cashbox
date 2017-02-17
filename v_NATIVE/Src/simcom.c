@@ -8,12 +8,12 @@
 #include "HTTP.h"
 #include "calculations.h"
 #include "sms.h"
+#include "vend.h"
 
 #define SIMCOM_PWR_PORT GPIOA
 #define SIMCOM_PWR_PIN  GPIO_PIN_4
 #define LV_SHIFTER_OE_Pin GPIO_PIN_1
 #define LV_SHIFTER_OE_GPIO_Port GPIOC
-
 
 SemaphoreHandle_t xSemaphoreUART2 = NULL;
 
@@ -37,7 +37,6 @@ const char GSM_ATcmd_Reject_call[]="ATH";                                  // Re
 const char GSM_ATcmd_Signal[]="AT+CSQ";                                    // Report signal quality
 const char cusd_str[] = "AT+CUSD=1,\"*205#\"";                             // get number
 
-
 const char contype_str[] = "AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"";
 const char apn_str[] = "AT+SAPBR=3,1,\"APN\",\"internet\"";
 const char user_str[] = "AT+SAPBR=3,1,\"USER\",\"gdata\"";
@@ -48,12 +47,7 @@ const char cgatt_str[] = "AT+CGATT?";
 const char gsmloc_snd_str[] = "AT+CIPGSMLOC=1,1";
 const char sapbr_contextIP_str[] = "AT+SAPBR=2,1";
 
-
-
-
-
 const char       vendweb_data[] = "http://vendweb.ru/api/0.1/data";
-//const char       vendweb_data[] = "http://wow-only.ru/";
 const char    vendweb_command[] = "http://vendweb.ru/api/0.1/commands";
 const char vendweb_collection[] = "http://vendweb.ru/api/0.1/collection";
 const char    vendweb_washing[] = "http://vendweb.ru/api/0.1/washing"; 
@@ -62,7 +56,6 @@ const char sig_str[]  = "&signal=";
 const char bal_str[] = "&balance=";
 
 xQueueHandle SIM800_CommandsQ;
-
 SIM800 Sim800;
 
 void SemaphoreUART2wait(void ){
@@ -70,10 +63,7 @@ void SemaphoreUART2wait(void ){
                              vTaskDelay(10);
                              xSemaphoreGive(xSemaphoreUART2);
   }
-
 }
-
-
 
 void SIM800_SendCMD(void){
 static Message Msg;
@@ -87,7 +77,8 @@ static Message Msg;
   
   vTaskDelay(10);
 }
-void SIM800_info_upload(void)
+
+void SIM800_info_upload(void)  // upload info to the server
 {
     char post_body[35];
     char id_str[8] ={0,0,0,0,0,0,0,0};
@@ -103,10 +94,9 @@ void SIM800_info_upload(void)
     Utoa((uint16_t)(Sim800.current_balance.rub), post_body+strlen(post_body));
     strcat(post_body,".");
     Utoa((uint16_t)(Sim800.current_balance.cop), post_body+strlen(post_body));
-    
     SIM800_GPRS_open();
     submitHTTP_init();
-    submitHTTPRequest(POST, (char*)vendweb_data, post_body);
+    submitHTTPRequest(POST, (char*)vendweb_data, post_body, 0);
     submitHTTP_terminate();
     SIM800_GPRS_close();
 }
@@ -121,10 +111,9 @@ void SIM800_command(void)
     memset(post_body,0,25);
     strcat(post_body,id_str);
     SIM800_GPRS_open();
-    Sim800.READ_HTTP =1;
     submitHTTP_init();
-    submitHTTPRequest(POST, (char*)vendweb_command, post_body);
-    SIM800_Parse_WM();
+    submitHTTPRequest(POST, (char*)vendweb_command, post_body, 1);
+    SIM800_Parse_WM(); // read the answer from HTTP
     submitHTTP_terminate(); 
     SIM800_GPRS_close();
 }
@@ -142,9 +131,6 @@ void SIM800_init_info_upload(void)
     char post_body[64];
     char id_str[8] ={0,0,0,0,0,0,0,0};
     
- //   char url[31];
- //   strcpy(url, vendweb_data);
-
     sprintf( id_str, "id=%d", TERMINAL_UID );
     memset(post_body,0,64);
     strcat(post_body,id_str);
@@ -157,20 +143,17 @@ void SIM800_init_info_upload(void)
     Sim800.upload_init_info_stat = SENDING;
     SIM800_GPRS_open();
     submitHTTP_init();
-    submitHTTPRequest(POST, (char *)vendweb_data, post_body);
+    submitHTTPRequest(POST, (char *)vendweb_data, post_body, 0);
     submitHTTP_terminate();
     SIM800_GPRS_close();
-    
 }
 
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID){ // add new commad to the Queue
-Message Cmd;
-
+ Message Cmd;
   strcpy(&CMD_Bufer[CMD_index][0], Msg); 
   Cmd.pMessage =  &CMD_Bufer[CMD_index][0];
   Cmd.SizeOfMessage = Length;
   Cmd.ParserID = ParserID;
- // Msg->SizeOfMessage
   CMD_index++;
   CMD_index %= CMD_Queue_size;
   Sim800.parsed = 0;
@@ -195,7 +178,7 @@ void SIM800_Ini(void){
  Sim800.flush_SMS = 1;
  Sim800.CGATT_READY = 0;
  
-  SIM800_CommandsQ = xQueueCreate(20, sizeof(Message));
+ SIM800_CommandsQ = xQueueCreate(20, sizeof(Message));
  }
 
 void SIM800_waitAnswer(uint8_t Cycles){
@@ -242,40 +225,50 @@ void SIM800_IniCMD(void){
   vTaskDelay(3000);
   SIM800_AddCMD((char *)GSM_ATcmd,sizeof(GSM_ATcmd),0); // AT to sinhronize
   vTaskDelay(4000);
-  
     
   SIM800_AddCMD((char *)GSM_ATcmd_Disable_Echo,sizeof(GSM_ATcmd_Disable_Echo),1);
   SIM800_waitAnswer(1); 
-  
   SIM800_get_Signal();
+  SIM800_AddCMD((char *)creg_str,sizeof(creg_str),2);
+  SIM800_waitAnswer(1);
 
-   SIM800_AddCMD((char *)creg_str,sizeof(creg_str),2);
-   SIM800_waitAnswer(1);
-
-   SIM800_AddCMD((char *)cgreg_str,sizeof(cgreg_str),2);
-   SIM800_waitAnswer(1);
+  SIM800_AddCMD((char *)cgreg_str,sizeof(cgreg_str),2);
+  SIM800_waitAnswer(1);
+  SIM800_GPRS_open();
    
-   
-   
-   SIM800_GPRS_open();
-   
-   SIM800_AddCMD((char *)gsmloc_snd_str,sizeof(gsmloc_snd_str),3);
-   SIM800_waitAnswer(1);
+  SIM800_AddCMD((char *)gsmloc_snd_str,sizeof(gsmloc_snd_str),3);
+  SIM800_waitAnswer(1);
   SIM800_AddCMD((char *)cusd_str,sizeof(cusd_str),0);
-   SIM800_waitAnswer(2);
-   vTaskDelay(1000);
+  SIM800_waitAnswer(2);
+  vTaskDelay(1000);
   SIM800_parse_PhoneNumber(); // the phone number will be received later
   vTaskDelay(100);
   
   SIM800_GPRS_close();
   
- 
- // vTaskDelete(NULL);   //  error 
-   // }
 }
 
+  // id=2&wm=105&cost=22&status=true
 
 void SIM800_pop_washing(void){
+ char post_body[64];
+ char str[8];                              // an addition str to add
+ char id_str[8] ={0,0,0,0,0,0,0,0};
+
+ sprintf( id_str, "id=%d", TERMINAL_UID );
+ memset(post_body,0,64);
+ strcat(post_body,id_str);
+ strcat(post_body,"&wm=");
+ strcat(post_body, Utoa(Vend.selected_washer, str));
+ strcat(post_body,"&cost=");
+ strcat(post_body, Utoa(Sim800.WM.price[Vend.selected_washer-1], str));
+ strcat(post_body,"&status=true");
+ Sim800.upload_init_info_stat = SENDING;
+ SIM800_GPRS_open();
+ submitHTTP_init();
+ submitHTTPRequest(POST, (char *)vendweb_washing, post_body, 0);
+ submitHTTP_terminate();
+ SIM800_GPRS_close();
 
  return;
 }
@@ -284,7 +277,7 @@ void SIM800_PowerOnOff(void){
   if(!Sim800.powered)Sim800.powered = 0;
   else Sim800.powered = 1;
 
-  HAL_GPIO_WritePin(SIMCOM_PWR_PORT, SIMCOM_PWR_PIN, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(SIMCOM_PWR_PORT, SIMCOM_PWR_PIN, GPIO_PIN_SET);
    HAL_Delay(1200);
    HAL_GPIO_WritePin(SIMCOM_PWR_PORT, SIMCOM_PWR_PIN, GPIO_PIN_RESET);
    HAL_Delay(3000);
