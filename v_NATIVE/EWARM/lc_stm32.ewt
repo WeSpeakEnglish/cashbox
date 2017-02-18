@@ -1202,6 +1202,9 @@
         <name>$PROJ_DIR$\..\Src\main.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\modbus.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\parse_sim800.c</name>
       </file>
       <file>

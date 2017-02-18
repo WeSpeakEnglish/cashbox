@@ -210,7 +210,7 @@ void UART5_IRQHandler(void) {
             ccTalk.buffer[ccTalk.IndWR] = (uint8_t) tmpval;
             ccTalk.IndWR++;
             // protection
-            if (!(ccTalk.IndWR < BUFLEN_CC)) // protect
+            if (!(ccTalk.IndWR > BUFLEN_CC - 2)) // protect
                 ccTalk.IndWR = 0;
             tmpval = huart5.Instance->RDR; // Clear RXNE bit
             UNUSED(tmpval);

@@ -55,6 +55,7 @@
 #include "ccTalk.h"
 #include "lcd.h"
 #include "keyboard.h"
+#include "modbus.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -140,7 +141,8 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void const * argument) {
     /* init code for FATFS */
     MX_FATFS_Init();
-
+    lcd_init();
+    ModbusBufferFree();
 
     /* USER CODE BEGIN StartDefaultTask */
     /* Infinite loop */
@@ -181,7 +183,8 @@ void ParserExecuteTask(void const * argument) {
 
 void SIM800_IniTask(void const * argument) {
 
-    lcd_init();
+
+
     vTaskDelay(800);
 
     for (;;) {
@@ -233,6 +236,9 @@ void MainTask(void const * argument) {
             ccTalkParseStatus();
         }
         counter++;
+        
+        TranmitSlaveCmd(0);
+        
         vTaskDelay(490);
     }
 
