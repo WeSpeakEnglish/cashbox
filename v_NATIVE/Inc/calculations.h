@@ -7,6 +7,7 @@ extern "C"{
  char * Utoa(uint16_t Number, char * StrDst);
  char * Itoa(int16_t Number, char * StrDst);
  uint16_t sizeOfstr(char * str);
+ uint8_t byteDistance(uint8_t First, uint8_t Second);
 
 #ifdef __cplusplus 
   }

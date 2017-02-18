@@ -39,9 +39,9 @@ void SIM800_get_Balance(void){
     strcpy(Str,sms_GET_str);
     strcat(Str,SMS_N);
     SIM800_AddCMD((char *)Str,sizeof(Str),0);
-     SIM800_waitAnswer(1); 
-     vTaskDelay(1000);
-     SIM800_parse_Balance();
+    SIM800_waitAnswer(1); 
+    vTaskDelay(1000);
+    SIM800_parse_Balance();
   }
      
 vTaskDelay(1000);

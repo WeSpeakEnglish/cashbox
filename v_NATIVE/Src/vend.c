@@ -3,12 +3,3 @@
 
 VendSession_t Vend = {1,WAIT_FOR_START,0,{1,0,0,0,0,0,0,0}};
 
-
-void MoneyParser(uint8_t * Buffer){
-  uint8_t inc; // counter
-  
-  
-
-}
-
-

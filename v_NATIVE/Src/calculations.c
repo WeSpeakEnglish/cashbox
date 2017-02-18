@@ -70,6 +70,20 @@ char * Itoa(int16_t Number, char * StrDst){ // convert int into string
   *pStrDst = '\0';
 return StrDst;
 }
+
+uint8_t byteDistance(uint8_t First, uint8_t Second){ // overflow byte calculate distance
+ uint8_t retVal;
+  if(Second < First){
+     retVal = 0xFF - First;
+     retVal += Second + 1;  
+  }
+  else 
+    retVal = Second - First;
+  
+   return retVal;
+}
+
+
 #ifdef __cplusplus
 }
 #endif
