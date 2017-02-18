@@ -16,7 +16,7 @@ stlinkfoundProbes=
 stlinkResetStyle=0
 stlinkResetStrategy=1
 [DebugChecksum]
-Checksum=-818476901
+Checksum=-999800552
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -96,9 +96,7 @@ SumSortOrder=0
 mode=0
 [Breakpoints2]
 Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Drivers\STM32F3xx_HAL_Driver\Src\stm32f3xx_hal_uart.c}.2730.5" 0 0 1 "" 0 "" 0
-Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\cctalk.c}.130.9" 0 0 1 "" 0 "" 0
-Bp2=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\cctalk.c}.122.13" 0 0 1 "" 0 "" 0
-Count=3
+Count=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
