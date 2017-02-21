@@ -27,7 +27,7 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void) {
         TIM17->SR &= ~TIM_SR_UIF;
         TIM17->CNT = 0; // reset counter 
 
-        if (!(InsideCounter % 5))
+        if (!(InsideCounter % 3))
             ScanKeyboard();
 
         InsideCounter++;

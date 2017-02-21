@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <iwdg.h>
 
+uint32_t milliseconds = 0;
+
 void TIM16_Start(uint32_t Prescaler, uint32_t Count) {
 
     TIM16->PSC = Prescaler - 1;
@@ -24,14 +26,20 @@ void TIM16_Reset(void) {
     TIM16->CNT = 0;
 }
 
-void TIM1_UP_TIM16_IRQHandler(void) {
-    static uint32_t InsideCounter = 0;
+uint32_t millis(void){
 
+return milliseconds;
+}
+
+void TIM1_UP_TIM16_IRQHandler(void) {
+
+  if (TIM16->SR & TIM_SR_UIF) {
     TIM16->SR &= ~TIM_SR_UIF; // сбрасываю флаг прерывани€
     TIM16->CNT = 0; // обнул€ю счетчик... 
 
     //EXTI->IMR|=EXTI_IMR_MR0; //разрешаю внешние прерывани€
     // HAL_IWDG_Refresh(&hiwdg);
-    InsideCounter++;
+    milliseconds++;
+  }
 }
 

@@ -55,6 +55,7 @@
 /* USER CODE BEGIN Includes */
 #include "timer16.h"
 #include "timer17.h"
+#include "timer6.h"
 #include "simcom.h"
 /* USER CODE END Includes */
 
@@ -100,8 +101,9 @@ int main(void) {
     MX_TIM17_Init();
 
     /* USER CODE BEGIN 2 */
-    TIM16_Start(8, 576); // start  timer 16
-    TIM17_Start(8, 576); // start  timer 16
+    TIM6_Start(8,450);   // 50 us timer
+    TIM16_Start(9, 8000); // start  timer 16 for millisecond calculation
+    TIM17_Start(9, 800); // start  timer 17 at 100 uS
     SIM800_Ini();
 
     /* USER CODE END 2 */

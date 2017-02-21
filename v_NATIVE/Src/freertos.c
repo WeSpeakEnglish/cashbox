@@ -56,6 +56,7 @@
 #include "lcd.h"
 #include "keyboard.h"
 #include "modbus.h"
+#include "SimpleModbusMaster.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -140,13 +141,17 @@ void MX_FREERTOS_Init(void) {
 /* StartDefaultTask function */
 void StartDefaultTask(void const * argument) {
     /* init code for FATFS */
+  
     MX_FATFS_Init();
     lcd_init();
-    ModbusBufferFree();
-
+//    ModbusBufferFree();
+    modbus_construct(&packets[PACKET1], 1, READ_HOLDING_REGISTERS, 0, 1, 0);
+//    modbus_construct(&packets[PACKET2], 1, READ_INPUT_REGISTERS, 0, 6, 0);
+    modbus_configure(115200, 1000, 200, 10, packets, TOTAL_NO_OF_PACKETS, regs);
     /* USER CODE BEGIN StartDefaultTask */
     /* Infinite loop */
     for (;;) {
+       
         SIM800_SendCMD();
         osDelay(10);
     }
@@ -201,7 +206,7 @@ void SIM800_IniTask(void const * argument) {
 
 void MainTask(void const * argument) {
     uint8_t counter = 0;
-
+//    ModbusBufferFree();
     vTaskDelay(40000);
 
 
@@ -237,9 +242,11 @@ void MainTask(void const * argument) {
         }
         counter++;
         
-        TranmitSlaveCmd(0);
-        
-        vTaskDelay(490);
+   
+   //   TranmitSlaveCmd(0);
+          modbus_update();
+
+          vTaskDelay(490);     
     }
 
 }

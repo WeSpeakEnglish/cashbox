@@ -2,9 +2,20 @@
 #include "stm32f3xx_hal.h"
 #include "usart.h"
 
+
 #define AWAITDELAY_TRANSMIT 100
 
 MODBUS_struct Modbus;
+
+
+
+Packet packets[TOTAL_NO_OF_PACKETS];
+unsigned int regs[10];
+
+#define TOTAL_NO_OF_REGISTERS 10
+// Masters register array
+unsigned int regs[TOTAL_NO_OF_REGISTERS];
+
 
 const unsigned char auchCRCHi[] = {
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81,
