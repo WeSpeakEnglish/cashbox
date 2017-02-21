@@ -120,6 +120,7 @@ void USART3_IRQHandler(void) {
             __HAL_UART_CLEAR_IT(&huart3, UART_CLEAR_IDLEF);
         }
     }
+
     if (__HAL_UART_GET_FLAG(&huart3, UART_FLAG_RXNE) != RESET) {
         if (__HAL_UART_GET_IT_SOURCE(&huart3, UART_IT_RXNE) != RESET) {
             tmpval = huart3.Instance->RDR;

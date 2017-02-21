@@ -74,7 +74,7 @@ void idle()
 	unsigned int failed_connections = 0;
 	
 	unsigned char current_connection;
-	
+
 	do
 	{		
 		if (packet_index == total_no_of_packets) // wrap around to the beginning
@@ -85,7 +85,7 @@ void idle()
 		
 		// get the current connection status
 		current_connection = packet->connection;
-		
+			
 		if (!current_connection)
 		{			
 			// If all the connection attributes are false return
@@ -286,13 +286,17 @@ void process_F1_F2()
 	// packet->data for function 1 & 2 is actually the number of boolean points
   unsigned char no_of_registers = packet->data / 16;
   unsigned char number_of_bytes = no_of_registers * 2; 
-       
+  
+  //workaround becouse first formulae is wrong
+  number_of_bytes = frame[2];
+  no_of_registers = (number_of_bytes / 2) + (number_of_bytes %2);
+  
   // if the number of points dont fit in even 2byte amounts (one register) then use another register and pad 
-  if (packet->data % 16 > 0) 
-  {
-    no_of_registers++;
-    number_of_bytes++;
-  }
+ // if (packet->data  % 16 > 0) 
+  //{
+ //   no_of_registers++;
+ //   number_of_bytes++;
+ // }
              
   if (frame[2] == number_of_bytes) // check number of bytes returned
   { 

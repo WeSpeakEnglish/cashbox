@@ -139,11 +139,14 @@ void MX_USART3_UART_Init(void)
   
   
   //if (HAL_RS485Ex_Init(&huart3, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK)
-  if (HAL_UART_Init(&huart3) != HAL_OK)
+if (HAL_UART_Init(&huart3) != HAL_OK)
   {
     Error_Handler();
   }
-  
+
+ // SET_BIT((&huart3)->Instance->CR2, USART_CR2_RTOEN);
+ // (&huart3)->Instance->RTOR = 22;
+ // SET_BIT((&huart3)->Instance->CR1, USART_CR1_RTOIE);
 }
 
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
@@ -294,13 +297,21 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-//    GPIO_InitStruct.Pin = GPIO_PIN_14;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
- //   GPIO_InitStruct.Pull = GPIO_PULLUP;
- //   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
- //   GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
- //   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  //  GPIO_InitStruct.Pin = GPIO_PIN_14;
+  //  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  //  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  //  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  //  GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+  //  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+ 
+    GPIO_InitStruct.Pin = GPIO_PIN_14;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); 
+    
+     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
     /* Peripheral DMA init*/
   
     hdma_usart3_tx.Instance = DMA1_Channel2;
