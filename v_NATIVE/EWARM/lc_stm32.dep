@@ -359,6 +359,7 @@
       <file>$PROJ_DIR$\..\Src\sms.c</file>
       <file>$PROJ_DIR$\..\Src\spi.c</file>
       <file>$PROJ_DIR$\..\Src\stm32f3xx_hal_msp.c</file>
+      <file>C:\Documents and Settings\PineLab\&#x420;&#x430;&#x431;&#x43e;&#x447;&#x438;&#x439; &#x441;&#x442;&#x43e;&#x43B;\v_NATIVE\v_NATIVE\Src\main.c</file>
     </outputs>
     <file>
       <name>$PROJ_DIR$\..\Src\calculations.c</name>
