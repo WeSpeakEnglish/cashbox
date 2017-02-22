@@ -145,12 +145,12 @@ void StartDefaultTask(void const * argument) {
     MX_FATFS_Init();
     lcd_init();
 //    ModbusBufferFree();
-   // regs[0] = 0xFF00;
- //   modbus_construct(&packets[PACKET1], 1, FORCE_SINGLE_COIL, 0, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
-//    modbus_construct(&packets[PACKET2], 1, READ_INPUT_REGISTERS, 0, 6, 0);
-    modbus_construct(&packets[PACKET1], 1, READ_INPUT_STATUS, 0, 10, 0);
+    regs[0] = 0xFF00;
+    modbus_construct(&packets[PACKET1], 1, FORCE_SINGLE_COIL, 0, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
+    //modbus_construct(&packets[PACKET2], 1, READ_INPUT_REGISTERS, 0, 6, 0);
+    modbus_construct(&packets[PACKET2], 1, READ_INPUT_STATUS, 0, 2, 1);
     
-    modbus_configure(115200, 5000, 10, 10, packets, TOTAL_NO_OF_PACKETS, regs);
+     modbus_configure(115200, 5000, 5000, 10, packets, TOTAL_NO_OF_PACKETS, regs);
     /* USER CODE BEGIN StartDefaultTask */
     /* Infinite loop */
     for (;;) {

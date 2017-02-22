@@ -8,7 +8,6 @@
 MODBUS_struct Modbus;
 
 
-
 Packet packets[TOTAL_NO_OF_PACKETS];
 unsigned int regs[10];
 

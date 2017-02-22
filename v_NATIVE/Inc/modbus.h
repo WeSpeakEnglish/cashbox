@@ -16,7 +16,7 @@ typedef struct{
 enum
 {
   PACKET1,
-//  PACKET2,
+  PACKET2,
   TOTAL_NO_OF_PACKETS // leave this last entry
 };
 
