@@ -15,8 +15,6 @@ unsigned int regs[10];
 // Masters register array
 unsigned int regs[TOTAL_NO_OF_REGISTERS];
 
-
-
 void ModbusBufferFree(void){
   uint16_t i;
   for(i = 0; i< sizeof(Modbus.buffer); i++){
