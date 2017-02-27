@@ -30,11 +30,13 @@ typedef struct
 	char longitude[MAX_LOCATION_SIZE];
 }location;
 
-typedef struct washing_holder
+typedef struct 
 {
 	uint8_t cost;
 	uint8_t wm_id;
-}wash_holder;
+}washing_holder;
+
+extern washing_holder wash_holder;
 
 
 
@@ -111,6 +113,7 @@ void SIM800_get_Balance(void);
 void SIM800_get_Signal(void);
 void SIM800_pop_washing(void);
 void SIM800_command(void);
+void SIM800_submit_washing( uint8_t wm, uint16_t cost ); // submit washing to the list
 void parse_CGAT(void); 
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID);
 #endif

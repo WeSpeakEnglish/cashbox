@@ -92,7 +92,7 @@ void SD_GetData(void) {
         {
             frslt = f_mount(&filesystem, "0:", 1); //mount the drive 
             if (frslt == FR_OK) {
-                frslt = f_open(&file, "wm.txt", FA_OPEN_EXISTING | FA_READ); //open the existed file
+              frslt = f_open(&file, "wm.txt", FA_OPEN_EXISTING | FA_READ); //open the existed file
                 if (frslt == FR_OK) {
                     while (!f_eof(&file) && i < sizeof (filebuf)) {
                         f_read(&file, (pChar + i), 1, &nRead);

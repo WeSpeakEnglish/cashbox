@@ -1,6 +1,7 @@
 #include "lcd.h"
 #include "stm32f3xx_hal.h"
 #include "cmsis_os.h"
+#include "DbgInfo.h"
 
 union {
 
@@ -38,6 +39,81 @@ void LCD_SetData(unsigned char Data) {
     HAL_GPIO_WritePin(LCD_D6_GPIO_Port, LCD_D6_Pin, (GPIO_PinState) DataByte.bits.b6);
     HAL_GPIO_WritePin(LCD_D7_GPIO_Port, LCD_D7_Pin, (GPIO_PinState) DataByte.bits.b7);
 
+}
+
+
+LCD_text_t *getLCDText(void)
+{
+	static LCD_text_t lcd_txt = { 0 };
+	return &lcd_txt;
+}
+
+char *getLCDLine(int line_num)
+{
+	LCD_text_t *p_txt = getLCDText();
+	return (char *)(p_txt->line[line_num]);
+}
+
+char *getLCDBlock(int block_num)
+{
+	LCD_text_t *p_txt = getLCDText();
+	return (char *)(p_txt->block[block_num]);
+}
+
+uint16_t whichBlocksWereChanged(void) // block = 5 symbs, 16 blocks, func. sets corresp. bit# in ret
+{
+	uint8_t i;
+	uint16_t ret = 0;
+	LCD_text_t *p_txt;
+
+	static LCD_text_t lcd_txt_cpy = { 0 };
+	
+	p_txt = getLCDText();
+
+	for (i = 0; i < LCD_BLOCKS; i++)
+		ret |= \
+		  (
+		  	(
+	  	      (uint16_t)(cmp_(getLCDBlock(i), \
+	                          (char *)(lcd_txt_cpy.block[i]), \
+	                          LCD_BLOCK_SZ)
+	  	    ^
+	  	      0x0001)
+		  	) << i
+		  );
+	if (ret)
+		cpy_
+	    (
+		  (char *)(p_txt),
+		  (char *)(&lcd_txt_cpy),
+		  sizeof(LCD_text_t)
+		);
+	return ret;
+}
+
+void lcd_continue_block_writing(char *string)
+{
+	uint8_t i;
+	for (i = 0; i < LCD_BLOCK_SZ; i++) lcd_write_data(string[i]);
+}
+
+void lcd_write_block(uint8_t block_num, char *string)
+{
+	// свичкейсом устанавливаем курсор в нужное положение
+	switch(block_num / (LCD_BLOCKS/LCD_LINES))
+	{
+		case 0 : lcd_write_cmd(0x80 + (LCD_BLOCK_SZ*(block_num % (LCD_BLOCKS/LCD_LINES)))); break;
+		case 1 : lcd_write_cmd(0x80 + 0x40 + (LCD_BLOCK_SZ*(block_num % (LCD_BLOCKS/LCD_LINES)))); break;
+		case 2 : lcd_write_cmd(0x80 + 0x14 + (LCD_BLOCK_SZ*(block_num % (LCD_BLOCKS/LCD_LINES)))); break;
+		case 3 : lcd_write_cmd(0x80 + 0x54 + (LCD_BLOCK_SZ*(block_num % (LCD_BLOCKS/LCD_LINES)))); break;
+		default : break;
+	}
+	lcd_continue_block_writing(string);
+}
+
+void lcd_clear_screen(void)
+{	
+      lcd_clear();
 }
 
 void lcd_write(unsigned char Data) {
@@ -94,6 +170,29 @@ void lcd_goto(unsigned char line, unsigned char pos) //set cursor position
     }
     HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_RESET);
     lcd_write(0x80 + pos);
+}
+
+void lcd_write_byte(unsigned char byte, unsigned char A0_bit)				// 'byte' -- байт команды
+{
+  switch(A0_bit){
+    case 0:
+          HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_RESET);  //cmd here
+             break;
+    case 1:
+          HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_SET);  //cmd here
+             break;             
+  }
+  lcd_write(byte);
+}
+
+void lcd_write_cmd(unsigned char byte)
+{
+	lcd_write_byte(byte, 0);
+}
+// write data (not cmd)
+void lcd_write_data(unsigned char byte)
+{
+	lcd_write_byte(byte, 1);
 }
 
 void lcd_init(void) {

@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include "usart.h"
 #include "cmsis_os.h"
-#include "lcd.h"
+//#include "lcd.h"
 #include <stdio.h>
 #include <string.h>
-#include <vend.h>
+#include "vend.h"
 #include "calculations.h"
 
 // several commands what we need for
@@ -85,10 +85,8 @@ void ccTalkParseAccCount(void) { // we need to register change of this value
 
 void ccTalkParseStatus(void) {
     char Str[80];
-    char StrShot[5];
     static int16_t OldCount = -1; // look on count if it goes to change...
     static uint8_t counter = 0; // counter to processing
-    static uint8_t OldBanknote = 0; //if we receive something new
     uint8_t i;
 
     memset(Str, 0, sizeof (Str));
@@ -134,9 +132,9 @@ void ccTalkParseStatus(void) {
                 }
             }
     }
-    lcd_clear();
-    sprintf(Str, "%d", Vend.inserted_funds);
-    lcd_puts((char const *) Str);
+    //lcd_clear();
+    //  sprintf(Str, "%d", Vend.inserted_funds);
+    //  lcd_puts((char const *) Str);
     return;
 }
 

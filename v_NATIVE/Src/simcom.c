@@ -55,8 +55,24 @@ const char vendweb_washing[] = "http://vendweb.ru/api/0.1/washing";
 const char sig_str[] = "&signal=";
 const char bal_str[] = "&balance=";
 
+washing_holder wash_holder;
 xQueueHandle SIM800_CommandsQ;
 SIM800 Sim800;
+
+void SIM800_submit_washing( uint8_t wm, uint16_t cost )
+{
+    washing_holder w_h;
+    w_h.wm_id=wm;
+    w_h.cost=cost;
+   // DEBUG.print("w:");
+   // DEBUG.print(wm);
+   // DEBUG.print(",c:");
+   // DEBUG.println(cost);
+ //   SIM800_push_washing(w_h);
+
+//    TIMEOUT_Stop();
+//    TIMEOUT_Start(INFO_UPLOAD_PERIOD/2,0);
+}
 
 void SemaphoreUART2wait(void) {
     if (xSemaphoreTake(xSemaphoreUART2, 10000) == pdTRUE) {

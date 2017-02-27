@@ -31,6 +31,18 @@ uint32_t millis(void){
 return milliseconds;
 }
 
+void simpleTimeoutInit(volatile uint32_t *simpleTimeout_instance)
+{
+        // timeout_instance must be static volatile
+        *simpleTimeout_instance = millis();
+}
+
+uint8_t simpleTimeoutHasRunOut(volatile uint32_t *simpleTimeout_instance, uint32_t milliseconds)
+{
+        if (milliseconds == 0) return 0; // never run out, timer is off
+        return ( ( millis() - (*simpleTimeout_instance) ) >= milliseconds );
+}
+
 void TIM1_UP_TIM16_IRQHandler(void) {
 
   if (TIM16->SR & TIM_SR_UIF) {
