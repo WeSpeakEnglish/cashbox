@@ -160,14 +160,6 @@ void VendSession_EEMEMUpdateAll(void)
 	//sei();
 }
 
-void VendSession_EEMEMUpdateSession(void)
-{
-	VendSession_t *p_session;
-	p_session = VendSession_RAMGetSession();
-	//cli();
-	//eeprom_update_block((void *)p_session, (void *)EEPROM_VendSessionStructADDR, sizeof( VendSession_t ));
-	//sei();
-}
 
 void VendSession_EEMEMUpdateCashbox(void)
 {
@@ -207,18 +199,6 @@ void VendSession_EEMEMResetClientsCount(void)
 	//sei();
 }
 
-// Resets values in RAM and in EEPROM to default
-void VendSession_EEMEMResetSession(void)
-{
-	VendSession_t *p_session;
-	p_session = VendSession_RAMGetSession();
-	// eeprom functions expect _src argument as const void * (non-volatile)
-	// so one way is to explicitly typecast (void *)&_src
-	VendSession_RAMResetSession();
-	//cli();
-	//eeprom_update_block((void *)p_session, (void *)EEPROM_VendSessionStructADDR, sizeof(VendSession_t));
-	//sei();
-}
 
 // Password input functions
 // ~~~~~~~~~~~~~~~~~~~~~~~~

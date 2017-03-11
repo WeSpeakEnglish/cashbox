@@ -1,6 +1,7 @@
 #include "parse_sim800.h"
 #include "simcom.h"
 #include <string.h>
+#include "vend.h"
 
 //SemaphoreHandle_t xSemaphoreParse = NULL;
 
@@ -181,13 +182,13 @@ while(str[i] != '\0'){
     if(str[i++] == 'm')          
      wm = str[i] - 0x30 -1;
   if(str[i] == ','){
-    Sim800.WM.start[wm] =str[i+1] - 0x30;
-    Sim800.WM.price[wm] = 0;
+    WL[wm].start =str[i+1] - 0x30;
+    WL[wm].price = 0;
     i2 = 1;  
     mul = 1;
   while((str[i-i2] < 0x3A)&&( i > i2)){     
-     Sim800.WM.price[wm] += (str[i-i2] - 0x30)*mul;
-     Sim800.WM.index[wm] = wm + 1; //existed indexes
+     WL[wm].price += (str[i-i2] - 0x30)*mul;
+ //    WL[wm].index = wm + 1; //existed indexes
      mul*=10;
      i2++;
    }      

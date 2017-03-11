@@ -5,6 +5,7 @@
 
 #include "VendSession.h"
 #include "WASHERS.h"
+#include "Vend.h"
 
 
 // Abstraction display refresh event
@@ -87,7 +88,7 @@ const char space1_str[] PROGMEM = " ";
 */
 
 // // buffer string       
-char lcd_line_buf[LCD_LINE_SZ<<1]; // *2 for a good reserve
+char lcd_line_buf[LCD_LINE_SZ<<3]; // *2 for a good reserve
 
 // initialization
 static void LCDMenu_Initialization(void);
@@ -157,9 +158,7 @@ uint16_t LCDTextUpdate(void)
 
 uint16_t LCDMenu_Update(void)
 {
-	VendSession_t *p_session;
 
-	p_session = VendSession_RAMGetSession();	
 	switch (p_session->current_state)
 	{
 		// initialization
@@ -203,11 +202,7 @@ void LCDMenu_WelcomeScreen(void)
 	CPY_LCD_LINE_FROM_PRGMEM(space20_str, 3);
 }
 
-void LCDMenu_WasherSelection(void)
-{
-	VendSession_t *p_session;
-
-	p_session  = VendSession_RAMGetSession();
+void LCDMenu_WasherSelection(void){
 
 	if (p_session->current_substate == NO_SUBSTATE)
 	{
@@ -232,9 +227,6 @@ void LCDMenu_WasherSelection(void)
 
 void LCDMenu_AwaitingPayment(void)
 {
-	VendSession_t *p_session;
-
-	p_session  = VendSession_RAMGetSession();
 
 	sprintf( lcd_line_buf, "Машина: %1d (%3d руб.)",
 							 p_session->selected_washer,
@@ -257,8 +249,6 @@ void LCDMenu_AwaitingPayment(void)
 
 void LCDMenu_StartWashing(void)
 {
-	VendSession_t *p_session = VendSession_RAMGetSession();
-
 	CPY_LCD_LINE_FROM_PRGMEM(space20_str, 0);
 	sprintf( lcd_line_buf, "Машина %1d включается,", p_session->selected_washer);
 	CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 1);
@@ -268,8 +258,6 @@ void LCDMenu_StartWashing(void)
 
 void LCDMenu_StartWashingFailed(void)
 {
-	VendSession_t *p_session = VendSession_RAMGetSession();
-
 	CPY_LCD_LINE_FROM_PRGMEM(fail_str0, 0);
 	CPY_LCD_LINE_FROM_PRGMEM(fail_str1, 1);
 	sprintf( lcd_line_buf, "машину %1d, попробуйте", p_session->selected_washer);
@@ -279,8 +267,6 @@ void LCDMenu_StartWashingFailed(void)
 
 void LCDMenu_WashingStartedSuccessfully(void)
 {
-	VendSession_t *p_session = VendSession_RAMGetSession();
-
 	sprintf( lcd_line_buf, " Машина %1d включена, ", p_session->selected_washer);
 	CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 0);
 	CPY_LCD_LINE_FROM_PRGMEM(success_str1, 1);
@@ -336,8 +322,6 @@ void LCDMenu_ServiceInfo1(void)
 
     p_cashbox = VendSession_RAMGetCashbox();
     p_clients_count = VendSession_RAMGetClientsCount();
-
-    p_session = VendSession_RAMGetSession();
 
 	sprintf( lcd_line_buf, " Цены x50: %1d%1d%1d%1d%1d%1d%1d%1d   ",
 		WASHER_RAMGetPrice(1)/50,

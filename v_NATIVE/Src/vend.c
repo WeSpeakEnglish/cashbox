@@ -1,24 +1,29 @@
 #include "vend.h"
 #include "cctalk.h"
-#include "cmsis_os.h"
+
 #include "VendSession.h"
+#include "core.h"
 //#include "ccl"
 
 VendSession_t Vend;
+WasherSettings_t WL[MAX_WASHINGS]; 
+VendSession_t Session;
+VendSession_t* p_session = &Session;
 
 void enableCashInput(void){
     ccTalkSendCMD(CC_OPEN);
-    vTaskDelay(300);
+    Delay_ms_OnFastQ(300);
     ccTalkSendCMD(CC_MASTER_READY);
-    vTaskDelay(300);
+    Delay_ms_OnFastQ(300);
     ccTalkSendCMD(CC_DISABLEESCROW);
-    vTaskDelay(300);
+    Delay_ms_OnFastQ(300);
     ccTalk.gotMoney = 0;
 }
 
+
 void disableCashInput(void){
     ccTalkSendCMD(CC_CLOSE);
-    vTaskDelay(300);
+    Delay_ms_OnFastQ(300);
 }
 //
 	uint8_t selected_washer;

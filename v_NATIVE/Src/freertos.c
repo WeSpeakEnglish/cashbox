@@ -42,9 +42,8 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "FreeRTOS.h"
-#include "task.h"
-#include "cmsis_os.h"
+
+
 
 
 
@@ -190,7 +189,8 @@ void SIM800_IniTask(void const * argument){
   
  for(;;)
   {
-      lcd_init();
+      
+  }lcd_init();
       VendInit();
       SIM800_IniCMD();
       SIM800_init_info_upload();
@@ -199,7 +199,6 @@ void SIM800_IniTask(void const * argument){
       SIM800_pop_washing();
       Sim800.initialized = 1;
       vTaskDelete( NULL );
-  }
  
 }
 

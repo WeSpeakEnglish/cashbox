@@ -2,7 +2,6 @@
 #define _SIMCOM_H
 #include <stdint.h>
 #include "dma.h"
-#include "cmsis_os.h"
 
 #define RX_BUFFER_SIZE 256
 #define SIMCOM_PWR_PORT GPIOA
@@ -77,16 +76,7 @@ typedef struct {
  volatile uint8_t collection_stat;
  volatile uint8_t washing_stat;
  
- struct{
-   uint16_t  price[MAX_WASHINGS];
-   uint8_t   start[MAX_WASHINGS];
-   uint8_t   index[MAX_WASHINGS];
-  }
- WM; 
- struct{
-uint16_t  price[MAX_WASHINGS];
-uint8_t   index[MAX_WASHINGS];
- }WM_SD;
+
  
 }SIM800;
 
@@ -97,8 +87,8 @@ typedef struct {
 }Message;
 
 extern SIM800 Sim800;
-extern xQueueHandle SIM800_CommandsQ;
-extern SemaphoreHandle_t xSemaphoreUART2;
+
+
 
 void SIM800_waitAnswer(uint8_t Cycles);
 void SIM800_IniCMD(void); // farther commands to open gprs session

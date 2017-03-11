@@ -2,6 +2,7 @@
 #include "parse_sim800.h"
 #include <stdlib.h>
 #include <string.h>
+#include "core.h"
 
 ///SMS commands
 const char sms_DeleteAll[] = "AT+CMGDA=\"DEL ALL\"";
@@ -28,8 +29,7 @@ void SIM800_get_Balance(void){
   Sim800.flush_SMS = 0;
   Sim800.SMS_received = 0;
   SIM800_waitAnswer(2); 
-  vTaskDelay(3000);
-  
+ // Delay_ms_OnFastQ(10000); // wait while sms
   pointerN = strstr((char const *)Sim800.pReadyBuffer,"\"SM\",");
   
   if(pointerN != NULL){
@@ -39,12 +39,13 @@ void SIM800_get_Balance(void){
     strcpy(Str,sms_GET_str);
     strcat(Str,SMS_N);
     SIM800_AddCMD((char *)Str,sizeof(Str),0);
-    SIM800_waitAnswer(1); 
-    vTaskDelay(1000);
-    SIM800_parse_Balance();
+     SIM800_waitAnswer(1); 
+     Delay_ms_OnFastQ(1000);
+     SIM800_parse_Balance();
   }
      
-vTaskDelay(1000);
+Delay_ms_OnFastQ(1000);
   
 return;
 }
+

@@ -5,30 +5,33 @@
 #include "simcom.h"
 #include "keyboard.h"
 #include "LCDMenu.h"
+#include "cctalk.h"
 
 #define RET_OK 0
 #define RET_ERR 1
 #define RET_ERR_1 2
 
 
-VendSession_t *p_session;
+
+WasherSettings_t * washers_list = &WL[0]; // that is an array of structs
+
 volatile uint32_t simple_timeout_tmp = 0;
 
 void loop(void)
 {
-    char c;
-    uint8_t i;
-    uint16_t lcdupd_ret;
-    VendSession_t *p_session;
-    static uint16_t scaler = 0;
-    uint32_t inactivity_period_ms = 0; // default - timer is off
+   static char c;
+   static uint8_t i;
+   static uint16_t lcdupd_ret;
+   static VendSession_t *p_session;
+   static uint16_t scaler = 0;
+   static uint32_t inactivity_period_ms = 0; // default - timer is off
     
     p_session = VendSession_RAMGetSession();
 
  //   simpleTimeoutInit(&simple_timeout_inactivity); // inactivity timer init
 
-    for (;;) // state machine running loop
-    {
+  //  for (;;) // state machine running loop
+  //  {
 
         // poll all machines (which ones in use)        
         for( i = 0; i < WASHERS_MAX_COUNT; ++i )
@@ -102,7 +105,7 @@ void loop(void)
 
         // show loop debug info
 //        show_loop_debug();
-    } 
+ //   } 
 }
 
 int8_t switch_state(SessionState_t to)
@@ -135,9 +138,9 @@ int8_t on_enter_state(SessionState_t to)
 {
     int8_t success = 0;
     VendSession_t *p_session;
-    WasherSettings_t *washers_list; // that is an array of structs
+ 
 
-    washers_list = WASHERS_RAMGetAll();
+
     p_session = VendSession_RAMGetSession();
     // do something on enter
     switch (to)
@@ -154,7 +157,7 @@ int8_t on_enter_state(SessionState_t to)
             // withdraw funds
             p_session->inserted_funds -= washers_list[ p_session->selected_washer - 1 ].price;
             // update inserted_funds (eeprom)
-            VendSession_EEMEMUpdateSession();
+      //      VendSession_EEMEMUpdateSession();
             #ifdef DEBUG_ENABLED
                 DEBUG.print( "Funds withdrawn: " );
                 DEBUG.println( washers_list[ p_session->selected_washer - 1 ].price );
@@ -166,7 +169,7 @@ int8_t on_enter_state(SessionState_t to)
             // restore balance (refund back)
             p_session->inserted_funds += washers_list[ p_session->selected_washer - 1 ].price;
             // update inserted_funds (eeprom)
-            VendSession_EEMEMUpdateSession();
+            //VendSession_EEMEMUpdateSession();
             #ifdef DEBUG_ENABLED
                 DEBUG.print( "Funds returned: " );
                 DEBUG.println( washers_list[ p_session->selected_washer - 1 ].price );
@@ -263,7 +266,7 @@ void waitForSelection(void)
         if ( (p_session->washers_in_use[ p_session->selected_washer - 1 ] == 0) )
         {
             // save session changes to eeprom
-            VendSession_EEMEMUpdateSession();
+            //VendSession_EEMEMUpdateSession();
             // switch to INSERT_FUNDS
             switch_state(INSERT_FUNDS);
         }
@@ -284,15 +287,13 @@ void waitForSelection(void)
 void waitForFunds(void)
 {
     char c;
-    VendSession_t *p_session;
-    WasherSettings_t *washers_list; // that is an array of structs
- //   DbgInfo_t *p_dbg;
+    VendSession_t *p_session; //   DbgInfo_t *p_dbg;
 
     c = readKey();
 
    // p_dbg = getDbgInfo();
-    p_session = VendSession_RAMGetSession();
-    washers_list = WASHERS_RAMGetAll();
+  //  p_session = VendSession_RAMGetSession();
+ //   washers_list = WASHERS_RAMGetAll();
 
     // check for om-nom-nom )) monitoring the eating process
     //if (p_dbg->_dbg_silence_counter < SILENCE_CNTR_THR) // eating now
@@ -301,6 +302,16 @@ void waitForFunds(void)
   
         uint16_t cashbox_delta = 0;
         enter_substate(NO_SUBSTATE);
+        
+        if (!ccTalk.gotMoney) {
+            ccTalkSendCMD(CC_REQ_ACC_COUNT);
+            ccTalkParseAccCount();
+        } 
+        else {
+            ccTalkSendCMD(CC_READBUFFEREDBILL);
+            ccTalkParseStatus();
+        }
+        
         //p_dbg->_dbg_silence_counter = SILENCE_CNTR_THR + 1; // "eating done" served
        // cashbox_delta = BillValidator_Eat();
 
@@ -308,17 +319,17 @@ void waitForFunds(void)
     //    if (cashbox_delta)
       //  {
             // update inserted_funds (eeprom)
-            VendSession_EEMEMUpdateSession();
+      //      VendSession_EEMEMUpdateSession();
 
             // update cashbox
-            VendSession_RAMAddToCashbox(cashbox_delta);
+      //      VendSession_RAMAddToCashbox(cashbox_delta);
             // save to eeprom
-            VendSession_EEMEMUpdateCashbox();
+      //      VendSession_EEMEMUpdateCashbox();
 
-            #ifdef DEBUG_ENABLED
-                DEBUG.print( "Banknote added: " );
-                DEBUG.println( cashbox_delta );
-            #endif
+     //      #ifdef DEBUG_ENABLED
+      //          DEBUG.print( "Banknote added: " );
+     //           DEBUG.println( cashbox_delta );
+      //      #endif
         //}
     
 
@@ -352,12 +363,10 @@ void checkIfWashingWasStarted(void)
 {
     char c;
     VendSession_t *p_session;
-    WasherSettings_t *washers_list;
+
     
     c = readKey();
 
-    p_session = VendSession_RAMGetSession();
-    washers_list = WASHERS_RAMGetAll();
     
     // wait for washer to start (about 2.5 s for sure)
     if (p_session->current_substate == TMP_SUBSTATE) return; // just wait a little...
@@ -378,7 +387,7 @@ void checkIfWashingWasStarted(void)
 
         // increment clients count and save to eeprom
         VendSession_RAMIncrementClientsCount();
-        VendSession_EEMEMUpdateClientsCount();
+        //VendSession_EEMEMUpdateClientsCount();
 
         // submit http "washing" here
         #ifdef DEBUG_ENABLED

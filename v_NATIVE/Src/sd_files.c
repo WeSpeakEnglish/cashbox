@@ -2,14 +2,14 @@
 #include "diskio.h"
 #include "ff_gen_drv.h"
 #include "fatfs.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "cmsis_os.h"
+
 #include "simcom.h"
 #include "stdlib.h"
 #include "calculations.h"
 #include <string.h>
 #include "stm32f3xx_hal.h"
+#include "core.h"
+#include "vend.h"
 
 void SD_LedOn(uint8_t OnOff) {
     if (OnOff)
@@ -30,15 +30,26 @@ uint8_t SD_Detect(void) {
 }
 
 void parseSD_wm(char * pData) { // we parse string like wm=150
-    uint16_t i = 0;
+    uint16_t i,j = 0;
     if (pData[0] == 'w')
         if (pData[1] == 'm')
             if ((pData[2] > 0x30) && (pData[2] < (0x30 + MAX_WASHINGS + 1))) { // MAX_WASHINGS
                 i = pData[2] - 0x30 - 1;
-                Sim800.WM_SD.index[i] = (i + 1); //existed index
+            //    WL[wm].index[i] = (i + 1); //existed index
                 if (pData[3] == '=') {
                     pData = &pData[4];
-                    Sim800.WM_SD.price[i] = atoi(pData);
+                    j = 4;
+                    while(pData[j] > 0x2F){
+                      j++;
+                    }
+                    j--;
+                    WL[i].start_button_pin = atoi(&pData[j]);
+                    pData[j] = '\0';
+                    j--;
+                    WL[i].send_signal_relay = atoi(&pData[j]);
+                    pData[j] = '\0';
+                    WL[i].price = atoi(pData);
+
                 }
             }
 }
@@ -50,31 +61,33 @@ void SD_SetData(void) { // data has got from the server, and we need to write
     char * pChar = &filebuf[0];
     FIL file;
     UINT nWrite, i = 0;
-    osDelay(100);
+    Delay_ms_OnFastQ(100);
     if (SD_Detect()) {
-        taskENTER_CRITICAL();
-        {
             frslt = f_mount(&filesystem, "0:", 1); //mount the drive 
             if (frslt == FR_OK) {
                 frslt = f_open(&file, "wm.txt", FA_WRITE | FA_CREATE_ALWAYS); //open the existed file
                 if (frslt == FR_OK) {
                     for (i = 0; i < MAX_WASHINGS; i++) {
-                        if (Sim800.WM.index[i]) { // if it exist
+                       // if (VendPrices.index[i]) { // if it exist
                             f_write(&file, "wm", 2, &nWrite);
-                            Utoa(Sim800.WM.index[i], pChar);
+                            Utoa(i + 1, pChar);
                             f_write(&file, pChar, 1, &nWrite);
                             f_write(&file, "=", 1, &nWrite);
-                            Utoa(Sim800.WM.price[i], pChar);
+                            Utoa(WL[i].price, pChar);
                             f_write(&file, pChar, strlen(pChar), &nWrite);
+                            f_write(&file, ",", 1, &nWrite);
+                            Utoa(WL[i].send_signal_relay, pChar);
+                            f_write(&file, ",", 1, &nWrite);
+                            Utoa(WL[i].start_button_pin, pChar);
+                            f_write(&file, pChar, strlen(pChar), &nWrite);          
                             f_write(&file, "\r\n", 2, &nWrite);
-                        }
+                            f_write(&file, ",", 1, &nWrite);
+                   //     }
                     }
                     f_close(&file); //close the file 
                 }
                 f_mount(NULL, "0:", 0); //unmount the drive 
             }
-        }
-        taskEXIT_CRITICAL();
     }
 }
 
@@ -86,13 +99,13 @@ void SD_GetData(void) {
     char * pChar = &filebuf[0];
     FIL file;
     UINT nRead, i = 0;
-    osDelay(100);
+    Delay_ms_OnFastQ(100);
     if (SD_Detect()) {
-        taskENTER_CRITICAL();
-        {
             frslt = f_mount(&filesystem, "0:", 1); //mount the drive 
+            Delay_ms_OnFastQ(100);
             if (frslt == FR_OK) {
               frslt = f_open(&file, "wm.txt", FA_OPEN_EXISTING | FA_READ); //open the existed file
+              Delay_ms_OnFastQ(100);
                 if (frslt == FR_OK) {
                     while (!f_eof(&file) && i < sizeof (filebuf)) {
                         f_read(&file, (pChar + i), 1, &nRead);
@@ -110,8 +123,8 @@ void SD_GetData(void) {
                 }
                 f_mount(NULL, "0:", 0); //unmount the drive 
             }
-        }
-        taskEXIT_CRITICAL();
+ //LOOK           
+
     }
 }
 

@@ -1,7 +1,7 @@
 #include "lcd.h"
 #include "stm32f3xx_hal.h"
-#include "cmsis_os.h"
 #include "DbgInfo.h"
+#include "core.h"
 
 union {
 
@@ -119,11 +119,11 @@ void lcd_clear_screen(void)
 void lcd_write(unsigned char Data) {
 
     LCD_SetData(Data);
-    osDelay(1);
+    Delay_ms_OnFastQ(1);
     HAL_GPIO_WritePin(LCD_E_GPIO_Port, LCD_E_Pin, GPIO_PIN_SET);
     //  osDelay(1);
     HAL_GPIO_WritePin(LCD_E_GPIO_Port, LCD_E_Pin, GPIO_PIN_RESET);
-    osDelay(1);
+    Delay_ms_OnFastQ(1);
 }
 
 void lcd_putch(unsigned char c) //symbol output
@@ -139,9 +139,9 @@ void lcd_putch(unsigned char c) //symbol output
 void lcd_clear(void) //clear display
 {
     HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_RESET);
-    osDelay(1);
+    Delay_ms_OnFastQ(1);
     lcd_write(0x01);
-    osDelay(3); //3ms
+    Delay_ms_OnFastQ(3); //3ms
 }
 
 void lcd_puts(char const * s) //print string
@@ -197,9 +197,9 @@ void lcd_write_data(unsigned char byte)
 
 void lcd_init(void) {
     HAL_GPIO_WritePin(LCD_RW_GPIO_Port, LCD_RW_Pin, GPIO_PIN_RESET);
-    osDelay(30);
+    Delay_ms_OnFastQ(30);
     HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin, GPIO_PIN_RESET);
-    osDelay(2);
+    Delay_ms_OnFastQ(2);
     lcd_write(0x30);
     lcd_write(0x30);
     lcd_write(0x30);
@@ -207,7 +207,8 @@ void lcd_init(void) {
     lcd_write(0x08); //disp off
     lcd_clear(); //clear display
     lcd_write(0x0C); //switch off the cursor
-    osDelay(20);
+    Delay_ms_OnFastQ(20);
+    LCD.init = 1;
 }
 
 

@@ -154,12 +154,12 @@
         <option>
           <name>FPU2</name>
           <version>0</version>
-          <state>4</state>
+          <state>0</state>
         </option>
         <option>
           <name>NrRegs</name>
           <version>0</version>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>NEON</name>
@@ -324,9 +324,7 @@
           <state>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/include</state>
           <state>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS</state>
           <state>$PROJ_DIR$/../Drivers/CMSIS/Include</state>
-          <state>$PROJ_DIR$/../Middlewares/Third_Party/modbus/include</state>
-          <state>$PROJ_DIR$/../Middlewares/Third_Party/modbus/port</state>
-          <state>$PROJ_DIR$/../Middlewares/Third_Party/modbus/rtu</state>
+          <state>I:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\modbus\include</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -994,6 +992,9 @@
         <name>$PROJ_DIR$\..\Src\cctalk.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\core.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\DbgInfo.c</name>
       </file>
       <file>
@@ -1001,9 +1002,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\fatfs.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Src\freertos.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\gpio.c</name>
@@ -1037,6 +1035,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\simcom.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Middlewares\Third_Party\modbus\SimpleModbusMaster.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\sms.c</name>
@@ -1169,45 +1170,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\option\syscall.c</name>
-      </file>
-    </group>
-    <group>
-      <name>FreeRTOS</name>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\croutine.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\event_groups.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\portable\MemMang\heap_4.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\list.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\portasm.s</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\queue.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\tasks.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FreeRTOS\Source\timers.c</name>
-      </file>
-    </group>
-    <group>
-      <name>Modbus</name>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\modbus\SimpleModbusMaster.c</name>
       </file>
     </group>
   </group>

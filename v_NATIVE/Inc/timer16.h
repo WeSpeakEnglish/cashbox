@@ -11,5 +11,6 @@ uint32_t millis(void);
 
 void simpleTimeoutInit(volatile uint32_t *simpleTimeout_instance);
 uint8_t simpleTimeoutHasRunOut(volatile uint32_t *simpleTimeout_instance, uint32_t milliseconds);
-
+extern volatile uint64_t milliseconds;
+extern volatile uint32_t TicksGlobal_mS;
 #endif

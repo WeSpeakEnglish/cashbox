@@ -12,22 +12,12 @@
 // price is only 2 bytes, so 2 x WASHERS_MAX_COUNT in EEPROM
 // 16 bytes with 8 washers
 typedef struct {
-	volatile uint16_t price; // prices must be in eeprom
+	uint16_t price; // prices must be in eeprom
 	uint8_t  start_button_pin;
 	uint8_t  send_signal_relay;
+        uint8_t  start;            //this gone from server
 } WasherSettings_t;
 
-#define WASHER_SB_DDRReg	        DDRK
-#define WASHER_SB_PORTReg	        PORTK
-#define WASHER_SB_PINReg	        PINK
-#define WASHER_SB1			PK0
-#define WASHER_SB2			PK1
-#define WASHER_SB3			PK2
-#define WASHER_SB4			PK3
-#define WASHER_SB5			PK4
-#define WASHER_SB6			PK5
-#define WASHER_SB7			PK6
-#define WASHER_SB8			PK7
 
 /*
 	Pins are input, pull-up resistor enabled

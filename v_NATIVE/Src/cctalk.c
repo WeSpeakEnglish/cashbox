@@ -3,12 +3,12 @@
 #include "cctalk.h"
 #include <stdint.h>
 #include "usart.h"
-#include "cmsis_os.h"
 //#include "lcd.h"
 #include <stdio.h>
 #include <string.h>
 #include "vend.h"
 #include "calculations.h"
+#include "core.h"
 
 // several commands what we need for
 const uint8_t ccOpen[] = {0, 2, 1, 231, 255, 255, 24};
@@ -37,8 +37,7 @@ uint8_t ccTalkChecksum(uint8_t * pBuff, uint8_t size) {
 
 uint8_t ccTalkParseOK(void) { //if command receive
     while (!ccTalk.readyBuff) {
-        vTaskDelay(10);
-        taskYIELD();
+        Delay_ms_OnFastQ(10);
     }
     if (ccTalk.buffer[3] == 0x00)
         return 1; // one is OK
@@ -53,8 +52,7 @@ void ccTalkParseAccCount(void) { // we need to register change of this value
     uint8_t i;
 
     while (!ccTalk.readyBuff) {
-        vTaskDelay(10);
-        taskYIELD();
+        Delay_ms_OnFastQ(10);
     }
 
     for (i = 0; i < ccTalk.readySymbols; i++) {
@@ -92,8 +90,7 @@ void ccTalkParseStatus(void) {
     memset(Str, 0, sizeof (Str));
 
     while (!ccTalk.readyBuff) {
-        vTaskDelay(10);
-        taskYIELD();
+        Delay_ms_OnFastQ(10);
     }
 
     for (i = 0; i < ccTalk.readySymbols; i++) {
@@ -178,7 +175,7 @@ void ccTalkSendCMD(uint8_t Des) {
 }
 
 void UART5_IRQHandler(void) {
-    volatile uint32_t tmpval; //  
+    uint32_t tmpval; //  
 
     if (__HAL_UART_GET_FLAG(&huart5, UART_FLAG_TC) != RESET) {
         if (__HAL_UART_GET_IT_SOURCE(&huart5, UART_IT_TC) != RESET) {

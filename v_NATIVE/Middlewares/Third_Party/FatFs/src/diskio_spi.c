@@ -9,7 +9,6 @@
 #include "spi.h"
 #include "gpio.h"
 #include "typedefs.h"
-//#include "rtc.h"
 
 void print_f(char *v, ...)
 {
@@ -219,7 +218,7 @@ static u8 sd_get_r7(u32 *r7)
 	return 0x01;
 }
 #define sd_get_r3 sd_get_r7
-/*
+
 static const char *r1_strings[7] = {
 	"in idle",
 	"erase reset",
@@ -229,7 +228,7 @@ static const char *r1_strings[7] = {
 	"address error",
 	"parameter error"
 };
-*/
+
 static void print_r1(u8 r)
 {
   return; //@@@
@@ -241,7 +240,7 @@ static void print_r1(u8 r)
 			print_f("  %s\n", r1_strings[i]);
   */
 }
-/*
+
 static const char *r2_strings[15] = {
 	"card is locked",
 	"wp erase skip | lock/unlock cmd failed",
@@ -259,7 +258,7 @@ static const char *r2_strings[15] = {
 	"address error",
 	"parameter error",
 };
-*/
+
 static void print_r2(u16 r)
 {
   return; //@@@

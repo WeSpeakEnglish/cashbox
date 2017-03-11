@@ -9,13 +9,13 @@
 #include "calculations.h"
 #include "sms.h"
 #include "vend.h"
+#include "core.h"
 
 #define SIMCOM_PWR_PORT GPIOA
 #define SIMCOM_PWR_PIN  GPIO_PIN_4
 #define LV_SHIFTER_OE_Pin GPIO_PIN_1
 #define LV_SHIFTER_OE_GPIO_Port GPIOC
 
-SemaphoreHandle_t xSemaphoreUART2 = NULL;
 
 uint8_t RX_Buffer2[RX_BUFFER_SIZE]; //receive buffer for incoming data from GSM module
 
@@ -56,7 +56,6 @@ const char sig_str[] = "&signal=";
 const char bal_str[] = "&balance=";
 
 washing_holder wash_holder;
-xQueueHandle SIM800_CommandsQ;
 SIM800 Sim800;
 
 void SIM800_submit_washing( uint8_t wm, uint16_t cost )
@@ -74,24 +73,19 @@ void SIM800_submit_washing( uint8_t wm, uint16_t cost )
 //    TIMEOUT_Start(INFO_UPLOAD_PERIOD/2,0);
 }
 
-void SemaphoreUART2wait(void) {
-    if (xSemaphoreTake(xSemaphoreUART2, 10000) == pdTRUE) {
-        vTaskDelay(10);
-        xSemaphoreGive(xSemaphoreUART2);
-    }
-}
+
 
 void SIM800_SendCMD(void) {
     static Message Msg;
 
     //Transmit command to the SIM800
-    if (xQueueReceive(SIM800_CommandsQ, &Msg, 10) == pdPASS) {
+
         Msg.pMessage[Msg.SizeOfMessage - 1 ] = '\r';
         HAL_UART_Transmit_DMA(&huart2, (uint8_t *) Msg.pMessage, Msg.SizeOfMessage);
         SIM800_ParserID = Msg.ParserID;
-    }
 
-    vTaskDelay(10);
+
+    Delay_ms_OnFastQ(10);
 }
 
 void SIM800_info_upload(void) // upload info to the server
@@ -106,7 +100,7 @@ void SIM800_info_upload(void) // upload info to the server
     strcpy(post_body + strlen(post_body), sig_str);
     Utoa((uint16_t) (Sim800.signal_quality), post_body + strlen(post_body));
     strcpy(post_body + strlen(post_body), bal_str);
-    SIM800_get_Balance();
+    //SIM800_get_Balance();
     Utoa((uint16_t) (Sim800.current_balance.rub), post_body + strlen(post_body));
     strcat(post_body, ".");
     Utoa((uint16_t) (Sim800.current_balance.cop), post_body + strlen(post_body));
@@ -161,15 +155,23 @@ void SIM800_init_info_upload(void) {
 }
 
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID) { // add new commad to the Queue
-    Message Cmd;
-    strcpy(&CMD_Bufer[CMD_index][0], Msg);
-    Cmd.pMessage = &CMD_Bufer[CMD_index][0];
-    Cmd.SizeOfMessage = Length;
-    Cmd.ParserID = ParserID;
-    CMD_index++;
-    CMD_index %= CMD_Queue_size;
+  //  Cmd.pMessage = &CMD_Bufer[CMD_index][0];
+ //   Cmd.SizeOfMessage = Length+1;
+ // //  Cmd.ParserID = ParserID;
+  //  CMD_index++;
+ //   CMD_index %= CMD_Queue_size;
+  uint8_t i;
+  static char Cmd[128];
+  
+  for(i = 0; i < Length; i++)
+    Cmd[i] = Msg[i];
+  
     Sim800.parsed = 0;
-    return xQueueSendToBack(SIM800_CommandsQ, &Cmd, 100);
+  
+    Cmd[Length-1] = '\r';
+    if(HAL_UART_Transmit_DMA(&huart2, (uint8_t *) Cmd, Length) == HAL_OK)
+            SIM800_ParserID = ParserID;
+    return 0; //xQueueSendToBack(SIM800_CommandsQ, &Cmd, 100);
 }
 
 void SIM800_Ini(void) {
@@ -190,17 +192,22 @@ void SIM800_Ini(void) {
     Sim800.flush_SMS = 1;
     Sim800.CGATT_READY = 0;
 
-    SIM800_CommandsQ = xQueueCreate(20, sizeof (Message));
+    //SIM800_CommandsQ = xQueueCreate(20, sizeof (Message));
 }
 
+#define LONG_WAITING 100
+
 void SIM800_waitAnswer(uint8_t Cycles) {
+  uint8_t wait = 0;
     while (Cycles--) {
         Sim800.parsed = 0;
         while (Sim800.parsed == 0) {
-            vTaskDelay(100);
-            taskYIELD();
+            Delay_ms_OnFastQ(100);
+            wait++;
+            if(wait ==  LONG_WAITING)
+              break;
         }
-        vTaskDelay(100);
+        Delay_ms_OnFastQ(100);
     }
 }
 
@@ -232,10 +239,11 @@ void SIM800_GPRS_close(void) {
 
 void SIM800_IniCMD(void) {
     __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE); //Enable IDLE
+    __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE); //Enable IDLE
     ResParse.byte = 0; //reset parsed bits
-    vTaskDelay(3000);
+    Delay_ms_OnFastQ(3000);
     SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
-    vTaskDelay(4000);
+    Delay_ms_OnFastQ(4000);
 
     SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
     SIM800_waitAnswer(1);
@@ -246,14 +254,13 @@ void SIM800_IniCMD(void) {
     SIM800_AddCMD((char *) cgreg_str, sizeof (cgreg_str), 2);
     SIM800_waitAnswer(1);
     SIM800_GPRS_open();
-
     SIM800_AddCMD((char *) gsmloc_snd_str, sizeof (gsmloc_snd_str), 3);
     SIM800_waitAnswer(1);
     SIM800_AddCMD((char *) cusd_str, sizeof (cusd_str), 0);
+    Delay_ms_OnFastQ(100);
     SIM800_waitAnswer(2);
-    vTaskDelay(1000);
     SIM800_parse_PhoneNumber(); // the phone number will be received later
-    vTaskDelay(100);
+    Delay_ms_OnFastQ(100);
 
     SIM800_GPRS_close();
 
@@ -272,7 +279,7 @@ void SIM800_pop_washing(void) {
     strcat(post_body, "&wm=");
     strcat(post_body, Utoa(Vend.selected_washer, str));
     strcat(post_body, "&cost=");
-    strcat(post_body, Utoa(Sim800.WM.price[Vend.selected_washer - 1], str));
+    strcat(post_body, Utoa(WL[Vend.selected_washer - 1].price, str));
     strcat(post_body, "&status=true");
     Sim800.upload_init_info_stat = SENDING;
     SIM800_GPRS_open();
@@ -297,8 +304,8 @@ void SIM800_PowerOnOff(void) {
 }
 
 void USART2_IRQHandler(void) {
-    volatile uint32_t tmpval; //  
-    static portBASE_TYPE xHigherPriorityTaskWoken;
+    uint32_t tmpval; //  
+  //  static portBASE_TYPE xHigherPriorityTaskWoken;
 
     if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC) != RESET) {
         if (__HAL_UART_GET_IT_SOURCE(&huart2, UART_IT_TC) != RESET) {
@@ -318,14 +325,14 @@ void USART2_IRQHandler(void) {
                 if ((strstr((char const *) Sim800.pRX_Buffer, "+CMTI:")) != NULL) {
                     Sim800.SMS_received = 1; // stop flood 
                 }
-                else xSemaphoreGiveFromISR(xSemaphoreUART2, &xHigherPriorityTaskWoken);
+             //   else xSemaphoreGiveFromISR(xSemaphoreUART2, &xHigherPriorityTaskWoken);
 
             }
             else {
                 if ((strstr((char const *) Sim800.pRX_Buffer, "+CMTI:")) != NULL) {
                     Sim800.SMS_received = 1; // stop flood 
                 }
-                xSemaphoreGiveFromISR(xSemaphoreUART2, &xHigherPriorityTaskWoken);
+           //     xSemaphoreGiveFromISR(xSemaphoreUART2, &xHigherPriorityTaskWoken);
             }
 
             tmpval = huart2.Instance->RDR;
@@ -344,6 +351,7 @@ void USART2_IRQHandler(void) {
                 Sim800.pReadyBuffer = Sim800.RX_Buffer2;
                 Sim800.pReadyIndex = &Sim800.RX_WR_index2;
             }
+            F_push(SIM800_ParseAnswers);
         }
     }
     if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE) != RESET) {
@@ -363,7 +371,6 @@ void USART2_IRQHandler(void) {
 
         }
     }
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {

@@ -3,8 +3,12 @@
 //#include "sdcard.hpp"
 #include <stdint.h>
 #include <iwdg.h>
+#include "lcd.h"
+#include "core.h"
+#include "statemachine.h"
 
-uint32_t milliseconds = 0;
+volatile uint64_t milliseconds = 0;
+volatile uint32_t TicksGlobal_mS = 0;
 
 void TIM16_Start(uint32_t Prescaler, uint32_t Count) {
 
@@ -52,6 +56,11 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     //EXTI->IMR|=EXTI_IMR_MR0; //разрешаю внешние прерывания
     // HAL_IWDG_Refresh(&hiwdg);
     milliseconds++;
+    TicksGlobal_mS++;
+    
+    if(!(milliseconds % 100)){
+       if(LCD.init) F_push(loop);
+    }
   }
 }
 

@@ -43,7 +43,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f3xx_hal.h"
-#include "cmsis_os.h"
 #include "dma.h"
 #include "fatfs.h"
 #include "iwdg.h"
@@ -57,6 +56,10 @@
 #include "timer17.h"
 #include "timer6.h"
 #include "simcom.h"
+#include "core.h"
+#include "sd_files.h"
+#include "lcd.h"
+#include "vend.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -69,7 +72,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void Error_Handler(void);
-void MX_FREERTOS_Init(void);
+
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -101,23 +104,43 @@ int main(void) {
     MX_TIM17_Init();
 
     /* USER CODE BEGIN 2 */
+
+    
+    pSlowQueueIni(); // queues initialization
+    pMediumQueueIni();
+    pFastQueueIni();
+  
+    ///Start timers
     TIM6_Start(8,450);   // 50 us timer
     TIM16_Start(9, 8000); // start  timer 16 for millisecond calculation
     TIM17_Start(9, 800); // start  timer 17 at 100 uS
-    SIM800_Ini();
-
+    
+    
     /* USER CODE END 2 */
     /* Call init function for freertos objects (in freertos.c) */
-    MX_FREERTOS_Init();
+    MX_FATFS_Init();
+    lcd_init();
+    VendInit();
     /* Start scheduler */
-    osKernelStart();
-
+    Delay_ms_OnFastQ(1000);
+    SD_GetData();
+    
+    SIM800_Ini();
+    
+    SIM800_IniCMD();
+    SIM800_get_Balance();
+    SIM800_init_info_upload();
+    
+    SIM800_info_upload();
+    SIM800_command();
+    SIM800_pop_washing();
+    Sim800.initialized = 1;
     /* We should never get here as control is now taken by the scheduler */
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1) {
         /* USER CODE END WHILE */
-
+        F_pull()();
         /* USER CODE BEGIN 3 */
 
     }

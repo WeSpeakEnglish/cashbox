@@ -1,5 +1,6 @@
 
 #include "WASHERS.h"
+#include "vend.h"
 
 volatile uint8_t read_front = 0;
 
@@ -13,33 +14,6 @@ void WASHERS_Init (void)
 	WasherSettings_t *washers_list;
 
 	washers_list = WASHERS_EEMEMGetAll();
-/*
-	(washers_list + 0)->start_button_pin   = WASHER_SB1;
-	(washers_list + 0)->send_signal_relay  = RELAY_1;
-
-	(washers_list + 1)->start_button_pin   = WASHER_SB2;
-	(washers_list + 1)->send_signal_relay  = RELAY_2;
-
-	(washers_list + 2)->start_button_pin   = WASHER_SB3;
-	(washers_list + 2)->send_signal_relay  = RELAY_3;
-
-	(washers_list + 3)->start_button_pin   = WASHER_SB4;
-	(washers_list + 3)->send_signal_relay  = RELAY_4;
-
-	(washers_list + 4)->start_button_pin   = WASHER_SB5;
-	(washers_list + 4)->send_signal_relay  = RELAY_5;
-
-	(washers_list + 5)->start_button_pin   = WASHER_SB6;
-	(washers_list + 5)->send_signal_relay  = RELAY_6;
-
-	(washers_list + 6)->start_button_pin   = WASHER_SB7;
-	(washers_list + 6)->send_signal_relay  = RELAY_7;
-
-	(washers_list + 7)->start_button_pin   = WASHER_SB8;
-	(washers_list + 7)->send_signal_relay  = RELAY_8;
-
-    WASHERS_SBsInit();
- */
 
     // check prices validity
     is_prices_changed = 0;
@@ -52,8 +26,7 @@ void WASHERS_Init (void)
     	}
     }
     // update eeprom if some default prices loaded
-    if (is_prices_changed)
-    	WASHERS_EEMEMUpdateAll();
+  
 }
 
 WasherSettings_t * WASHERS_RAMGetAll (void)
@@ -84,26 +57,13 @@ void WASHERS_EEMEMResetAll  (void)
 	//sei();
 }
 
-void WASHERS_EEMEMUpdateAll (void)
-{
-	uint8_t i;
-	WasherSettings_t *washers_list;
-	washers_list = WASHERS_RAMGetAll();
-	//cli();
-	///for (i = 0; i < WASHERS_MAX_COUNT; ++i)
-	//	eeprom_update_word( (uint16_t *)(EEPROM_WashersPricesADDR + i * sizeof(uint16_t)), washers_list[i].price );
-	//sei();
-}
-
 /*
  * Returned value:
  *      corresponding price, from 0 to MAX_INT16_T
  */
 uint16_t WASHER_RAMGetPrice (uint8_t washer_number)
 {
-	WasherSettings_t *washers_list;
-	washers_list = WASHERS_RAMGetAll();
-	return washers_list[washer_number - 1].price;
+	return WL[washer_number-1].price;
 }
 /*
  * Set the price of the selected washer
