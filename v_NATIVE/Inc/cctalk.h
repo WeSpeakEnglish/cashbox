@@ -3,7 +3,7 @@
 
 
 
-#define BUFLEN_CC 32
+#define BUFLEN_CC 64
 
 typedef struct{
  volatile uint8_t  buffer[BUFLEN_CC];    // easy without twice buffering awaiting while ready

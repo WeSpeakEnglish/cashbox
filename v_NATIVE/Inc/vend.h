@@ -13,6 +13,7 @@ extern WasherSettings_t WL[MAX_WASHINGS]; // that is an array of structs
 extern VendSession_t Vend;
 extern VendSession_t Session;
 extern VendSession_t* p_session;
+extern uint16_t terminal_UID;
 
 void enableCashInput(void);
 void disableCashInput(void);

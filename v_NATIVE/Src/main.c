@@ -122,7 +122,8 @@ int main(void) {
     lcd_init();
     VendInit();
     /* Start scheduler */
-    Delay_ms_OnFastQ(1000);
+    Delay_ms_OnFastQ(500);
+    SD_GetID();
     SD_GetData();
     
     SIM800_Ini();
@@ -141,6 +142,8 @@ int main(void) {
     while (1) {
         /* USER CODE END WHILE */
         F_pull()();
+        M_pull()();
+        S_pull()();
         /* USER CODE BEGIN 3 */
 
     }

@@ -12,19 +12,78 @@
 #define RET_ERR_1 2
 
 
+//expiration time to return to ini state (milliseconds)
+#define SELECT_WASHER_EXPIRATION                        20000
+#define INSERT_FUNDS_EXPIRATION                         90000
+#define START_WASHING_FAILED_EXPIRATION                 90000
+#define WASHING_STARTED_SUCCESSFULLY_EXPIRATION         90000
+#define SERVICE_MENU_EXPIRATION                         90000
+#define SERVICE_MENU2_EXPIRATION                        90000
+#define SERVICE_INFO1_EXPIRATION                        90000
 
 WasherSettings_t * washers_list = &WL[0]; // that is an array of structs
 
 volatile uint32_t simple_timeout_tmp = 0;
 
+
+uint8_t CheckState(void){ // set the timer to exit, it returns time expiration (yes/no)as well 
+  static SessionState_t OldCondition = INITIALIZATION; // here is the start condition 
+  static uint64_t ExpirationTime = 0;
+  static uint8_t Expiration_Set_Flag; // setFlag - meant that exp time was set (for expirate only once)
+  
+  if(OldCondition != p_session->current_state){ //what we do on entrance to this section (once)
+    OldCondition = p_session->current_state; 
+    switch(p_session->current_state ){ //and set the timer to exit
+      
+    case  SELECT_WASHER:
+      Expiration_Set_Flag = 1;
+      ExpirationTime = millis() + SELECT_WASHER_EXPIRATION;
+        break;
+    case  INSERT_FUNDS:
+      Expiration_Set_Flag = 1;
+      ExpirationTime = millis() + INSERT_FUNDS_EXPIRATION;
+        break;   
+    case  START_WASHING_FAILED:
+      Expiration_Set_Flag = 1;
+      ExpirationTime = millis() + START_WASHING_FAILED_EXPIRATION;
+        break;       
+    case  WASHING_STARTED_SUCCESSFULLY:
+      Expiration_Set_Flag = 1;
+      ExpirationTime = millis() + WASHING_STARTED_SUCCESSFULLY_EXPIRATION;
+        break;        
+    case  SERVICE_MENU:
+      Expiration_Set_Flag = 1;
+      ExpirationTime = millis() + SERVICE_MENU_EXPIRATION;
+        break;    
+    
+    case  SERVICE_MENU2:
+      Expiration_Set_Flag = 1;
+      ExpirationTime = millis() + SERVICE_MENU2_EXPIRATION;
+        break;       
+    case  SERVICE_INFO1:
+      Expiration_Set_Flag = 1;
+      ExpirationTime = millis() + SERVICE_INFO1_EXPIRATION;
+        break;          
+    } 
+  }
+  else{
+    if(Expiration_Set_Flag){
+      if(millis() > ExpirationTime){
+        Expiration_Set_Flag = 0;
+        return 1; // means expiration
+      }
+    }
+  }
+  return 0;
+}
+
 void loop(void)
 {
-   static char c;
    static uint8_t i;
    static uint16_t lcdupd_ret;
-   static VendSession_t *p_session;
    static uint16_t scaler = 0;
    static uint32_t inactivity_period_ms = 0; // default - timer is off
+   
     
     p_session = VendSession_RAMGetSession();
 
@@ -54,42 +113,54 @@ void loop(void)
         {
             // initialization
             case INITIALIZATION: // must not be
-                inactivity_period_ms = 0;
                 doAlmostNothing(WAIT_FOR_START); break;
             // user interface
             case WAIT_FOR_START:
-                inactivity_period_ms = 0;
                 waitForSession(); break;
             case SELECT_WASHER:
-                inactivity_period_ms = (20 * 1000L);
+              if(CheckState()){
+                p_session->current_state = WAIT_FOR_START;
+              }
                 waitForSelection(); break;
             case INSERT_FUNDS:
-                inactivity_period_ms = (90 * 1000L);
+              if(CheckState()){
+                p_session->current_state = WAIT_FOR_START;
+              }
                 waitForFunds(); break;
             case START_WASHING:
                 inactivity_period_ms = 0;
                 checkIfWashingWasStarted(); break;
             case START_WASHING_FAILED:
-                inactivity_period_ms = (90 * 1000L); // another timeout set in on_enter (by TMP_SUBSTATE)
+             if(CheckState()){
+                p_session->current_state = WAIT_FOR_START;
+              }
                 doAlmostNothing(SELECT_WASHER); break;
             case WASHING_STARTED_SUCCESSFULLY:
-                inactivity_period_ms = (90 * 1000L); // another timeout set in on_enter (by TMP_SUBSTATE)
+              if(CheckState()){
+                p_session->current_state = WAIT_FOR_START;
+              }
                 doAlmostNothing(WAIT_FOR_START); break;
             // service menu interface
             case ENTER_PASSWORD:
-                inactivity_period_ms = 0;
                 waitForPassword(); break;
             case SERVICE_MENU:
-                inactivity_period_ms = (90 * 1000L);
+              if(CheckState()){
+                p_session->current_state = WAIT_FOR_START;
+              }
                 serviceMenu(); break;
             case SET_NEW_PASSWORD:
-                inactivity_period_ms = 0;
+             //   inactivity_period_ms = 0;
                 setNewPassword(); break;
             case SERVICE_MENU2:
-                inactivity_period_ms = (90 * 1000L);
+              if(CheckState()){
+                p_session->current_state = WAIT_FOR_START;
+              }
                 serviceMenu2(); break;
             case SERVICE_INFO1:
-                inactivity_period_ms = (90 * 1000L); // another timeout set in on_enter (by TMP_SUBSTATE)
+              if(CheckState()){
+                p_session->current_state = WAIT_FOR_START;
+              }
+             //   inactivity_period_ms = (90 * 1000L); // another timeout set in on_enter (by TMP_SUBSTATE)
                 doAlmostNothing(SERVICE_MENU2); break;
             default: break;
         }
@@ -129,7 +200,6 @@ int8_t switch_state(SessionState_t to)
 
 void enter_substate(SessionSubState_t to)
 {
-    VendSession_t *p_session = VendSession_RAMGetSession();
     if ( (to == TMP_SUBSTATE) || (to == TMP_SUBSTATE2) ) simpleTimeoutInit(&simple_timeout_tmp);
     p_session->current_substate = to;
 }
@@ -137,11 +207,7 @@ void enter_substate(SessionSubState_t to)
 int8_t on_enter_state(SessionState_t to)
 {
     int8_t success = 0;
-    VendSession_t *p_session;
- 
 
-
-    p_session = VendSession_RAMGetSession();
     // do something on enter
     switch (to)
     {
@@ -196,9 +262,6 @@ int8_t on_enter_state(SessionState_t to)
 int8_t on_exit_state(void)
 {
     int8_t success = 0;
-    VendSession_t *p_session;
-
-    p_session = VendSession_RAMGetSession();
     // reset substate on any exit
     enter_substate(NO_SUBSTATE);
     // do something on exit
@@ -220,7 +283,6 @@ void waitForSession(void)
 
     c = readKey();
 
-    p_session = VendSession_RAMGetSession();
 
     if ( c == '#' )
     {
@@ -250,18 +312,19 @@ void waitForSelection(void)
 {
     char c;
     uint8_t washer_num;
-    VendSession_t *p_session;
     
     c = readKey();
 
     washer_num = c - 0x30;
-    p_session = VendSession_RAMGetSession();
+
 
     if ( IS_WASHER_VALID(washer_num) )
         p_session->selected_washer = washer_num;
-
+  
+   
     if ( c == '#' )
     {
+      if(p_session->selected_washer) {
         // selected washer is not in use then go on with cash inserted
         if ( (p_session->washers_in_use[ p_session->selected_washer - 1 ] == 0) )
         {
@@ -276,6 +339,7 @@ void waitForSelection(void)
             p_session->tmp_substate_timeout = (5000L);
             enter_substate(TMP_SUBSTATE);
         }
+      }
     }
     else if ( c == '*' )
     {
@@ -287,7 +351,6 @@ void waitForSelection(void)
 void waitForFunds(void)
 {
     char c;
-    VendSession_t *p_session; //   DbgInfo_t *p_dbg;
 
     c = readKey();
 
@@ -302,16 +365,17 @@ void waitForFunds(void)
   
         uint16_t cashbox_delta = 0;
         enter_substate(NO_SUBSTATE);
-        
-        if (!ccTalk.gotMoney) {
+        if(ccTalk.TransferFlag){
+         if (!ccTalk.gotMoney) {
             ccTalkSendCMD(CC_REQ_ACC_COUNT);
             ccTalkParseAccCount();
-        } 
-        else {
+         } 
+         else {
             ccTalkSendCMD(CC_READBUFFEREDBILL);
             ccTalkParseStatus();
+         }
+         ccTalk.TransferFlag = 0;
         }
-        
         //p_dbg->_dbg_silence_counter = SILENCE_CNTR_THR + 1; // "eating done" served
        // cashbox_delta = BillValidator_Eat();
 
@@ -331,7 +395,7 @@ void waitForFunds(void)
      //           DEBUG.println( cashbox_delta );
       //      #endif
         //}
-    
+      p_session->inserted_funds = Vend.inserted_funds; 
 
     if ( p_session->inserted_funds >= washers_list[p_session->selected_washer - 1].price )
     {
@@ -362,9 +426,7 @@ void waitForFunds(void)
 void checkIfWashingWasStarted(void)
 {
     char c;
-    VendSession_t *p_session;
-
-    
+   
     c = readKey();
 
     
@@ -430,11 +492,9 @@ void doAlmostNothing(SessionState_t after)
 void waitForPassword(void)
 {
     char c;
-    VendSession_t *p_session;
     static uint8_t pwd_position = 0;
     char *pwd_input_buffer, *pwd_eemem_buffer;
     
-    p_session = VendSession_RAMGetSession();
     pwd_input_buffer = VendSession_GetTypedPwd();    
 
     c = readKey();
@@ -539,7 +599,6 @@ void serviceMenu(void)
 {
     char c;
     uint8_t washer_num = 0;
-    VendSession_t *p_session;
 
     c = readKey();
 

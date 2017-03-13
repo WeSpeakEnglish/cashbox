@@ -2,6 +2,7 @@
 #include "simcom.h"
 #include <string.h>
 #include "vend.h"
+#include "sd_files.h"
 
 //SemaphoreHandle_t xSemaphoreParse = NULL;
 
@@ -176,6 +177,7 @@ uint8_t wm;
 uint8_t    i = 0;
 uint8_t i2 = 1;
 uint8_t mul = 1;
+uint8_t SetWM = 0;
 volatile  uint8_t * str = Sim800.pReadyBuffer;
 while(str[i] != '\0'){
   if(str[i++] == 'w')     
@@ -188,11 +190,15 @@ while(str[i] != '\0'){
     mul = 1;
   while((str[i-i2] < 0x3A)&&( i > i2)){     
      WL[wm].price += (str[i-i2] - 0x30)*mul;
- //    WL[wm].index = wm + 1; //existed indexes
+      //    WL[wm].index = wm + 1; //existed indexes
      mul*=10;
      i2++;
    }      
+   SetWM =1;
   }
+ }
+if(SetWM){
+ SD_SetData();
  }
  return;
 }

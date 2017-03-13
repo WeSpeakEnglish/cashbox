@@ -6,6 +6,8 @@
 #include "lcd.h"
 #include "core.h"
 #include "statemachine.h"
+#include "cctalk.h"
+#include "vend.h"
 
 volatile uint64_t milliseconds = 0;
 volatile uint32_t TicksGlobal_mS = 0;
@@ -30,7 +32,7 @@ void TIM16_Reset(void) {
     TIM16->CNT = 0;
 }
 
-uint32_t millis(void){
+uint64_t millis(void){
 
 return milliseconds;
 }
@@ -59,8 +61,13 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     TicksGlobal_mS++;
     
     if(!(milliseconds % 100)){
-       if(LCD.init) F_push(loop);
+       if(LCD.init) M_push(loop);
     }
+    if(p_session->current_state == INSERT_FUNDS){
+     if(!(milliseconds % 490)){
+        ccTalk.TransferFlag = 1;
+     }
+   }
   }
 }
 

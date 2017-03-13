@@ -36,9 +36,8 @@ uint8_t ccTalkChecksum(uint8_t * pBuff, uint8_t size) {
 }
 
 uint8_t ccTalkParseOK(void) { //if command receive
-    while (!ccTalk.readyBuff) {
-        Delay_ms_OnFastQ(10);
-    }
+ 
+           
     if (ccTalk.buffer[3] == 0x00)
         return 1; // one is OK
     else
@@ -50,10 +49,6 @@ uint8_t ccTalkParseOK(void) { //if command receive
 void ccTalkParseAccCount(void) { // we need to register change of this value
     static int16_t OldValue = -1; //ini state
     uint8_t i;
-
-    while (!ccTalk.readyBuff) {
-        Delay_ms_OnFastQ(10);
-    }
 
     for (i = 0; i < ccTalk.readySymbols; i++) {
         if (ccTalk.buffer[i] == 1)
@@ -88,10 +83,6 @@ void ccTalkParseStatus(void) {
     uint8_t i;
 
     memset(Str, 0, sizeof (Str));
-
-    while (!ccTalk.readyBuff) {
-        Delay_ms_OnFastQ(10);
-    }
 
     for (i = 0; i < ccTalk.readySymbols; i++) {
         if (ccTalk.buffer[i] == 1)
@@ -205,7 +196,7 @@ void UART5_IRQHandler(void) {
             ccTalk.buffer[ccTalk.IndWR] = (uint8_t) tmpval;
             ccTalk.IndWR++;
             // protection
-            if (!(ccTalk.IndWR > BUFLEN_CC - 2)) // protect
+            if (ccTalk.IndWR > BUFLEN_CC - 2) // protect
                 ccTalk.IndWR = 0;
             tmpval = huart5.Instance->RDR; // Clear RXNE bit
             UNUSED(tmpval);

@@ -9,6 +9,7 @@ VendSession_t Vend;
 WasherSettings_t WL[MAX_WASHINGS]; 
 VendSession_t Session;
 VendSession_t* p_session = &Session;
+uint16_t terminal_UID = 0;
 
 void enableCashInput(void){
     ccTalkSendCMD(CC_OPEN);

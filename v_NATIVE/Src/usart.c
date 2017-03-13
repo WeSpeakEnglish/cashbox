@@ -273,7 +273,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     
     
     NVIC_EnableIRQ(USART2_IRQn);
-    NVIC_SetPriority (USART2_IRQn, 6);
+ //   NVIC_SetPriority (USART2_IRQn, 6);
     // NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
     /* USER CODE END USART2_MspInit 1 */
   }

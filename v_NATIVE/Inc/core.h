@@ -41,7 +41,8 @@ void DelayOnFastQ(uint8_t WaitQFast); // push several tasks from the Fast Queue
 void DelayOnMediumQ(uint8_t WaitQMedium); // push several tasks from the Medium Queue
 void DelayOnSlowQ(uint8_t WaitQSlow); // push several tasks from the Slow Queue
 uint8_t Delay_ms_OnProcessRoutine(void (*pointerF)(void),uint32_t TimeDel, uint8_t Ini); //DO OUR void function(void) while expecting TimeDel microsec or another timer periods
-void Delay_ms_OnFastQ(uint64_t Delay);
+void Delay_ms_OnFastQ(uint64_t Delay); // waiting for time at (getting out) Fast queue
+void Delay_ms_OnMediumQ(uint64_t Delay);// waiting for time at (getting out) Medium queue to achieve complexity
 
 #ifdef __cplusplus
 }

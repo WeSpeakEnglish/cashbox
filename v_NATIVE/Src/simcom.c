@@ -1,3 +1,5 @@
+#define SIMCOM_PWR_PORT GPIOA
+#define SIMCOM_PWR_PIN  GPIO_PIN_4
 #include "simcom.h"
 #include "parse_sim800.h"
 #include "stm32f303xc.h"
@@ -93,7 +95,7 @@ void SIM800_info_upload(void) // upload info to the server
     char post_body[35];
     char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-    sprintf(id_str, "id=%d", TERMINAL_UID);
+    sprintf(id_str, "id=%d", terminal_UID);
 
     memset(post_body, 0, 25);
     strcat(post_body, id_str);
@@ -115,7 +117,7 @@ void SIM800_command(void) {
     char post_body[35];
     char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-    sprintf(id_str, "id=%d", TERMINAL_UID);
+    sprintf(id_str, "id=%d", terminal_UID);
 
     memset(post_body, 0, 25);
     strcat(post_body, id_str);
@@ -137,7 +139,7 @@ void SIM800_init_info_upload(void) {
     char post_body[64];
     char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-    sprintf(id_str, "id=%d", TERMINAL_UID);
+    sprintf(id_str, "id=%d", terminal_UID);
     memset(post_body, 0, 64);
     strcat(post_body, id_str);
     strcat(post_body, "&lat=");
@@ -203,11 +205,13 @@ void SIM800_waitAnswer(uint8_t Cycles) {
         Sim800.parsed = 0;
         while (Sim800.parsed == 0) {
             Delay_ms_OnFastQ(100);
+            M_pull()();
             wait++;
             if(wait ==  LONG_WAITING)
               break;
         }
         Delay_ms_OnFastQ(100);
+     //   M_pull()();
     }
 }
 
@@ -241,9 +245,9 @@ void SIM800_IniCMD(void) {
     __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE); //Enable IDLE
     __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE); //Enable IDLE
     ResParse.byte = 0; //reset parsed bits
-    Delay_ms_OnFastQ(3000);
+    Delay_ms_OnMediumQ(3000);
     SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
-    Delay_ms_OnFastQ(4000);
+    Delay_ms_OnMediumQ(4000);
 
     SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
     SIM800_waitAnswer(1);
@@ -273,7 +277,7 @@ void SIM800_pop_washing(void) {
     char str[8]; // an addition str to add
     char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-    sprintf(id_str, "id=%d", TERMINAL_UID);
+    sprintf(id_str, "id=%d", terminal_UID);
     memset(post_body, 0, 64);
     strcat(post_body, id_str);
     strcat(post_body, "&wm=");
@@ -383,4 +387,3 @@ void serial_clear(UART_HandleTypeDef * usart) {
     __HAL_UART_CLEAR_IT(usart, UART_FLAG_TC);
     __HAL_UART_SEND_REQ(usart, UART_RXDATA_FLUSH_REQUEST);
 }
-

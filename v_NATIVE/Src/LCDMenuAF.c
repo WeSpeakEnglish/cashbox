@@ -316,7 +316,6 @@ void LCDMenu_ServiceMenu2(void)
 
 void LCDMenu_ServiceInfo1(void)
 {
-    VendSession_t *p_session;
     volatile uint16_t *p_cashbox;
     volatile uint16_t *p_clients_count;
 

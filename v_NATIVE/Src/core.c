@@ -223,6 +223,11 @@ void Delay_ms_OnFastQ(uint64_t Delay){
                         F_pull()(); 
 }
 
+void Delay_ms_OnMediumQ(uint64_t Delay){
+  uint64_t TargetTime = Delay + millis(); 
+ while(millis() < TargetTime)
+                        M_pull()(); 
+}
 // wait some condition but no more that, for exapmle: while (var1!=0 && WaitOnFastQ())
 void DelayOnFastQ(uint8_t WaitQFast){// set this variable and stay waiting on the fast queue
 
