@@ -175,5 +175,89 @@ void SD_GetID(void){
             }
     }
   SD_LedOn(0);
- 
+}
+
+void SD_GetSession(void){
+     FRESULT frslt;
+    FATFS filesystem;
+    char filebuf[WASHERS_MAX_COUNT*4];
+    uint8_t State = 0;
+    char * pChar = &filebuf[0];
+    FIL file;
+    UINT nRead, i = 0;
+    if (SD_Detect()) {
+            frslt = f_mount(&filesystem, "0:", 1); //mount the drive 
+            if (frslt == FR_OK) {
+              frslt = f_open(&file, "session.txt", FA_OPEN_EXISTING | FA_READ); //open the existed file
+                 if (frslt == FR_OK) {
+                    while (!f_eof(&file) && i < sizeof (filebuf)) {
+                        f_read(&file, (pChar + i), 1, &nRead);
+                        switch(State){
+                            case 0:
+                              if (i == sizeof(Session)-1){
+                                pChar = &filebuf[0];
+                                i = 0;
+                                State++;
+                                memcpy((void *)&Session, (const void * )pChar, sizeof(Session)); 
+                              }
+                              break;
+                            case 1:
+                              if (i == sizeof(UserCounter)-1){
+                                pChar = &filebuf[0];
+                                i = 0;
+                                State++;
+                                memcpy((void *)&UserCounter, (const void * )pChar, sizeof(UserCounter)); 
+                              }
+                              break; 
+                            case 2: 
+                              if (i == sizeof(CashBOX)-1){
+                                pChar = &filebuf[0];
+                                i = 0;
+                                State++;
+                                memcpy((void *)&CashBOX, (const void * )pChar, sizeof(CashBOX)); 
+                              }
+                              break;
+                            case 3:  
+                              if (i == sizeof(Password)-1){
+                                pChar = &filebuf[0];
+                                i = 0;
+                                State++;
+                                memcpy((void *)&Password, (const void * )pChar, sizeof(Password)); 
+                              }
+                              break;  
+                        }
+                       i++;   
+                }
+  
+                f_close(&file); //close the file 
+                f_mount(NULL, "0:", 0); //unmount the drive 
+            }
+            }
+    }
+  SD_LedOn(0);
+}
+
+void SD_SetSession(void){
+    FRESULT frslt;
+    FATFS filesystem;
+    FIL file;
+    UINT nWrite;
+    if (SD_Detect()) {
+            frslt = f_mount(&filesystem, "0:", 1); //mount the drive 
+            if (frslt == FR_OK) {
+                frslt = f_open(&file, "session.txt", FA_WRITE | FA_CREATE_ALWAYS); //open the existed file
+                if (frslt == FR_OK) {
+                           f_write(&file, (const void *) &Session, sizeof(Session), &nWrite);
+                           f_write(&file, (const void *) &UserCounter, sizeof(UserCounter), &nWrite);
+                           f_write(&file, (const void *) &CashBOX, sizeof(CashBOX), &nWrite);
+                           f_write(&file, (const void *) &Password, sizeof(Password), &nWrite);
+
+                   }
+                    f_close(&file); //close the file 
+                }
+                f_mount(NULL, "0:", 0); //unmount the drive 
+            }
+    
+    SD_LedOn(0);
+return;
 }

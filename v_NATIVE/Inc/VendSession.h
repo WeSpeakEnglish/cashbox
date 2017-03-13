@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "simcom.h"
+#include "WASHERS.h"
 
 /* Address of saved data in EEPROM
  * Required size is: VendSession_t:
@@ -24,6 +25,9 @@
 #define EEPROM_VendSessionCashboxADDR      (0x18)
 #define EEPROM_VendSessionClientsCountADDR (0x1C) // offset includes the password
 #define VendSession_EEMEMPasswordADDR	   (0x20)
+
+#define WASHERS_MAX_COUNT	8
+
 
 //#define EEPROM_WASHERS_OFFSET       (0x40)
 #define EEPROM_WashersPricesADDR	(0x40)
@@ -67,7 +71,7 @@ typedef struct {
 	SessionSubState_t current_substate;
 	uint32_t tmp_substate_timeout;
 	uint16_t inserted_funds;
-	uint8_t washers_in_use[8];
+	uint8_t washers_in_use[WASHERS_MAX_COUNT];
 } VendSession_t;
 /*
  * To read values from EEPROM user must first read them into RAM

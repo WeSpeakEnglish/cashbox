@@ -7,9 +7,18 @@
 
 VendSession_t Vend;
 WasherSettings_t WL[MAX_WASHINGS]; 
+
+
+uint16_t terminal_UID = 0; //initialValue, actual value will be get fromSD
+
+
 VendSession_t Session;
+uint16_t UserCounter[WASHERS_MAX_COUNT]={10,11,12,13,14,15,16,17};
+uint32_t CashBOX;
+uint8_t Password[PASSWORD_LENGTH]={'1','2','3','4','5','6'};
+
 VendSession_t* p_session = &Session;
-uint16_t terminal_UID = 0;
+
 
 void enableCashInput(void){
     ccTalkSendCMD(CC_OPEN);

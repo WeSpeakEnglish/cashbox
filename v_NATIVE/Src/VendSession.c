@@ -1,6 +1,6 @@
 
 #include "VendSession.h"
-#include "WASHERS.h"
+
 
 // EEPROM reading functions are local, used once in Init
 static VendSession_t * VendSession_EEMEMGetSession      (void);

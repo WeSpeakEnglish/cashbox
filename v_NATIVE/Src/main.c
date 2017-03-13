@@ -125,7 +125,23 @@ int main(void) {
     Delay_ms_OnFastQ(500);
     SD_GetID();
     SD_GetData();
-    
+    /// test
+    Session.current_state =  WAIT_FOR_START;
+    Session.current_substate = TMP_SUBSTATE;
+    Session.inserted_funds = 32000;
+    Session.selected_washer = 5;
+    Session.tmp_substate_timeout = 10000;
+    Session.washers_in_use[0] = 1;
+    Session.washers_in_use[1] = 0;
+    Session.washers_in_use[2] = 0;
+    Session.washers_in_use[3] = 1;
+    Session.washers_in_use[4] = 0;
+    Session.washers_in_use[5] = 0;
+    Session.washers_in_use[6] = 0;
+    Session.washers_in_use[7] = 1;
+    SD_SetSession();
+    SD_GetSession();
+    //test
     SIM800_Ini();
     
     SIM800_IniCMD();

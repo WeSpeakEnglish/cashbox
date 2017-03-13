@@ -3,7 +3,7 @@
 
 #include "VendSession.h"
 
-#define WASHERS_MAX_COUNT	8
+
 
 #define DISABLE                 0
 #define ENABLE                  1
