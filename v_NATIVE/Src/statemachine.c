@@ -125,6 +125,7 @@ void loop(void)
             case INSERT_FUNDS:
               if(CheckState()){
                 p_session->current_state = WAIT_FOR_START;
+                disableCashInput();
               }
                 waitForFunds(); break;
             case START_WASHING:
@@ -395,7 +396,7 @@ void waitForFunds(void)
      //           DEBUG.println( cashbox_delta );
       //      #endif
         //}
-      p_session->inserted_funds = Vend.inserted_funds; 
+    //  p_session->inserted_funds = Vend.inserted_funds; 
 
     if ( p_session->inserted_funds >= washers_list[p_session->selected_washer - 1].price )
     {
@@ -418,6 +419,7 @@ void waitForFunds(void)
         if (1) // cancel anyway! why not?
         {
             switch_state(SELECT_WASHER);
+            disableCashInput();
             return;
         }
     }

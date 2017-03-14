@@ -19,7 +19,9 @@ const uint8_t ccReadBufferedBill[] = {0, 0, 1, 159, 96};
 const uint8_t ccRequestAccepterCounter[] = {0, 0, 1, 225, 30};
 const uint8_t SimplePool[] = {2, 0, 1, 254, 255};
 
-const uint8_t ccClose[] = {0, 1, 1, 231, 0, 0};
+//const uint8_t ccClose[] = {0, 2, 1, 231, 0, 0, 0};
+const uint8_t ccClose[] = {0, 1, 1, 228, 0, 26};
+
 CC_struct ccTalk;
 
 uint8_t ccTalkChecksum(uint8_t * pBuff, uint8_t size) {
@@ -95,22 +97,28 @@ void ccTalkParseStatus(void) {
 
                             switch (ccTalk.buffer[i + 5]) {
                                 case RUR_10:
-                                    Vend.inserted_funds += 10;
+                                  //  Vend.inserted_funds += 10;
+                                  p_session->inserted_funds += 10;
                                     break;
                                 case RUR_50:
-                                    Vend.inserted_funds += 50;
+                                  //  Vend.inserted_funds += 50;
+                                  p_session->inserted_funds += 50;
                                     break;
                                 case RUR_100:
-                                    Vend.inserted_funds += 100;
+                                   // Vend.inserted_funds += 100;
+                                   p_session->inserted_funds += 100;
                                     break;
                                 case RUR_500:
-                                    Vend.inserted_funds += 500;
+                                   // Vend.inserted_funds += 500;
+                                   p_session->inserted_funds += 500;
                                     break;
                                 case RUR_1000:
-                                    Vend.inserted_funds += 1000;
+                                  //  Vend.inserted_funds += 1000;
+                                   p_session->inserted_funds += 1000;
                                     break;
                                 case RUR_5000:
-                                    Vend.inserted_funds += 5000;
+                                  //  Vend.inserted_funds += 5000;
+                                   p_session->inserted_funds += 5000;
                                     break;
                             }
                             ccTalk.gotMoney = 0;
@@ -143,6 +151,7 @@ void ccTalkSendCMD(uint8_t Des) {
             HAL_UART_Transmit(&huart5, (uint8_t *) ccRequest, sizeof (ccRequest), 10);
             break;
         case CC_CLOSE:
+            tmpval = ccTalkChecksum((uint8_t * )ccClose, sizeof(ccClose) - 1);
             HAL_UART_Transmit(&huart5, (uint8_t *) ccClose, sizeof (ccClose), 10);
             break;
         case CC_SIMPLEPOOL:

@@ -192,9 +192,10 @@ void SD_GetSession(void){
                  if (frslt == FR_OK) {
                     while (!f_eof(&file) && i < sizeof (filebuf)) {
                         f_read(&file, (pChar + i), 1, &nRead);
+                        i++; 
                         switch(State){
                             case 0:
-                              if (i == sizeof(Session)-1){
+                              if (i == sizeof(Session)){
                                 pChar = &filebuf[0];
                                 i = 0;
                                 State++;
@@ -202,7 +203,7 @@ void SD_GetSession(void){
                               }
                               break;
                             case 1:
-                              if (i == sizeof(UserCounter)-1){
+                              if (i == sizeof(UserCounter)){
                                 pChar = &filebuf[0];
                                 i = 0;
                                 State++;
@@ -210,7 +211,7 @@ void SD_GetSession(void){
                               }
                               break; 
                             case 2: 
-                              if (i == sizeof(CashBOX)-1){
+                              if (i == sizeof(CashBOX)){
                                 pChar = &filebuf[0];
                                 i = 0;
                                 State++;
@@ -218,7 +219,7 @@ void SD_GetSession(void){
                               }
                               break;
                             case 3:  
-                              if (i == sizeof(Password)-1){
+                              if (i == sizeof(Password)){
                                 pChar = &filebuf[0];
                                 i = 0;
                                 State++;
@@ -226,7 +227,7 @@ void SD_GetSession(void){
                               }
                               break;  
                         }
-                       i++;   
+                         
                 }
   
                 f_close(&file); //close the file 
