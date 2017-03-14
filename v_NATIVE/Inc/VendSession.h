@@ -107,12 +107,13 @@ extern "C" {
  */
 void VendSession_Init (void);
 VendSession_t * VendSession_RAMGetSession      (void);
-volatile uint16_t      * VendSession_RAMGetCashbox      (void);
-volatile uint16_t      * VendSession_RAMGetClientsCount (void);
+
+uint16_t * VendSession_RAMGetClientsCount (void);
+uint32_t * VendSession_RAMGetCashbox(void);
 
 void VendSession_RAMAddToCashbox(uint16_t delta);
-void VendSession_RAMIncrementClientsCount(void);
-
+void VendSession_RAMIncrementClientsCount(uint8_t Machine);
+uint32_t * VendSession_EEMEMGetCashbox(void);
 //@@@void VendSession_RAMResetSession (void); // called from init function
 
 void VendSession_EEMEMUpdateAll (void);

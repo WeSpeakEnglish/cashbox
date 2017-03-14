@@ -95,6 +95,8 @@ void SIM800_IniCMD(void); // farther commands to open gprs session
 void SIM800_SendCMD(void); // the send CMD operation
 void SIM800_Ini(void); // ini sequence
 void SIM800_info_upload(void); //info upload
+void SIM800_collection(void); //  collection
+
 void SIM800_init_info_upload(void); //upload initialized info to the SERVER
 void SIM800_PowerOnOff(void);
 void SIM800_GPRS_open(void); // open GPRS session

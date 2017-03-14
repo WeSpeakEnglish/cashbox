@@ -316,7 +316,7 @@ void LCDMenu_ServiceMenu2(void)
 
 void LCDMenu_ServiceInfo1(void)
 {
-    volatile uint16_t *p_cashbox;
+    volatile uint32_t *p_cashbox;
     volatile uint16_t *p_clients_count;
 
     p_cashbox = VendSession_RAMGetCashbox();

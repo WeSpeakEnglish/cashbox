@@ -10,6 +10,8 @@
 #include "stm32f3xx_hal.h"
 #include "core.h"
 #include "vend.h"
+#include <string.h>
+
 
 void SD_LedOn(uint8_t OnOff) {
     if (OnOff)
@@ -38,17 +40,32 @@ void parseSD_wm(char * pData) { // we parse string like wm=150
             //    WL[wm].index[i] = (i + 1); //existed index
                 if (pData[3] == '=') {
                     pData = &pData[4];
-                    j = 4;
+                    
                     while(pData[j] > 0x2F){
                       j++;
                     }
-                    j--;
-                    WL[i].start_button_pin = atoi(&pData[j]);
-                    pData[j] = '\0';
-                    j--;
-                    WL[i].send_signal_relay = atoi(&pData[j]);
-                    pData[j] = '\0';
+
+                    pData[j++] = '\0';
                     WL[i].price = atoi(pData);
+                    SD_Prices_WM[i] = WL[i].price;
+                    pData = &pData[j];
+                    j=0;
+                    while(pData[j] > 0x2F){
+                      j++;
+                    }
+                    pData[j++] = '\0';
+                    
+                    WL[i].start_button_pin = atoi(pData);
+                    
+                    pData = &pData[j];
+                    j=0;
+                    while(pData[j] > 0x2F){
+                      j++;
+                    }
+                    pData[j++] = '\0';
+                    
+                    WL[i].send_signal_relay = atoi(pData);
+
 
                 }
             }
@@ -113,8 +130,8 @@ void SD_GetData(void) {
                             parseSD_wm(filebuf);
                             i = 0;
                         } else {
-                            if ((*(pChar + i)) > 0x2F)
-                                i++;
+                            if(((*(pChar + i)) > 0x2F) || (*(pChar + i)) == ',')
+                              i++;
                         }
                     }
                     f_close(&file); //close the file 
@@ -177,10 +194,17 @@ void SD_GetID(void){
   SD_LedOn(0);
 }
 
+
+
 void SD_GetSession(void){
-     FRESULT frslt;
+    FRESULT frslt;
     FATFS filesystem;
-    char filebuf[WASHERS_MAX_COUNT*4];
+    char filebuf[WASHERS_MAX_COUNT * 4];
+    union {
+     uint32_t Long;
+     uint8_t Bytes[4];
+    }U32_Union;
+    
     uint8_t State = 0;
     char * pChar = &filebuf[0];
     FIL file;
@@ -213,9 +237,13 @@ void SD_GetSession(void){
                             case 2: 
                               if (i == sizeof(CashBOX)){
                                 pChar = &filebuf[0];
-                                i = 0;
+                                
                                 State++;
-                                memcpy((void *)&CashBOX, (const void * )pChar, sizeof(CashBOX)); 
+                                for(i=0; i < sizeof(CashBOX); i++)
+                                      U32_Union.Bytes[i] = *(pChar+i);
+                                  
+                                  i = 0;
+                                  CashBOX = U32_Union.Long;
                               }
                               break;
                             case 3:  

@@ -9,6 +9,7 @@
 #include "vend.h"
 #include "calculations.h"
 #include "core.h"
+#include "sd_files.h"
 
 // several commands what we need for
 const uint8_t ccOpen[] = {0, 2, 1, 231, 255, 255, 24};
@@ -83,6 +84,7 @@ void ccTalkParseStatus(void) {
     static int16_t OldCount = -1; // look on count if it goes to change...
     static uint8_t counter = 0; // counter to processing
     uint8_t i;
+    uint16_t DeltaToAdd = 0;
 
     memset(Str, 0, sizeof (Str));
 
@@ -98,28 +100,34 @@ void ccTalkParseStatus(void) {
                             switch (ccTalk.buffer[i + 5]) {
                                 case RUR_10:
                                   //  Vend.inserted_funds += 10;
-                                  p_session->inserted_funds += 10;
+                                  DeltaToAdd += 10;
                                     break;
                                 case RUR_50:
                                   //  Vend.inserted_funds += 50;
-                                  p_session->inserted_funds += 50;
+                                  DeltaToAdd += 50;
                                     break;
                                 case RUR_100:
                                    // Vend.inserted_funds += 100;
-                                   p_session->inserted_funds += 100;
+                                   DeltaToAdd += 100;
                                     break;
                                 case RUR_500:
                                    // Vend.inserted_funds += 500;
-                                   p_session->inserted_funds += 500;
+                                   DeltaToAdd += 500;
                                     break;
                                 case RUR_1000:
                                   //  Vend.inserted_funds += 1000;
-                                   p_session->inserted_funds += 1000;
+                                   DeltaToAdd += 1000;
                                     break;
                                 case RUR_5000:
                                   //  Vend.inserted_funds += 5000;
-                                   p_session->inserted_funds += 5000;
+                                   DeltaToAdd += 5000;
                                     break;
+                                    
+                            }
+                            if(DeltaToAdd){
+                              p_session->inserted_funds += DeltaToAdd;
+                              CashBOX += DeltaToAdd; // add to the cashbox
+                              M_push(SD_SetSession); 
                             }
                             ccTalk.gotMoney = 0;
                         }

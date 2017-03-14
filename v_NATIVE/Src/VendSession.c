@@ -1,11 +1,13 @@
 
 #include "VendSession.h"
+#include "vend.h"
+#include "sd_files.h"
 
 
 // EEPROM reading functions are local, used once in Init
-static VendSession_t * VendSession_EEMEMGetSession      (void);
-static volatile uint16_t      * VendSession_EEMEMGetCashbox      (void);
-static volatile uint16_t      * VendSession_EEMEMGetClientsCount (void);
+VendSession_t * VendSession_EEMEMGetSession      (void);
+uint32_t      * VendSession_EEMEMGetCashbox      (void);
+uint16_t      * VendSession_EEMEMGetClientsCount (void);
 
 /*
  * Initiate VendSession
@@ -79,8 +81,8 @@ void VendSession_Init(void)
 
 VendSession_t * VendSession_RAMGetSession(void)
 {
-	static VendSession_t ram_session = {0};
-	return &ram_session;
+
+	return p_session;
 }
 
 /*
@@ -89,7 +91,7 @@ VendSession_t * VendSession_RAMGetSession(void)
  */
 VendSession_t * VendSession_EEMEMGetSession(void)
 {
-	VendSession_t *p_session = VendSession_RAMGetSession();
+	//VendSession_t *p_session = VendSession_RAMGetSession();
 	/*
 	 * EEPROM function eeprom_read_block() expects first argument (_dst) as (void *) and discards volatile keyword
 	 * This volatile struct can be suddenly updated only via interrupt service routines, and in other cases in the main state machine.
@@ -102,69 +104,61 @@ VendSession_t * VendSession_EEMEMGetSession(void)
 	return p_session;
 }
 
-volatile uint16_t * VendSession_RAMGetCashbox(void)
+uint32_t * VendSession_RAMGetCashbox(void)
 {
-	static volatile uint16_t cashbox = 0;
-	return &cashbox;
+	return &CashBOX;
 }
 
 void VendSession_RAMAddToCashbox(uint16_t delta)
 {
-	volatile uint16_t *p_cashbox = VendSession_RAMGetCashbox();
+	volatile uint32_t *p_cashbox = VendSession_RAMGetCashbox();
 	*p_cashbox += delta;
 }
 
-void VendSession_RAMIncrementClientsCount(void)
+void VendSession_RAMIncrementClientsCount(uint8_t Machine)
 {
-	volatile uint16_t *p_clients_count = VendSession_RAMGetClientsCount();
-	(*p_clients_count) += 1;
+	UserCounter[Machine-1] += 1;
 }
 
-volatile uint16_t * VendSession_EEMEMGetCashbox(void)
+uint32_t * VendSession_EEMEMGetCashbox(void)
 {
-	volatile uint16_t *p_cashbox;
-	p_cashbox = VendSession_RAMGetCashbox();
+	//volatile uint16_t *p_cashbox;
+	//p_cashbox = VendSession_RAMGetCashbox();
 	//*p_cashbox = eeprom_read_word((uint16_t *)EEPROM_VendSessionCashboxADDR);
-	return p_cashbox;
+	return &CashBOX;
 }
 
-volatile uint16_t * VendSession_RAMGetClientsCount(void)
+uint16_t * VendSession_RAMGetClientsCount(void)
 {
-	static volatile uint16_t clients_count = 0;
-	return &clients_count;
+	uint8_t i; // calculate all the clients
+        TotalClientsCounter = 0;
+        for(i = 0; i < WASHERS_MAX_COUNT; i++)
+          TotalClientsCounter += UserCounter[i];
+        
+	return &TotalClientsCounter;
 }
 
-volatile uint16_t * VendSession_EEMEMGetClientsCount(void)
+uint16_t * VendSession_EEMEMGetClientsCount(void)
 {
-	volatile uint16_t *p_clients_count;
-	p_clients_count = VendSession_RAMGetClientsCount();
-//	*p_clients_count = eeprom_read_byte((uint8_t *)EEPROM_VendSessionClientsCountADDR);
-	return p_clients_count;
+	uint8_t i; // calculate all the clients
+        TotalClientsCounter = 0;
+        for(i = 0; i < WASHERS_MAX_COUNT; i++)
+          TotalClientsCounter += UserCounter[i];
+        
+	return &TotalClientsCounter;
 }
 
 // Takes VendSession values from RAM and updates them in EEPROM
 void VendSession_EEMEMUpdateAll(void)
 {
-	VendSession_t *p_session;
-	volatile uint16_t *p_cashbox;
-	volatile uint16_t *p_clients_count;
-	p_session = VendSession_RAMGetSession();
-	p_cashbox = VendSession_RAMGetCashbox();
-	p_clients_count = VendSession_RAMGetClientsCount();
-	// eeprom functions expect _src argument as (const void * (non-volatile)
-	// so one way is to explicitly typecast (void *)&_src
-	//cli();
-	//eeprom_update_block((void *)p_session, (void *)EEPROM_VendSessionStructADDR, sizeof( VendSession_t ));
-	//eeprom_update_word((uint16_t *)EEPROM_VendSessionCashboxADDR, *p_cashbox);
-	//eeprom_update_byte((uint8_t *)EEPROM_VendSessionClientsCountADDR, *p_clients_count);
-	//sei();
+  SD_SetSession();
 }
 
 
 void VendSession_EEMEMUpdateCashbox(void)
 {
-	volatile uint16_t *p_cashbox;
-	p_cashbox = VendSession_RAMGetCashbox();
+	//volatile uint32_t *p_cashbox;
+	//p_cashbox = VendSession_RAMGetCashbox();
 	//cli();
 	//eeprom_update_word((uint16_t *)EEPROM_VendSessionCashboxADDR, *p_cashbox);
 	//sei();
@@ -172,18 +166,21 @@ void VendSession_EEMEMUpdateCashbox(void)
 
 void VendSession_EEMEMUpdateClientsCount(void)
 {
-	volatile uint16_t *p_clients_count;
-	p_clients_count = VendSession_RAMGetClientsCount();
+	//volatile uint16_t *p_clients_count;
+	//p_clients_count = VendSession_RAMGetClientsCount();
 	//cli();
 	//eeprom_update_byte((uint8_t *)EEPROM_VendSessionClientsCountADDR, *p_clients_count);
 	//sei();
+  SD_SetSession();
+        
 }
 
 void VendSession_EEMEMResetCashbox(void)
 {
-	volatile uint16_t *p_cashbox;
+	volatile uint32_t *p_cashbox;
 	p_cashbox = VendSession_RAMGetCashbox();
 	*p_cashbox = 0;
+        SD_SetSession();
 	//cli();
 	//eeprom_update_word((uint16_t *)EEPROM_VendSessionCashboxADDR, *p_cashbox);
 	//sei();
@@ -191,9 +188,11 @@ void VendSession_EEMEMResetCashbox(void)
 
 void VendSession_EEMEMResetClientsCount(void)
 {
-	volatile uint16_t *p_clients_count;
-	p_clients_count = VendSession_RAMGetClientsCount();
-	*p_clients_count = 0;
+uint8_t i;
+  for(i = 0; i < WASHERS_MAX_COUNT; i++)
+    UserCounter[i] = 0;
+  
+  SD_SetSession();
 	//cli();
 	//eeprom_update_byte((uint8_t *)EEPROM_VendSessionClientsCountADDR, *p_clients_count);
 	//sei();
@@ -204,7 +203,7 @@ void VendSession_EEMEMResetClientsCount(void)
 // ~~~~~~~~~~~~~~~~~~~~~~~~
 char * VendSession_EEMEMGetPwd(void)
 {
-	const char *default_pwd = "479157"; // default password
+
 	static char password[VendSession_PwdSize + 1]; // including null terminator
 	uint8_t i;
 
@@ -215,27 +214,26 @@ char * VendSession_EEMEMGetPwd(void)
 	//sei();
 
 	// check for validity
-	for (i = 0; i < VendSession_PwdSize; i++)
-	{
-		if ( (password[i] < '0') || (password[i] > '9') )
-		{
-			strncpy(password, default_pwd, VendSession_PwdSize);
-			break;
-		}
-	}
+//	for (i = 0; i < VendSession_PwdSize; i++)
+//	{
+//		if ( (password[i] < '0') || (password[i] > '9') )
+//		{
+			strncpy(password, (char const *)Password, VendSession_PwdSize);
+//			break;
+//		}
+//	}
 
 	return password;
 }
 void VendSession_EEMEMUpdPwd(const char *pwd_new_str)
 {
-	char *curr_eemem_pwd = VendSession_EEMEMGetPwd();
-    // update password if modified only
-    if (memcmp(curr_eemem_pwd, pwd_new_str, VendSession_PwdSize) != 0)
-    {
-		//cli();
-		//eeprom_update_block((void *)pwd_new_str, (void *)VendSession_EEMEMPasswordADDR, VendSession_PwdSize);
-		//sei();
-	}
+  uint8_t i;
+  for(i=0; i < VendSession_PwdSize; i++)
+                  Password[i] = pwd_new_str[i];
+  
+  VendSession_EEMEMGetPwd();
+  SD_SetSession();
+  
 }
 char * VendSession_GetTypedPwd(void)
 {

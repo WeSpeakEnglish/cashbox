@@ -6,6 +6,7 @@
 #include "keyboard.h"
 #include "LCDMenu.h"
 #include "cctalk.h"
+#include <string.h>
 
 #define RET_OK 0
 #define RET_ERR 1
@@ -83,6 +84,7 @@ void loop(void)
    static uint16_t lcdupd_ret;
    static uint16_t scaler = 0;
    static uint32_t inactivity_period_ms = 0; // default - timer is off
+   static uint32_t InsertFundsFlag = 0; // we set it if we need to open receiver
    
     
     p_session = VendSession_RAMGetSession();
@@ -109,6 +111,11 @@ void loop(void)
          //   switch_state(WAIT_FOR_START);
 
         // state machine
+        if((InsertFundsFlag == 1) && 
+           (p_session->current_state != INSERT_FUNDS)){
+              InsertFundsFlag = 0;
+              disableCashInput();
+           }
         switch ( p_session->current_state )
         {
             // initialization
@@ -125,8 +132,9 @@ void loop(void)
             case INSERT_FUNDS:
               if(CheckState()){
                 p_session->current_state = WAIT_FOR_START;
-                disableCashInput();
+                
               }
+                InsertFundsFlag =1;
                 waitForFunds(); break;
             case START_WASHING:
                 inactivity_period_ms = 0;
@@ -269,8 +277,7 @@ int8_t on_exit_state(void)
     switch (p_session->current_state)
     {
         case INSERT_FUNDS:
-            disableCashInput();
-            success = 1; break;
+           success = 1; break;
         default: success = 1; break;
     }
     return success ? RET_OK : RET_ERR;
@@ -419,7 +426,7 @@ void waitForFunds(void)
         if (1) // cancel anyway! why not?
         {
             switch_state(SELECT_WASHER);
-            disableCashInput();
+            
             return;
         }
     }
@@ -450,7 +457,7 @@ void checkIfWashingWasStarted(void)
         #endif
 
         // increment clients count and save to eeprom
-        VendSession_RAMIncrementClientsCount();
+        VendSession_RAMIncrementClientsCount(p_session->selected_washer);
         //VendSession_EEMEMUpdateClientsCount();
 
         // submit http "washing" here
@@ -536,12 +543,12 @@ void waitForPassword(void)
 
 void setNewPassword(void)
 {
-    char c;
+    char c, i;
     VendSession_t *p_session;
     static uint8_t pwd_position = 0;
     static uint8_t repeat = 0;
     char *pwd_input_buffer, *pwd_eemem_buffer;
-    char pwd_copy[VendSession_PwdSize + 1];
+    static char pwd_copy[VendSession_PwdSize + 1];
 
     p_session = VendSession_RAMGetSession();
     pwd_input_buffer = VendSession_GetTypedPwd();    
@@ -561,7 +568,9 @@ void setNewPassword(void)
                 repeat = 1;
                 pwd_position = 0;
                 // store pwd_input_buffer to pwd_copy
-                memcpy(pwd_copy, pwd_input_buffer, VendSession_PwdSize);
+                for(i=0; i < VendSession_PwdSize; i++)
+                  pwd_copy[i] = pwd_input_buffer[i];
+   
                 // reset input buffer
                 memset(pwd_input_buffer, '*', VendSession_PwdSize); // "hide" password
             }
@@ -614,6 +623,7 @@ void serviceMenu(void)
         case '9': switch_state(SERVICE_MENU2); break;
         case '0': {
        //     Sim800.submit_collection();
+            S_push(SIM800_collection);
             VendSession_EEMEMResetClientsCount();
             VendSession_EEMEMResetCashbox();
             switch_state(WAIT_FOR_START);
@@ -635,12 +645,12 @@ void serviceMenu2(void)
 {
     char c;
     uint8_t washer_num = 0;
-    VendSession_t *p_session;
+
 
     c = readKey();
 
     washer_num = c - 0x30;
-    p_session = VendSession_RAMGetSession();
+  //  p_session = VendSession_RAMGetSession();
     
     switch( c )
     {

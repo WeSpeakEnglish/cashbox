@@ -113,6 +113,22 @@ void SIM800_info_upload(void) // upload info to the server
     SIM800_GPRS_close();
 }
 
+void SIM800_collection(void) // upload info to the server
+{
+    char post_body[35];
+    char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+    sprintf(id_str, "id=%d", terminal_UID);
+
+    memset(post_body, 0, 25);
+    strcat(post_body, id_str);
+    
+    SIM800_GPRS_open();
+    submitHTTP_init();
+    submitHTTPRequest(POST, (char*) vendweb_collection, post_body, 0);
+    submitHTTP_terminate();
+    SIM800_GPRS_close();
+}
 void SIM800_command(void) {
     char post_body[35];
     char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};

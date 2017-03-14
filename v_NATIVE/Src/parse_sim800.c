@@ -198,7 +198,7 @@ while(str[i] != '\0'){
   }
  }
 if(SetWM){
- SD_SetData();
+ if(CheckPriceChanges())SD_SetData();
  }
  return;
 }

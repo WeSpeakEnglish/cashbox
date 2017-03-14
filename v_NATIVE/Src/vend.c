@@ -13,12 +13,22 @@ uint16_t terminal_UID = 0; //initialValue, actual value will be get fromSD
 
 
 VendSession_t Session;
-uint16_t UserCounter[WASHERS_MAX_COUNT]={10,11,12,13,14,15,16,17};
-uint32_t CashBOX = 12345678;
-uint8_t Password[PASSWORD_LENGTH]={'1','2','3','4','5','6'};
+uint16_t UserCounter[WASHERS_MAX_COUNT]={0,0,0,0,0,0,0,0};
+uint32_t CashBOX = 0;
+uint8_t Password[VendSession_PwdSize]={'4','7','9','1','5','7'};
+uint16_t TotalClientsCounter = 0; // the total number of clients
 
 VendSession_t* p_session = &Session;
 
+uint16_t SD_Prices_WM[WASHERS_MAX_COUNT]={{0}};  //we store here our SD data prices as weel for triggering on the changes
+
+uint8_t CheckPriceChanges(void){
+ uint8_t i;
+ for(i = 0; i < WASHERS_MAX_COUNT; i++){
+  if (WL[i].price != SD_Prices_WM[i]) return 1; // Yeah! We need to write updated data 
+ }
+return 0;
+}
 
 void enableCashInput(void){
     ccTalkSendCMD(CC_OPEN);

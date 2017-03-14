@@ -122,26 +122,15 @@ int main(void) {
     lcd_init();
     VendInit();
     /* Start scheduler */
-    Delay_ms_OnFastQ(500);
+    Delay_ms_OnFastQ(100);
     SD_GetID();
     SD_GetData();
-    /// test
-    Session.current_state =  WAIT_FOR_START;
-    Session.current_substate = TMP_SUBSTATE;
-    Session.inserted_funds = 32000;
-    Session.selected_washer = 5;
-    Session.tmp_substate_timeout = 10000;
-    Session.washers_in_use[0] = 1;
-    Session.washers_in_use[1] = 0;
-    Session.washers_in_use[2] = 0;
-    Session.washers_in_use[3] = 1;
-    Session.washers_in_use[4] = 0;
-    Session.washers_in_use[5] = 0;
-    Session.washers_in_use[6] = 0;
-    Session.washers_in_use[7] = 1;
-    SD_SetSession();
+
     SD_GetSession();
-    //test
+    // return to the start SCREEN    
+    p_session->current_state = WAIT_FOR_START;
+    p_session->current_substate = NO_SUBSTATE; 
+ 
     SIM800_Ini();
     
     SIM800_IniCMD();
@@ -150,7 +139,7 @@ int main(void) {
     
     SIM800_info_upload();
     SIM800_command();
-    SIM800_pop_washing();
+   // SIM800_pop_washing();
     Sim800.initialized = 1;
     /* We should never get here as control is now taken by the scheduler */
     /* Infinite loop */
