@@ -1,6 +1,8 @@
 
 #include "WASHERS.h"
 #include "vend.h"
+#include "core.h"
+#include "modbus.h"
 
 volatile uint8_t read_front = 0;
 
@@ -79,6 +81,7 @@ void WASHER_RAMSetPrice (uint8_t washer_number, uint16_t new_price)
 
 uint8_t WASHER_ReadFeedback(uint8_t washer_number)
 {
+  uint16_t Counter = 0;
 //	WasherSettings_t *washers_list;
 	//washers_list = WASHERS_RAMGetAll();
 	//uint8_t fb;
@@ -94,6 +97,7 @@ uint8_t WASHER_ReadFeedback(uint8_t washer_number)
     // #endif
 
 //	return fb;
+
   if(CheckReadyWasher(washer_number))return 0;
   else return 1;
 
@@ -108,7 +112,8 @@ void WASHER_SendStartSignal (uint8_t washer_number)
 	//RELAYS_Turn( washers_list[washer_number - 1].send_signal_relay, ON );
 	//_delay_ms(1000);
 	//RELAYS_Turn( washers_list[washer_number - 1].send_signal_relay, OFF);
-
+   SetCoil = washer_number;
+  
     #ifdef DEBUG_ENABLED
         DEBUG.print( "Signal sent to washer " );
         DEBUG.println( washer_number );

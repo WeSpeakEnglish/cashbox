@@ -105,3 +105,4 @@ uint8_t CheckReadyWasher(uint8_t Washer){ // is it ready or not (by modbus regis
   }
   return 0;
 }
+

@@ -16,7 +16,7 @@ stlinkfoundProbes=
 stlinkResetStyle=0
 stlinkResetStrategy=1
 [DebugChecksum]
-Checksum=1921262697
+Checksum=1304894460
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -95,10 +95,6 @@ ShowTimeLog=1
 SumEnabled=0
 ShowTimeSum=1
 SumSortOrder=0
-[Disassemble mode]
-mode=0
-[Breakpoints2]
-Count=0
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -106,11 +102,6 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
-[Aliases]
-A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
-A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
-Count=2
-SuppressDialog=0
 [DriverProfiling]
 Enabled=0
 Mode=3
@@ -121,3 +112,12 @@ Exclusions=
 Enabled=0
 [CallStackStripe]
 ShowTiming=1
+[Disassemble mode]
+mode=0
+[Breakpoints2]
+Count=0
+[Aliases]
+A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
+A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
+Count=2
+SuppressDialog=0

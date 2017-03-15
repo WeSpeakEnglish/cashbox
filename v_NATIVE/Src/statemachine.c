@@ -415,6 +415,7 @@ void waitForFunds(void)
         #endif
         
         // switch to START_WASHING state
+        
         switch_state(START_WASHING);
 
         // update washers in use
@@ -458,6 +459,7 @@ void checkIfWashingWasStarted(void)
         #endif
 
         // increment clients count and save to eeprom
+
         VendSession_RAMIncrementClientsCount(p_session->selected_washer);
         //VendSession_EEMEMUpdateClientsCount();
 
