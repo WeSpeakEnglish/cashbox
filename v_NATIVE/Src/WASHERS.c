@@ -50,7 +50,7 @@ WasherSettings_t * WASHERS_EEMEMGetAll (void)
 
 void WASHERS_EEMEMResetAll  (void)
 {
-	uint8_t i;
+	
 	//cli();
 	//for (i = 0; i < WASHERS_MAX_COUNT; ++i)
 		//eeprom_update_word( (uint16_t *)(EEPROM_WashersPricesADDR + i * sizeof(uint16_t)),  100 );

@@ -60,6 +60,7 @@
 #include "sd_files.h"
 #include "lcd.h"
 #include "vend.h"
+#include "modbus.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -131,6 +132,12 @@ int main(void) {
     p_session->current_state = WAIT_FOR_START;
     p_session->current_substate = NO_SUBSTATE; 
  
+    ///-- set the modbus configuration
+    regs[0] = 0xFF00;
+    modbus_construct(&packets[PACKET1], 2, FORCE_SINGLE_COIL, 7, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
+    modbus_construct(&packets[PACKET2], 2, READ_INPUT_STATUS, 0, 8, 1);
+    modbus_configure(115200, 500, 500, 10, packets, TOTAL_NO_OF_PACKETS, regs);
+    ///    
     SIM800_Ini();
     
     SIM800_IniCMD();
@@ -139,6 +146,8 @@ int main(void) {
     
     SIM800_info_upload();
     SIM800_command();
+    
+    
    // SIM800_pop_washing();
     Sim800.initialized = 1;
     /* We should never get here as control is now taken by the scheduler */

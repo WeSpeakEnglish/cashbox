@@ -8,6 +8,7 @@
 #include "statemachine.h"
 #include "cctalk.h"
 #include "vend.h"
+#include "modbus.h"
 
 volatile uint64_t milliseconds = 0;
 volatile uint32_t TicksGlobal_mS = 0;
@@ -62,6 +63,7 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     
     if(!(milliseconds % 100)){
        if(LCD.init) M_push(loop);
+       F_push(modbus_update);
     }
     if(p_session->current_state == INSERT_FUNDS){
      if(!(milliseconds % 490)){

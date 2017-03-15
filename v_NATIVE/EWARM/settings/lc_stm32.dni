@@ -16,7 +16,7 @@ stlinkfoundProbes=
 stlinkResetStyle=0
 stlinkResetStrategy=1
 [DebugChecksum]
-Checksum=-225333201
+Checksum=-932737960
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -45,6 +45,16 @@ ITMportsLogFile=0
 ITMlogFile=$PROJ_DIR$\ITM.log
 [struct_types]
 Fmt0=money-cop	3	0
+[array_types]
+Fmt0=uint8_t[32]	4	0
+Fmt1=unsigned int[10]	1	0
+[watch_formats]
+Fmt0={W}1:Data	1	0
+Fmt1={W}1:ReadValue	4	0
+Fmt2={W}1:ScanCode	4	0
+Fmt3={W}1:frame	4	0
+Fmt4={W}1:i	3	0
+Fmt5={W}1:temp	4	0
 [Trace2]
 Enabled=0
 ShowSource=0
@@ -88,19 +98,16 @@ SumSortOrder=0
 [Disassemble mode]
 mode=0
 [Breakpoints2]
-Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\VendSession.c}.120.2" 0 0 1 "" 0 "" 0
-Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\VendSession.c}.120.2" 0 0 1 "" 0 "" 0
-Bp2=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\VendSession.c}.120.2" 0 0 1 "" 0 "" 0
-Count=3
+Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src}.2730.5" 0 0 1 "" 0 "" 0
+Count=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
 Category=_ 0
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
 [Aliases]
-Count=0
+A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
+A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
+Count=2
 SuppressDialog=0
 [DriverProfiling]
 Enabled=0
@@ -112,3 +119,6 @@ Exclusions=
 Enabled=0
 [CallStackStripe]
 ShowTiming=1
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""

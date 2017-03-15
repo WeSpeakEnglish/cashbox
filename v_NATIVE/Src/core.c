@@ -1,6 +1,7 @@
 #include "core.h"
 #include "timer16.h"
 #include "delays.h"
+#include "modbus.h"
 
 
 
