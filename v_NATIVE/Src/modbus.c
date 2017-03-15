@@ -11,6 +11,8 @@ MODBUS_struct Modbus;
 Packet packets[TOTAL_NO_OF_PACKETS];
 unsigned int regs[10];
 
+unsigned int SetCoil; // set coil
+
 #define TOTAL_NO_OF_REGISTERS 10
 // Masters register array
 unsigned int regs[TOTAL_NO_OF_REGISTERS];

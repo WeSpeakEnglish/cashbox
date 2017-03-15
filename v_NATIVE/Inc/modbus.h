@@ -16,7 +16,6 @@ typedef struct{
 enum
 {
   PACKET1,
-  PACKET2,
   TOTAL_NO_OF_PACKETS // leave this last entry
 };
 
@@ -24,6 +23,7 @@ void TranmitSlaveCmd(uint8_t Cmd);
 void ModbusBufferFree(void);
 void USART3_IRQHandler(void);
 extern MODBUS_struct Modbus;
+extern unsigned int SetCoil; // set coil
 extern Packet packets[TOTAL_NO_OF_PACKETS];
 extern unsigned int regs[10];
 #endif

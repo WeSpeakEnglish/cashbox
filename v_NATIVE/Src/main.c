@@ -133,10 +133,9 @@ int main(void) {
     p_session->current_substate = NO_SUBSTATE; 
  
     ///-- set the modbus configuration
-    regs[0] = 0xFF00;
-    modbus_construct(&packets[PACKET1], 2, FORCE_SINGLE_COIL, 7, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
-    modbus_construct(&packets[PACKET2], 2, READ_INPUT_STATUS, 0, 8, 1);
-    modbus_configure(115200, 500, 500, 10, packets, TOTAL_NO_OF_PACKETS, regs);
+
+    modbus_construct(&packets[PACKET1], 2, READ_INPUT_STATUS, 0, 8, 1);
+    modbus_configure(115200, 500, 5, 10, packets, TOTAL_NO_OF_PACKETS, regs);
     ///    
     SIM800_Ini();
     

@@ -50,12 +50,31 @@ void processSuccess();
 unsigned int calculateCRC(unsigned char bufferSize);
 void sendPacket(unsigned char bufferSize);
 
+
 // Modbus Master State Machine
 void modbus_update() 
 {
 	switch (state)
 	{
 		case IDLE:
+                  
+                  if(SetCoil){
+                    if(SetCoil == 100){
+                     modbus_construct(&packets[PACKET1], 2, READ_INPUT_STATUS, 0, 8, 1); 
+                     modbus_configure(115200, 500, 5, 1, packets, TOTAL_NO_OF_PACKETS, regs);
+                     SetCoil = 0;
+                    }
+                    else{
+                     regs[0] = 0xFF00;
+                     modbus_construct(&packets[PACKET1], 2, FORCE_SINGLE_COIL, SetCoil - 1, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
+                     modbus_configure(115200, 500, 5, 1, packets, TOTAL_NO_OF_PACKETS, regs);
+                     SetCoil = 100;
+                    }
+                  } 
+   
+                 
+                  
+                 
 		idle();
 		break;
 		case WAITING_FOR_REPLY:

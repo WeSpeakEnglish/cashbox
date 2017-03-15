@@ -7,6 +7,7 @@
 #include "LCDMenu.h"
 #include "cctalk.h"
 #include <string.h>
+#include "core.h"
 
 #define RET_OK 0
 #define RET_ERR 1
