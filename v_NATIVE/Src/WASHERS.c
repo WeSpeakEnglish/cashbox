@@ -94,7 +94,9 @@ uint8_t WASHER_ReadFeedback(uint8_t washer_number)
     // #endif
 
 //	return fb;
-  return 0;
+  if(CheckReadyWasher(washer_number))return 0;
+  else return 1;
+
 }
 /*
  * Send Start Signal to washer

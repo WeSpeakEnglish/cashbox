@@ -51,7 +51,7 @@ uint8_t simpleTimeoutHasRunOut(volatile uint32_t *simpleTimeout_instance, uint32
 }
 
 void TIM1_UP_TIM16_IRQHandler(void) {
-static uint8_t Test = 0;
+//static uint8_t Test = 0;
   if (TIM16->SR & TIM_SR_UIF) {
     TIM16->SR &= ~TIM_SR_UIF; // сбрасываю флаг прерывани€
     TIM16->CNT = 0; // обнул€ю счетчик... 
@@ -71,8 +71,8 @@ static uint8_t Test = 0;
 
     }
     if(!(milliseconds % 1200)){
-      
-         SetCoil = (Test++ % 4) + 1;
+     
+
     }
     if(p_session->current_state == INSERT_FUNDS){
      if(!(milliseconds % 490)){

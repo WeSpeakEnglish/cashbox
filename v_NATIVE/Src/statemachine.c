@@ -471,6 +471,7 @@ void checkIfWashingWasStarted(void)
             DEBUG.println("Done.");
         #endif
         switch_state(WASHING_STARTED_SUCCESSFULLY);
+    //    M_push
     }
     else
     {

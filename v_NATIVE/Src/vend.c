@@ -3,6 +3,7 @@
 
 #include "VendSession.h"
 #include "core.h"
+#include "modbus.h"
 //#include "ccl"
 
 VendSession_t Vend;
@@ -64,4 +65,43 @@ void VendInit(void){ // simple initialization
   for(i = 0; i < MAX_WASHINGS; i++)
                 Vend.washers_in_use[i] = 0;
   
+}
+
+//zero is ready 
+uint8_t CheckReadyWasher(uint8_t Washer){ // is it ready or not (by modbus register) // from 0ne to eight
+  union{
+    struct{
+      uint8_t b0 : 1;
+      uint8_t b1 : 1;
+      uint8_t b2 : 1;
+      uint8_t b3 : 1;
+      uint8_t b4 : 1;
+      uint8_t b5 : 1;
+      uint8_t b6 : 1;
+      uint8_t b7 : 1;      
+    }bits;
+    uint8_t byte;
+  }Washers;
+  
+  Washers.byte = (uint8_t)(regs[1] & 0x000000FF);
+  switch(Washer){
+        case 1:
+          return (uint8_t)Washers.bits.b0;
+        case 2:
+          return (uint8_t)Washers.bits.b1;
+        case 3:
+          return (uint8_t)Washers.bits.b2;
+        case 4:
+          return (uint8_t)Washers.bits.b3;
+        case 5:
+          return (uint8_t)Washers.bits.b4;
+        case 6:
+          return (uint8_t)Washers.bits.b5;
+        case 7:
+          return (uint8_t)Washers.bits.b6;
+        case 8:
+          return (uint8_t)Washers.bits.b7;          
+          
+  }
+  return 0;
 }

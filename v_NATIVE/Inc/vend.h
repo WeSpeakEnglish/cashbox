@@ -18,6 +18,7 @@ extern uint8_t Password[VendSession_PwdSize];
 extern uint16_t SD_Prices_WM[WASHERS_MAX_COUNT];
 extern uint16_t TotalClientsCounter;
 
+uint8_t CheckReadyWasher(uint8_t Washer);
 uint8_t CheckPriceChanges(void);
 void enableCashInput(void);
 void disableCashInput(void);

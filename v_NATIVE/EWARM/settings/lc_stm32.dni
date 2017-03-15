@@ -16,7 +16,7 @@ stlinkfoundProbes=
 stlinkResetStyle=0
 stlinkResetStrategy=1
 [DebugChecksum]
-Checksum=-1677758438
+Checksum=1921262697
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -103,6 +103,9 @@ Count=0
 LoggingEnabled=_ 0
 LogFile=_ ""
 Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
 [Aliases]
 A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
 A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
@@ -118,6 +121,3 @@ Exclusions=
 Enabled=0
 [CallStackStripe]
 ShowTiming=1
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
