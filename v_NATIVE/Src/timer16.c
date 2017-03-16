@@ -52,6 +52,8 @@ uint8_t simpleTimeoutHasRunOut(volatile uint32_t *simpleTimeout_instance, uint32
 
 void TIM1_UP_TIM16_IRQHandler(void) {
 //static uint8_t Test = 0;
+ static date_time_t dt;
+ 
   if (TIM16->SR & TIM_SR_UIF) {
     TIM16->SR &= ~TIM_SR_UIF; // сбрасываю флаг прерывани€
     TIM16->CNT = 0; // обнул€ю счетчик... 
@@ -70,9 +72,12 @@ void TIM1_UP_TIM16_IRQHandler(void) {
         F_push(modbus_update);
 
     }
-    if(!(milliseconds % 1200)){
-     
-
+    if(!(milliseconds % 1000)){
+       dt = DataTime;
+       UNIXToDate(++RTC_seconds, &dt);
+       DataTime = dt;
+       if((DataTime.seconds == 0) && (!(DataTime.minutes % 5)))
+         S_push(SIM800_command);
     }
     if(p_session->current_state == INSERT_FUNDS){
      if(!(milliseconds % 490)){

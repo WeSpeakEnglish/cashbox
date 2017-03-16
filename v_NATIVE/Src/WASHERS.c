@@ -81,7 +81,7 @@ void WASHER_RAMSetPrice (uint8_t washer_number, uint16_t new_price)
 
 uint8_t WASHER_ReadFeedback(uint8_t washer_number)
 {
-  uint16_t Counter = 0;
+  
 //	WasherSettings_t *washers_list;
 	//washers_list = WASHERS_RAMGetAll();
 	//uint8_t fb;

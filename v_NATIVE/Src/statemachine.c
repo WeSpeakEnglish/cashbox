@@ -8,6 +8,7 @@
 #include "cctalk.h"
 #include <string.h>
 #include "core.h"
+#include "sd_files.h"
 
 #define RET_OK 0
 #define RET_ERR 1
@@ -82,9 +83,9 @@ uint8_t CheckState(void){ // set the timer to exit, it returns time expiration (
 void loop(void)
 {
    static uint8_t i;
-   static uint16_t lcdupd_ret;
-   static uint16_t scaler = 0;
-   static uint32_t inactivity_period_ms = 0; // default - timer is off
+//   static uint16_t lcdupd_ret;
+ //  static uint16_t scaler = 0;
+//   static uint32_t inactivity_period_ms = 0; // default - timer is off
    static uint32_t InsertFundsFlag = 0; // we set it if we need to open receiver
    
     
@@ -138,7 +139,7 @@ void loop(void)
                 InsertFundsFlag =1;
                 waitForFunds(); break;
             case START_WASHING:
-                inactivity_period_ms = 0;
+                //inactivity_period_ms = 0;
                 checkIfWashingWasStarted(); break;
             case START_WASHING_FAILED:
              if(CheckState()){
@@ -176,10 +177,12 @@ void loop(void)
         }
         
 
-        lcdupd_ret = LCDMenu_Update();
+       // lcdupd_ret =
+          LCDMenu_Update();
 
         #ifdef DEBUG_ENABLED
-            if (lcdupd_ret) show_lcd_debug();
+          //  if (lcdupd_ret) 
+              show_lcd_debug();
         #endif
 
  //       Sim800.queue_handler();
@@ -372,7 +375,7 @@ void waitForFunds(void)
     //    enter_substate(PROCESSING_SUBSTATE);
   // else if (p_dbg->_dbg_silence_counter == SILENCE_CNTR_THR) // eating done
   
-        uint16_t cashbox_delta = 0;
+ //       uint16_t cashbox_delta = 0;
         enter_substate(NO_SUBSTATE);
         if(ccTalk.TransferFlag){
          if (!ccTalk.gotMoney) {
@@ -436,9 +439,9 @@ void waitForFunds(void)
 
 void checkIfWashingWasStarted(void)
 {
-    char c;
+//    char c;
    
-    c = readKey();
+ //   c = readKey();
 
     
     // wait for washer to start (about 2.5 s for sure)
@@ -472,6 +475,8 @@ void checkIfWashingWasStarted(void)
         #ifdef DEBUG_ENABLED
             DEBUG.println("Done.");
         #endif
+        S_push(SIM800_pop_washing);   
+        SD_SetSession();
         switch_state(WASHING_STARTED_SUCCESSFULLY);
     //    M_push
     }
@@ -551,7 +556,7 @@ void setNewPassword(void)
     VendSession_t *p_session;
     static uint8_t pwd_position = 0;
     static uint8_t repeat = 0;
-    char *pwd_input_buffer, *pwd_eemem_buffer;
+    char *pwd_input_buffer;
     static char pwd_copy[VendSession_PwdSize + 1];
 
     p_session = VendSession_RAMGetSession();
@@ -628,7 +633,7 @@ void serviceMenu(void)
         case '0': {
        //     Sim800.submit_collection();
             S_push(SIM800_collection);
-            VendSession_EEMEMResetClientsCount();
+            //VendSession_EEMEMResetClientsCount();
             VendSession_EEMEMResetCashbox();
             switch_state(WAIT_FOR_START);
         }; break;
@@ -648,12 +653,12 @@ void serviceMenu(void)
 void serviceMenu2(void)
 {
     char c;
-    uint8_t washer_num = 0;
+ //   uint8_t washer_num = 0;
 
 
     c = readKey();
 
-    washer_num = c - 0x30;
+   // washer_num = c - 0x30;
   //  p_session = VendSession_RAMGetSession();
     
     switch( c )

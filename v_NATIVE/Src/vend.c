@@ -6,7 +6,7 @@
 #include "modbus.h"
 //#include "ccl"
 
-VendSession_t Vend;
+//VendSession_t Vend;
 WasherSettings_t WL[MAX_WASHINGS]; 
 
 
@@ -54,18 +54,18 @@ void disableCashInput(void){
 	uint16_t inserted_funds;
 	uint8_t washers_in_use[MAX_WASHINGS];
         
-void VendInit(void){ // simple initialization
- uint16_t i;
-  Vend.selected_washer = 1;
-  Vend.current_state = WAIT_FOR_START;
-  Vend.current_substate = NO_SUBSTATE;
-  Vend.inserted_funds = 0;
-  Vend.selected_washer = 1;
-  Vend.tmp_substate_timeout = 0;
-  for(i = 0; i < MAX_WASHINGS; i++)
-                Vend.washers_in_use[i] = 0;
+//void VendInit(void){ // simple initialization
+ //uint16_t i;
+ // Vend.selected_washer = 1;
+ // Vend.current_state = WAIT_FOR_START;
+ // Vend.current_substate = NO_SUBSTATE;
+  //Vend.inserted_funds = 0;
+ // Vend.selected_washer = 1;
+ // Vend.tmp_substate_timeout = 0;
+  //for(i = 0; i < MAX_WASHINGS; i++)
+ //               Vend.washers_in_use[i] = 0;
   
-}
+//}
 
 //zero is ready 
 uint8_t CheckReadyWasher(uint8_t Washer){ // is it ready or not (by modbus register) // from 0ne to eight

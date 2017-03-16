@@ -3,6 +3,8 @@
 #include <string.h>
 #include "vend.h"
 #include "sd_files.h"
+#include "calculations.h"
+#include "core.h"
 
 //SemaphoreHandle_t xSemaphoreParse = NULL;
 
@@ -69,12 +71,45 @@ void SIM800_Parse_CGAT(void){
 
 void parse_Location(void)//possible optimisation (for)
 {
+  uint8_t i;
+  uint8_t CommaCount = 0; // we count commas in valid case for take the time and date
+  date_time_t dt;
+  uint32_t TempVar;
+ // char String_To_parse[10]; // parse numbers
     //string format: +CIPGSMLOC: 0,37.735329,55.785633,2016/11/10,13:19:54
   char *longitude = NULL;
   char *latitude = NULL;
   
     longitude = strstr((char const *)Sim800.pReadyBuffer, gsmloc_str);
     if(longitude){
+   // get the time and date
+     for(i = 0; i < *(Sim800.pReadyIndex); i++ ){
+       if(Sim800.pReadyBuffer[i] == ','){
+         CommaCount++;
+       
+       switch(CommaCount){
+          case  3:
+            dt.day = 0;
+            dt.hours = 0;
+            dt.minutes = 0;
+            dt.seconds = 0;
+            dt.month = 0;
+            dt.weekday = 0;
+            dt.year = 0;
+                GetDate((char *)(&Sim800.pReadyBuffer[i+1]), &dt);
+               
+                break;
+          case  4:
+                 GetTime((char *)(&Sim800.pReadyBuffer[i+1]), &dt);
+                 TempVar = DateToUNIX(&dt);
+                 DataTime = dt;
+                 RTC_seconds = TempVar;
+                break;         
+        }
+       }
+      }     
+    ////
+ 
     longitude = strstr(longitude,",")+1;//potints to longtitude
     latitude = strstr(longitude,",");
 
@@ -85,9 +120,12 @@ void parse_Location(void)//possible optimisation (for)
     *(strstr(latitude,","))='\0';//cut latitude from recv_string
     memset((void *)Sim800.current_location.latitude,0,MAX_LOCATION_SIZE);
     strcpy((char *)Sim800.current_location.latitude,latitude);
+    
+    /// try to get the time and date in this case
+
     }
+  }
  }
-} 
 
 void SIM800_parse_PhoneNumber(void){
  char* tmpstr = NULL;

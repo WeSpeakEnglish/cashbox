@@ -60,22 +60,6 @@ const char bal_str[] = "&balance=";
 washing_holder wash_holder;
 SIM800 Sim800;
 
-void SIM800_submit_washing( uint8_t wm, uint16_t cost )
-{
-    washing_holder w_h;
-    w_h.wm_id=wm;
-    w_h.cost=cost;
-   // DEBUG.print("w:");
-   // DEBUG.print(wm);
-   // DEBUG.print(",c:");
-   // DEBUG.println(cost);
- //   SIM800_push_washing(w_h);
-
-//    TIMEOUT_Stop();
-//    TIMEOUT_Start(INFO_UPLOAD_PERIOD/2,0);
-}
-
-
 
 void SIM800_SendCMD(void) {
     static Message Msg;
@@ -297,9 +281,9 @@ void SIM800_pop_washing(void) {
     memset(post_body, 0, 64);
     strcat(post_body, id_str);
     strcat(post_body, "&wm=");
-    strcat(post_body, Utoa(Vend.selected_washer, str));
+    strcat(post_body, Utoa(p_session->selected_washer, str));
     strcat(post_body, "&cost=");
-    strcat(post_body, Utoa(WL[Vend.selected_washer - 1].price, str));
+    strcat(post_body, Utoa(WL[p_session->selected_washer - 1].price, str));
     strcat(post_body, "&status=true");
     Sim800.upload_init_info_stat = SENDING;
     SIM800_GPRS_open();

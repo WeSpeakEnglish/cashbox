@@ -1,7 +1,9 @@
 #ifndef _CCTALK_H
 #define _CCTALK_H
 
-
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 #define BUFLEN_CC 64
 
@@ -25,4 +27,7 @@ void ccTalkSendCMD(uint8_t Des);
 uint8_t ccTalkChecksum(uint8_t * pBuff, uint8_t size);
 void ccTalkParseAccCount(void);
 
+#ifdef __cplusplus 
+  }
+#endif
 #endif

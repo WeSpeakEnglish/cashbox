@@ -6,7 +6,7 @@
 #include "WASHERS.H"
 
 extern WasherSettings_t WL[MAX_WASHINGS]; // that is an array of structs
-extern VendSession_t Vend;
+//extern VendSession_t Vend;
 
 extern VendSession_t* p_session;
 extern uint16_t terminal_UID;
@@ -22,6 +22,6 @@ uint8_t CheckReadyWasher(uint8_t Washer);
 uint8_t CheckPriceChanges(void);
 void enableCashInput(void);
 void disableCashInput(void);
-void VendInit(void);
+//void VendInit(void);
 //void MoneyParser(uint8_t * Buffer); // parse amount of the money
 #endif

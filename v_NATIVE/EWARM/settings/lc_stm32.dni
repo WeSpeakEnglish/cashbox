@@ -16,7 +16,7 @@ stlinkfoundProbes=
 stlinkResetStyle=0
 stlinkResetStrategy=1
 [DebugChecksum]
-Checksum=1304894460
+Checksum=-968302660
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -44,7 +44,13 @@ ITMportsTermIO=0
 ITMportsLogFile=0
 ITMlogFile=$PROJ_DIR$\ITM.log
 [struct_types]
-Fmt0=money-cop	3	0
+Fmt0=date_time_t-day	3	0
+Fmt1=date_time_t-hours	3	0
+Fmt2=date_time_t-minutes	3	0
+Fmt3=date_time_t-month	3	0
+Fmt4=date_time_t-seconds	3	0
+Fmt5=date_time_t-year	3	0
+Fmt6=money-cop	3	0
 [array_types]
 Fmt0=uint8_t[32]	4	0
 Fmt1=unsigned int[10]	1	0
@@ -95,13 +101,20 @@ ShowTimeLog=1
 SumEnabled=0
 ShowTimeSum=1
 SumSortOrder=0
+[Disassemble mode]
+mode=0
+[Breakpoints2]
+Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\dma.c}.1.1" 0 0 1 "" 0 "" 0
+Count=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
 Category=_ 0
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
+[Aliases]
+A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
+A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
+Count=2
+SuppressDialog=0
 [DriverProfiling]
 Enabled=0
 Mode=3
@@ -112,12 +125,6 @@ Exclusions=
 Enabled=0
 [CallStackStripe]
 ShowTiming=1
-[Disassemble mode]
-mode=0
-[Breakpoints2]
-Count=0
-[Aliases]
-A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
-A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
-Count=2
-SuppressDialog=0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""

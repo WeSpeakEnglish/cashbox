@@ -113,7 +113,7 @@ int main(void) {
   
     ///Start timers
     TIM6_Start(8,450);   // 50 us timer
-    TIM16_Start(9, 8000); // start  timer 16 for millisecond calculation
+    TIM16_Start(2, 36000); // start  timer 16 for millisecond calculation
     TIM17_Start(9, 800); // start  timer 17 at 100 uS
     
     
@@ -121,7 +121,6 @@ int main(void) {
     /* Call init function for freertos objects (in freertos.c) */
     MX_FATFS_Init();
     lcd_init();
-    VendInit();
     /* Start scheduler */
     Delay_ms_OnFastQ(100);
     SD_GetID();

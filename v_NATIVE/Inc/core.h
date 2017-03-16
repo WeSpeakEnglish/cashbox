@@ -4,7 +4,9 @@
 #ifdef __cplusplus
  extern "C" {
 #endif /* __cplusplus */
+   
 #include <stdint.h>
+#include "calculations.h"
    
 //max size of queues is 127 elements (signed char) 
 #define Q_SIZE_SLOW 64  // the size of slow queue
@@ -18,6 +20,9 @@ extern volatile int8_t Semaphore; // that semaphore for queues and routines cont
 extern volatile uint32_t TicksGlobal_mS; //US MUST be ticking in timer in the timer interrupt handle, it needs just ++ operation
 extern volatile uint8_t RESmutex_1; //the Resource mutex for I2C
 extern volatile uint8_t RESmutex_2; //the second Resource mutex for Timetick update
+
+extern volatile uint32_t RTC_seconds;
+extern volatile date_time_t DataTime;
 ///////////////////////  
 void RoutineFast(void);
 void RoutineMedium(void);

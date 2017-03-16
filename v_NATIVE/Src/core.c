@@ -16,7 +16,9 @@ volatile uint8_t mutexS = 0;
 volatile uint8_t RESmutex_1 = 0; //the Resource mutex I2C
 volatile uint8_t RESmutex_2 = 0; //the Resource mutex TimeReady(for update)
 //////
-
+volatile uint32_t RTC_seconds = 0; //(UNIX)
+volatile date_time_t DataTime;
+//
 
 // there are three different queues and routines for corresponding timers 
 // Released Three full independent queues and service functions with their content
@@ -281,3 +283,6 @@ uint8_t Delay_ms_OnProcessRoutine(void (*pointerF)(void),uint32_t TimeDel, uint8
 
   return 0;
 }
+
+
+/// 
