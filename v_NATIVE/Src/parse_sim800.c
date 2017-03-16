@@ -5,6 +5,7 @@
 #include "sd_files.h"
 #include "calculations.h"
 #include "core.h"
+#include "modbus.h"
 
 //SemaphoreHandle_t xSemaphoreParse = NULL;
 
@@ -222,7 +223,10 @@ while(str[i] != '\0'){
     if(str[i++] == 'm')          
      wm = str[i] - 0x30 -1;
   if(str[i] == ','){
-    WL[wm].start =str[i+1] - 0x30;
+    //WL[wm].start =str[i+1] - 0x30;
+    if(str[i+1] - 0x30){
+        SetCoil = wm + 1; 
+    } 
     WL[wm].price = 0;
     i2 = 1;  
     mul = 1;

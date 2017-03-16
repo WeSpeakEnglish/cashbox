@@ -12,19 +12,19 @@ static WasherSettings_t * WASHERS_EEMEMGetAll (void);
  */
 void WASHERS_Init (void)
 {
-	uint8_t i, is_prices_changed;
+	uint8_t i;
 	WasherSettings_t *washers_list;
 
 	washers_list = WASHERS_EEMEMGetAll();
 
     // check prices validity
-    is_prices_changed = 0;
+
     for (i = 0; i < WASHERS_MAX_COUNT; i++)
     {
     	if ( (washers_list + i)->price >= 1000 ) // not valid price (3-digit prices are valid only)
     	{
     		(washers_list + i)->price = 100; // default price //@@@
-    		is_prices_changed = 1;
+    		
     	}
     }
     // update eeprom if some default prices loaded
@@ -40,24 +40,14 @@ WasherSettings_t * WASHERS_RAMGetAll (void)
 
 WasherSettings_t * WASHERS_EEMEMGetAll (void)
 {
-	uint8_t i;
+
 	WasherSettings_t *washers_list;
 	washers_list = WASHERS_RAMGetAll();
-	//cli();
-	//for (i = 0; i < WASHERS_MAX_COUNT; ++i)
-	//	washers_list[i].price = eeprom_read_word( (uint16_t *)(EEPROM_WashersPricesADDR + i * sizeof(uint16_t)) );
-	//sei();
+
 	return washers_list;
 }
 
-void WASHERS_EEMEMResetAll  (void)
-{
-	
-	//cli();
-	//for (i = 0; i < WASHERS_MAX_COUNT; ++i)
-		//eeprom_update_word( (uint16_t *)(EEPROM_WashersPricesADDR + i * sizeof(uint16_t)),  100 );
-	//sei();
-}
+
 
 /*
  * Returned value:

@@ -199,7 +199,7 @@ void SIM800_Ini(void) {
 
 #define LONG_WAITING 100
 
-void SIM800_waitAnswer(uint8_t Cycles) {
+uint8_t SIM800_waitAnswer(uint8_t Cycles) {
   uint8_t wait = 0;
     while (Cycles--) {
         Sim800.parsed = 0;
@@ -208,11 +208,12 @@ void SIM800_waitAnswer(uint8_t Cycles) {
             M_pull()();
             wait++;
             if(wait ==  LONG_WAITING)
-              break;
+              return LONG_WAITING;
         }
         Delay_ms_OnFastQ(100);
      //   M_pull()();
     }
+return 0;    
 }
 
 void SIM800_GPRS_open(void) {
@@ -250,7 +251,16 @@ void SIM800_IniCMD(void) {
     Delay_ms_OnMediumQ(4000);
 
     SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
-    SIM800_waitAnswer(1);
+    
+    if(SIM800_waitAnswer(1)){
+      SIM800_PowerOnOff();
+      Delay_ms_OnMediumQ(3000);
+      SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
+      Delay_ms_OnMediumQ(4000);
+      SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
+   }
+      
+      
     SIM800_get_Signal();
     SIM800_AddCMD((char *) creg_str, sizeof (creg_str), 2);
     SIM800_waitAnswer(1);

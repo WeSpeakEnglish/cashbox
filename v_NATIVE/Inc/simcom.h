@@ -90,7 +90,7 @@ extern SIM800 Sim800;
 
 
 
-void SIM800_waitAnswer(uint8_t Cycles);
+uint8_t SIM800_waitAnswer(uint8_t Cycles);
 void SIM800_IniCMD(void); // farther commands to open gprs session
 void SIM800_SendCMD(void); // the send CMD operation
 void SIM800_Ini(void); // ini sequence

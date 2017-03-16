@@ -44,7 +44,7 @@ extern "C" {
 void WASHERS_Init (void);
 
 WasherSettings_t * WASHERS_RAMGetAll   (void);
-void WASHERS_EEMEMResetAll  (void);
+
 void WASHERS_EEMEMUpdateAll (void);
 
 uint16_t WASHER_RAMGetPrice (uint8_t washer_number);

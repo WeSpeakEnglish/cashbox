@@ -113,12 +113,11 @@ uint32_t * VendSession_RAMGetCashbox(void);
 
 void VendSession_RAMAddToCashbox(uint16_t delta);
 void VendSession_RAMIncrementClientsCount(uint8_t Machine);
-uint32_t * VendSession_EEMEMGetCashbox(void);
+
 //@@@void VendSession_RAMResetSession (void); // called from init function
 
 void VendSession_EEMEMUpdateAll (void);
 void VendSession_EEMEMUpdateSession (void);
-void VendSession_EEMEMUpdateCashbox (void);
 void VendSession_EEMEMUpdateClientsCount (void);
 void VendSession_EEMEMResetSession (void);
 void VendSession_EEMEMResetCashbox (void);

@@ -219,56 +219,18 @@ static u8 sd_get_r7(u32 *r7)
 }
 #define sd_get_r3 sd_get_r7
 
-static const char *r1_strings[7] = {
-	"in idle",
-	"erase reset",
-	"illegal command",
-	"communication crc error",
-	"erase sequence error",
-	"address error",
-	"parameter error"
-};
+
 
 static void print_r1(u8 r)
 {
   return; //@@@
-  /*
-	int i;
-	print_f("R1: %02x\n", r);
-	for (i=0; i<7; i++)
-		if (r & (1<<i))
-			print_f("  %s\n", r1_strings[i]);
-  */
 }
 
-static const char *r2_strings[15] = {
-	"card is locked",
-	"wp erase skip | lock/unlock cmd failed",
-	"error",
-	"CC error",
-	"card ecc failed",
-	"wp violation",
-	"erase param",
-	"out of range | csd overwrite",
-	"in idle state",
-	"erase reset",
-	"illegal command",
-	"com crc error",
-	"erase sequence error",
-	"address error",
-	"parameter error",
-};
+
 
 static void print_r2(u16 r)
 {
   return; //@@@
-  /*
-	int i;
-	print_f("R2: %04x\n", r);
-	for (i=0; i<15; i++)
-		if (r & (1<<i))
-			print_f("  %s\n", r2_strings[i]);
-  */
 }
 
 /* Nec (=Ncr? which is limited to [0,8]) dummy bytes before lowering CS,

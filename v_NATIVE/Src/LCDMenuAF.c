@@ -319,7 +319,7 @@ void LCDMenu_ServiceInfo1(void)
     volatile uint32_t *p_cashbox;
     volatile uint16_t *p_clients_count;
 
-    p_cashbox = VendSession_RAMGetCashbox();
+    p_cashbox = &CashBOX;
     p_clients_count = VendSession_RAMGetClientsCount();
 
 	sprintf( lcd_line_buf, " Цены x50: %1d%1d%1d%1d%1d%1d%1d%1d   ",

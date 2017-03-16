@@ -4,9 +4,8 @@
 #include "sd_files.h"
 
 
-// EEPROM reading functions are local, used once in Init
-VendSession_t * VendSession_EEMEMGetSession      (void);
-uint32_t      * VendSession_EEMEMGetCashbox      (void);
+
+
 uint16_t      * VendSession_EEMEMGetClientsCount (void);
 
 /*
@@ -16,15 +15,6 @@ uint16_t      * VendSession_EEMEMGetClientsCount (void);
 
 void VendSession_RAMResetSession(void)
 {
-	// uint8_t selected_washer;
-	// SessionState_t current_state;
-	// SessionSubState_t current_substate;
-	// uint32_t tmp_substate_timeout;
-	// uint16_t inserted_funds;
-	// uint8_t washers_in_use[8];
-
-	VendSession_t *p_session;
-	p_session = VendSession_RAMGetSession();
 	p_session->selected_washer = 1;
 	p_session->current_state = WAIT_FOR_START;
 	p_session->current_substate = NO_SUBSTATE;
@@ -36,41 +26,7 @@ void VendSession_RAMResetSession(void)
 
 void VendSession_Init(void)
 {
-/*
-        VendSession_t *p_session;
-	volatile uint16_t *p_cashbox;// = VendSession_RAMGetCashbox();
-	volatile uint16_t *p_clients_count;// = VendSession_RAMGetClientsCount();
-	p_session = VendSession_EEMEMGetSession();
-	p_cashbox = VendSession_EEMEMGetCashbox();
-	p_clients_count = VendSession_EEMEMGetClientsCount();
-	VendSession_EEMEMGetPwd(); // will reset to default if not valid
 
-	// check for valid values
-	if (
-		(p_session->selected_washer == 0xFF) || \
-		(p_session->current_state == INVALID_STATE) || \
-		(*p_cashbox == 0xFFFFFFFF) ||
-		(*p_clients_count == 0xFFFF)
-	)
-	{
-		// first time execution! - set default values
-		VendSession_RAMResetSession();
-	    VendSession_EEMEMResetCashbox();
-	    VendSession_EEMEMResetClientsCount();
-	    //@@@ HARDCODE
-	    for (uint8_t i = 1; i <= 2; ++i)
-	        WASHER_RAMSetPrice(i, 100);
-	    for (uint8_t i = 3; i <= WASHERS_MAX_COUNT; ++i)
-	        WASHER_RAMSetPrice(i, 0);
-	    WASHERS_EEMEMUpdateAll();
-		// save all to eeprom
-		VendSession_EEMEMUpdateAll();
-		// load again into RAM
-		VendSession_EEMEMGetSession();
-		VendSession_EEMEMGetCashbox();
-		VendSession_EEMEMGetClientsCount();
-	}
-        */
 }
 
 /*
@@ -85,34 +41,9 @@ VendSession_t * VendSession_RAMGetSession(void)
 	return p_session;
 }
 
-/*
- * Reads last saved VendSession values from EEPROM and writes them in RAM
- * returns pointer to this copy in RAM
- */
-VendSession_t * VendSession_EEMEMGetSession(void)
-{
-	//VendSession_t *p_session = VendSession_RAMGetSession();
-	/*
-	 * EEPROM function eeprom_read_block() expects first argument (_dst) as (void *) and discards volatile keyword
-	 * This volatile struct can be suddenly updated only via interrupt service routines, and in other cases in the main state machine.
-	 * As we explicitly disable global interrupts with cli(), the operation is technically safe.
-	 * But to avoid warnings we can typecast the first argument -- (void *)&_dst 
-	 */
-//	cli();
-//	eeprom_read_block((void *)p_session, (void *)EEPROM_VendSessionStructADDR, sizeof(VendSession_t));
-//	sei();
-	return p_session;
-}
-
-uint32_t * VendSession_RAMGetCashbox(void)
-{
-	return &CashBOX;
-}
-
 void VendSession_RAMAddToCashbox(uint16_t delta)
 {
-	volatile uint32_t *p_cashbox = VendSession_RAMGetCashbox();
-	*p_cashbox += delta;
+	CashBOX += delta;
 }
 
 void VendSession_RAMIncrementClientsCount(uint8_t Machine)
@@ -120,13 +51,6 @@ void VendSession_RAMIncrementClientsCount(uint8_t Machine)
 	UserCounter[Machine-1] += 1;
 }
 
-uint32_t * VendSession_EEMEMGetCashbox(void)
-{
-	//volatile uint16_t *p_cashbox;
-	//p_cashbox = VendSession_RAMGetCashbox();
-	//*p_cashbox = eeprom_read_word((uint16_t *)EEPROM_VendSessionCashboxADDR);
-	return &CashBOX;
-}
 
 uint16_t * VendSession_RAMGetClientsCount(void)
 {
@@ -155,35 +79,17 @@ void VendSession_EEMEMUpdateAll(void)
 }
 
 
-void VendSession_EEMEMUpdateCashbox(void)
-{
-	//volatile uint32_t *p_cashbox;
-	//p_cashbox = VendSession_RAMGetCashbox();
-	//cli();
-	//eeprom_update_word((uint16_t *)EEPROM_VendSessionCashboxADDR, *p_cashbox);
-	//sei();
-}
-
 void VendSession_EEMEMUpdateClientsCount(void)
 {
-	//volatile uint16_t *p_clients_count;
-	//p_clients_count = VendSession_RAMGetClientsCount();
-	//cli();
-	//eeprom_update_byte((uint8_t *)EEPROM_VendSessionClientsCountADDR, *p_clients_count);
-	//sei();
+
   SD_SetSession();
         
 }
 
 void VendSession_EEMEMResetCashbox(void)
 {
-	volatile uint32_t *p_cashbox;
-	p_cashbox = VendSession_RAMGetCashbox();
-	*p_cashbox = 0;
+	CashBOX = 0;
         SD_SetSession();
-	//cli();
-	//eeprom_update_word((uint16_t *)EEPROM_VendSessionCashboxADDR, *p_cashbox);
-	//sei();
 }
 
 void VendSession_EEMEMResetClientsCount(void)
@@ -193,9 +99,7 @@ uint8_t i;
     UserCounter[i] = 0;
   
   SD_SetSession();
-	//cli();
-	//eeprom_update_byte((uint8_t *)EEPROM_VendSessionClientsCountADDR, *p_clients_count);
-	//sei();
+
 }
 
 
@@ -205,23 +109,11 @@ char * VendSession_EEMEMGetPwd(void)
 {
 
 	static char password[VendSession_PwdSize + 1]; // including null terminator
-	uint8_t i;
 
 	password[VendSession_PwdSize] = '\0';
 
-	//cli();
-	//eeprom_read_block((void *)password, (void *)VendSession_EEMEMPasswordADDR, VendSession_PwdSize);
-	//sei();
+	strncpy(password, (char const *)Password, VendSession_PwdSize);
 
-	// check for validity
-//	for (i = 0; i < VendSession_PwdSize; i++)
-//	{
-//		if ( (password[i] < '0') || (password[i] > '9') )
-//		{
-			strncpy(password, (char const *)Password, VendSession_PwdSize);
-//			break;
-//		}
-//	}
 
 	return password;
 }
@@ -240,38 +132,5 @@ char * VendSession_GetTypedPwd(void)
 	static char pwd_buffer[VendSession_PwdSize + 1] = "      "; // +1 is for \0
 	return pwd_buffer;
 }
-/*
-void VendSession_UpdTypedPwd(char *pwd_type_buf)
-{
-	char *pwd_buffer;
-	pwd_buffer = VendSession_GetTypedPwd();
-	memcpy(pwd_buffer, pwd_type_buf, VendSession_PwdSize);
-}
-*/
 
-// @@@
-// BYTE volatile EEPROM_read(unsigned int uiAddress)
-// {
-// 	// Wait for completion of previous write
-// 	while(EECR & (1<<EEPE));
-// 	// Set up address register
-// 	EEAR = uiAddress;
-// 	// Start eeprom read by writing EERE
-// 	EECR |= (1<<EERE);
-// 	asm("nop");
-// 	asm("nop");
-// 	// Return data from Data Register
-// 	return EEDR;
-// }
-// void EEPROM_write(unsigned int uiAddress, BYTE ucData)
-// {
-// 	// Wait for completion of previous write
-// 	while(EECR & (1<<EEPE));
-// 	// Set up address and Data Registers
-// 	EEAR = uiAddress;
-// 	EEDR = ucData;
-// 	// Write logical one to EEMPE
-// 	EECR |= (1<<EEMPE);
-// 	// Start eeprom write by setting EEPE
-// 	EECR |= (1<<EEPE);
-// }
+

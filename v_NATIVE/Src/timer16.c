@@ -78,6 +78,10 @@ void TIM1_UP_TIM16_IRQHandler(void) {
        DataTime = dt;
        if((DataTime.seconds == 0) && (!(DataTime.minutes % 5)))
          S_push(SIM800_command);
+       if((DataTime.seconds == 0) && (DataTime.minutes == 0)){
+         S_push(SIM800_get_Balance);
+         S_push(SIM800_info_upload);
+       }
     }
     if(p_session->current_state == INSERT_FUNDS){
      if(!(milliseconds % 490)){
