@@ -4,6 +4,7 @@
 #include "delays.h" // for us delays
 #include "stm32f3xx_hal.h"
 #include "modbus.h"
+#include "statemachine.h"
 
 // SimpleModbusMasterV2rev2
 
@@ -54,34 +55,38 @@ void sendPacket(unsigned char bufferSize);
 // Modbus Master State Machine
 void modbus_update() 
 {
+ static uint8_t Slave = 0;
 	switch (state)
 	{
 		case IDLE:
                   
-                  if(SetCoil){
-                    if(SetCoil == 100){
-                     modbus_construct(&packets[PACKET1], 2, READ_INPUT_STATUS, 0, 8, 1); 
-                     modbus_configure(115200, 500, 5, 1, packets, TOTAL_NO_OF_PACKETS, regs);
-                     SetCoil = 0;
-                    }
-                    else{
-                     regs[0] = 0xFF00;
-                     modbus_construct(&packets[PACKET1], 2, FORCE_SINGLE_COIL, SetCoil - 1, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
-                     modbus_configure(115200, 500, 5, 1, packets, TOTAL_NO_OF_PACKETS, regs);
-                     SetCoil = 100;
-                    }
-                  } 
-   
-                 
-                  
-                 
-		idle();
-		break;
+                  if(!Machine.SetCoil){
+                  Slave = (Slave%(MAX_WASHINGS + 1));
+                  Slave++;
+                  while (!IS_WASHER_VALID(Slave)){
+                    Slave = (Slave%(MAX_WASHINGS + 1));
+                    Slave++;
+                  }
+                     modbus_construct(&packets[PACKET1], Slave, READ_INPUT_STATUS, 0, 8, 0); 
+                     modbus_configure(115200, 200, 1, 1, packets, TOTAL_NO_OF_PACKETS, &regs[Slave]);
+                  }
+                  else{
+                     modbus_construct(&packets[PACKET1], Machine.SlaveAddr, FORCE_SINGLE_COIL, Machine.SetCoil - 1, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
+                     modbus_configure(115200, 200, 1, 1, packets, TOTAL_NO_OF_PACKETS, regs);
+                     
+                  }
+  		//idle();
+                packet = &packetArray[0];
+                constructPacket(); // just send it to a slave
+		Machine.SetCoil = 0; 
+                break;
 		case WAITING_FOR_REPLY:
 		waiting_for_reply();
 		break;
 		case WAITING_FOR_TURNAROUND:
-		waiting_for_turnaround();
+		//waiting_for_turnaround();
+
+                 state = IDLE; 
 		break;
 	}
 }
@@ -136,8 +141,8 @@ void constructPacket()
 	
 	// The data attribute needs to be intercepted by F5 & F6 because these requests
 	// include their data in the data register and not in the masters array
-	if (packet->function == FORCE_SINGLE_COIL || packet->function == PRESET_SINGLE_REGISTER) 
-		packet->data = register_array[packet->local_start_address]; // get the data
+	//if (packet->function == FORCE_SINGLE_COIL || packet->function == PRESET_SINGLE_REGISTER) 
+	//	packet->data = register_array[0];//[packet->local_start_address]; // get the data
 	
 	
 	frame[4] = packet->data >> 8; // MSB
@@ -241,8 +246,8 @@ void waiting_for_reply()
            frame[i] = Modbus.buffer[i];
           }
 		Modbus.readyBuff = 0;
-		if (frame[0] != packet->id) // check id returned
-			processError();
+                if (frame[0] != packet->id){} // check id returned
+			//processError();
 		else{
                         buffer = Modbus.readySymbols;
 			processReply();
@@ -250,7 +255,7 @@ void waiting_for_reply()
 	}
 	else if ((millis() - delayStart) > timeout) // check timeout
 	{
-		processError();
+	//	processError();
 		state = IDLE; //state change, override processError() state
 	}
 }

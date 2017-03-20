@@ -22,7 +22,7 @@ void loop(void);
 
 #define IS_WASHER_VALID(washer_num) \
   ( ( washer_num >= 1 ) && \
-    ( washer_num <= WASHERS_MAX_COUNT )  )//&& \
-   // ( WASHER_RAMGetPrice( washer_num ) > 0 )
+    ( washer_num <= WASHERS_MAX_COUNT )   && \
+    ( WL[washer_num - 1].enable))
 
 #endif

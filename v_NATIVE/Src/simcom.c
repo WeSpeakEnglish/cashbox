@@ -60,20 +60,6 @@ const char bal_str[] = "&balance=";
 washing_holder wash_holder;
 SIM800 Sim800;
 
-
-void SIM800_SendCMD(void) {
-    static Message Msg;
-
-    //Transmit command to the SIM800
-
-        Msg.pMessage[Msg.SizeOfMessage - 1 ] = '\r';
-        HAL_UART_Transmit_DMA(&huart2, (uint8_t *) Msg.pMessage, Msg.SizeOfMessage);
-        SIM800_ParserID = Msg.ParserID;
-
-
-    Delay_ms_OnFastQ(10);
-}
-
 void SIM800_info_upload(void) // upload info to the server
 {
     char post_body[35];
@@ -279,6 +265,46 @@ void SIM800_IniCMD(void) {
     SIM800_GPRS_close();
 
 }
+
+
+void SIM800_GetTimeAndLoc(void) { // it gets time and location
+    __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE); //Enable IDLE
+    __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE); //Enable IDLE
+    ResParse.byte = 0; //reset parsed bits
+    Delay_ms_OnMediumQ(3000);
+    SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
+    Delay_ms_OnMediumQ(4000);
+
+    SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
+    
+    if(SIM800_waitAnswer(1)){
+      SIM800_PowerOnOff();
+      Delay_ms_OnMediumQ(3000);
+      SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
+      Delay_ms_OnMediumQ(4000);
+      SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
+   }
+      
+      
+    SIM800_get_Signal();
+    SIM800_AddCMD((char *) creg_str, sizeof (creg_str), 2);
+    SIM800_waitAnswer(1);
+
+    SIM800_AddCMD((char *) cgreg_str, sizeof (cgreg_str), 2);
+    SIM800_waitAnswer(1);
+    SIM800_GPRS_open();
+    SIM800_AddCMD((char *) gsmloc_snd_str, sizeof (gsmloc_snd_str), 3);
+    SIM800_waitAnswer(1);
+    SIM800_AddCMD((char *) cusd_str, sizeof (cusd_str), 0);
+    Delay_ms_OnFastQ(100);
+    SIM800_waitAnswer(2);
+    SIM800_parse_PhoneNumber(); // the phone number will be received later
+    Delay_ms_OnFastQ(100);
+
+    SIM800_GPRS_close();
+
+}
+
 
 // id=2&wm=105&cost=22&status=true
 

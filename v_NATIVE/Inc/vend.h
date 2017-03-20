@@ -6,6 +6,7 @@
 #include "WASHERS.H"
 
 extern WasherSettings_t WL[MAX_WASHINGS]; // that is an array of structs
+extern WasherSettings_t * washers_list;
 //extern VendSession_t Vend;
 
 extern VendSession_t* p_session;

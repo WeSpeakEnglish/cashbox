@@ -16,7 +16,7 @@ stlinkfoundProbes=
 stlinkResetStyle=0
 stlinkResetStrategy=1
 [DebugChecksum]
-Checksum=643711738
+Checksum=2032835792
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -53,7 +53,7 @@ Fmt5=date_time_t-year	3	0
 Fmt6=money-cop	3	0
 [array_types]
 Fmt0=uint8_t[32]	4	0
-Fmt1=unsigned int[10]	1	0
+Fmt1=unsigned int[10]	4	0
 [watch_formats]
 Fmt0={W}1:Data	1	0
 Fmt1={W}1:ReadValue	4	0
@@ -105,7 +105,11 @@ SumSortOrder=0
 mode=0
 [Breakpoints2]
 Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\dma.c}.1.1" 0 0 1 "" 0 "" 0
-Count=1
+Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\sd_files.c}.95.29" 0 0 1 "" 0 "" 0
+Bp2=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\timer16.c}.82.10" 0 0 1 "" 0 "" 0
+Bp3=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\timer16.c}.83.10" 0 0 1 "" 0 "" 0
+Bp4=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\timer16.c}.80.10" 0 0 1 "" 0 "" 0
+Count=5
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""

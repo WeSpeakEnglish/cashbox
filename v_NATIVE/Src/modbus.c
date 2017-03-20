@@ -9,11 +9,12 @@ MODBUS_struct Modbus;
 
 
 Packet packets[TOTAL_NO_OF_PACKETS];
-unsigned int regs[10];
+unsigned int regs[(MAX_WASHINGS + 1)];
 
-unsigned int SetCoil; // set coil
+//unsigned int SetCoil; // set coil
+WashingMachineCmd Machine;
 
-#define TOTAL_NO_OF_REGISTERS 10
+#define TOTAL_NO_OF_REGISTERS (MAX_WASHINGS + 1)
 // Masters register array
 unsigned int regs[TOTAL_NO_OF_REGISTERS];
 

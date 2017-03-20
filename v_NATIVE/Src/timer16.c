@@ -69,7 +69,7 @@ void TIM1_UP_TIM16_IRQHandler(void) {
 
     }
     if(!(milliseconds % 150)){
-        F_push(modbus_update);
+//        F_push(modbus_update);
 
     }
     if(!(milliseconds % 1000)){

@@ -1,11 +1,10 @@
 
-// LCDMenuAF == LCD menu module with advanced functions
-
 #include "LCDMenu.h"
 
 #include "VendSession.h"
 #include "WASHERS.h"
 #include "Vend.h"
+#include <stdint.h>
 
 
 // Abstraction display refresh event
@@ -53,10 +52,6 @@ const char success_str1[] = "   можете начать    ";
 const char success_str2[] = "      стирку        ";
 //
 
-//const char start0_str[] PROGMEM   = " Для начала  стирки ";
-// const char start1_str[] PROGMEM = "нажмите кнопку ";
-//const char start2_str[] PROGMEM   = "    на клавиатуре   ";
-
 // enter to service menu screen strings
 const char enter_service_str0[] = "  Сервисный  режим  ";
 const char enter_service_str1[] = "   Введите пароль:  ";
@@ -76,16 +71,6 @@ const char service2_str1[] = " 5 Информация       ";
 const char service2_str2[] = "6 Обнул.текущ.баланс";
 const char service2_str3[] = " * Выход | 9 Назад  ";
 
-/*
-// partial words strings
-const char client_str[] PROGMEM = "Кол-во клиентов:";
-const char    sum_str[] PROGMEM = "Сумма:";
-const char washer_str[] PROGMEM = "Машина: ";
-const char credit_str[] PROGMEM = "Кредит: ";
-const char    rub_str[] PROGMEM = "руб.";
-const char  comma_str[] PROGMEM = ",";
-const char space1_str[] PROGMEM = " ";
-*/
 
 // // buffer string       
 char lcd_line_buf[LCD_LINE_SZ<<3]; // *2 for a good reserve
@@ -124,10 +109,6 @@ uint16_t LCDTextUpdate(void)
 	uint8_t may_be_continued = 0;
 	uint16_t changes;
 	uint16_t ret;
-	//@@@ LCD_text_t *p_txt;
-	
-	//@@@ p_txt = getLCDText();
-
 	ret = whichBlocksWereChanged();
 	changes = ret;
 	if (changes)
@@ -211,7 +192,7 @@ void LCDMenu_WasherSelection(void){
 
 		sprintf( lcd_line_buf, "Машина: %1d (%3d руб.)",
 				        		 p_session->selected_washer,
-								 WASHER_RAMGetPrice(p_session->selected_washer) );
+								 WL[(p_session->selected_washer)-1].price);
 		CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 2);
 		sprintf( lcd_line_buf, "Внесено: %3d руб.   ", p_session->inserted_funds );
 		CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 3);
@@ -230,7 +211,7 @@ void LCDMenu_AwaitingPayment(void)
 
 	sprintf( lcd_line_buf, "Машина: %1d (%3d руб.)",
 							 p_session->selected_washer,
-							 WASHER_RAMGetPrice(p_session->selected_washer) );
+							 WL[(p_session->selected_washer)-1].price);
 	CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 0);
 	sprintf( lcd_line_buf, "Внесено: %3d руб.   ", p_session->inserted_funds );
 	CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 1);
@@ -318,33 +299,23 @@ void LCDMenu_ServiceInfo1(void)
 {
     volatile uint32_t *p_cashbox;
     volatile uint16_t *p_clients_count;
+    char buffer_to_print[10] = {0};
+    uint8_t i; // for indexing inside the cycles
 
     p_cashbox = &CashBOX;
     p_clients_count = VendSession_RAMGetClientsCount();
-
-	sprintf( lcd_line_buf, " Цены x50: %1d%1d%1d%1d%1d%1d%1d%1d   ",
-		WASHER_RAMGetPrice(1)/50,
-		WASHER_RAMGetPrice(2)/50,
-		WASHER_RAMGetPrice(3)/50,
-		WASHER_RAMGetPrice(4)/50,
-		WASHER_RAMGetPrice(5)/50,
-		WASHER_RAMGetPrice(6)/50,
-		WASHER_RAMGetPrice(7)/50,
-		WASHER_RAMGetPrice(8)/50
-		);
+    strcpy(lcd_line_buf, " Цены x50: ");
+    for(i = 0; i <  MAX_WASHINGS; i++){
+      sprintf(buffer_to_print, "%d", WL[i].price / 50);
+      strcat(lcd_line_buf, buffer_to_print);
+    }
 	CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 0);
-	sprintf( lcd_line_buf, " В работе: %1d%1d%1d%1d%1d%1d%1d%1d   ",
-		p_session->washers_in_use[0],
-		p_session->washers_in_use[1],
-		p_session->washers_in_use[2],
-		p_session->washers_in_use[3],
-		p_session->washers_in_use[4],
-		p_session->washers_in_use[5],
-		p_session->washers_in_use[6],
-		p_session->washers_in_use[7]
-		);
+        strcpy(lcd_line_buf," В работе: ");
+        for(i = 0; i <  MAX_WASHINGS; i++){
+          sprintf(buffer_to_print, "%d", p_session->washers_in_use[i]);
+          strcat(lcd_line_buf, buffer_to_print);
+         }
 	CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 1);
-
 	sprintf( lcd_line_buf, " В кассе: %d           ", *p_cashbox);
 	CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 2);
 	sprintf( lcd_line_buf, " Запусков: %d           ", *p_clients_count);

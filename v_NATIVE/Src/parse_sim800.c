@@ -217,15 +217,25 @@ uint8_t    i = 0;
 uint8_t i2 = 1;
 uint8_t mul = 1;
 uint8_t SetWM = 0;
+uint8_t cleanFlag = 0; //wash away all the prices
 volatile  uint8_t * str = Sim800.pReadyBuffer;
 while(str[i] != '\0'){
   if(str[i++] == 'w')     
-    if(str[i++] == 'm')          
+    if(str[i++] == 'm'){          
      wm = str[i] - 0x30 -1;
+     if(!cleanFlag){
+      cleanFlag = 1;
+      for(i = 0; i < MAX_WASHINGS; i++){
+        WL[wm].enable = 0;
+      }
+     }
+    }
   if(str[i] == ','){
     //WL[wm].start =str[i+1] - 0x30;
     if(str[i+1] - 0x30){
-        SetCoil = wm + 1; 
+      //  Machine.SetCoil = 1;//wm + 1; 
+      //  Machine.SlaveAddr = wm + 1;
+      WASHER_SendStartSignal(wm + 1, str[i+1] - 0x30);
     } 
     WL[wm].price = 0;
     i2 = 1;  
@@ -237,6 +247,7 @@ while(str[i] != '\0'){
      i2++;
    }      
    SetWM =1;
+   WL[wm].enable = 1;
   }
  }
 if(SetWM){
@@ -266,18 +277,15 @@ Sim800.pReadyBuffer[*(Sim800.pReadyIndex)] = '\0';
         break;
       case 6:
         SIM800_parse_Signal();
-        //SIM800_pop_washing();
         break;
       case 7:
         SIM800_Parse_CGAT();
         break;
       case 8:
-     //   SIM800_Parse_WM();
         break;
     
     }
     Sim800.parsed = 1;
-  //  xSemaphoreGive(xSemaphoreParse); 
   }
 
 }

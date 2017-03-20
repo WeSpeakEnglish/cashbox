@@ -29,11 +29,6 @@ void VendSession_Init(void)
 
 }
 
-/*
- * Reading and writing from/to EEPROM requiers disabled interrupts
- * so disable them (cli()) before any operation with EEPROM and
- *     enable them (sei()) after all operations are done
- */
 
 VendSession_t * VendSession_RAMGetSession(void)
 {
@@ -70,26 +65,6 @@ uint16_t * VendSession_EEMEMGetClientsCount(void)
           TotalClientsCounter += UserCounter[i];
         
 	return &TotalClientsCounter;
-}
-
-// Takes VendSession values from RAM and updates them in EEPROM
-void VendSession_EEMEMUpdateAll(void)
-{
-  SD_SetSession();
-}
-
-
-void VendSession_EEMEMUpdateClientsCount(void)
-{
-
-  SD_SetSession();
-        
-}
-
-void VendSession_EEMEMResetCashbox(void)
-{
-	CashBOX = 0;
-        SD_SetSession();
 }
 
 void VendSession_EEMEMResetClientsCount(void)

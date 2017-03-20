@@ -9,9 +9,9 @@
 #include "calculations.h"
    
 //max size of queues is 127 elements (signed char) 
-#define Q_SIZE_SLOW 64  // the size of slow queue
-#define Q_SIZE_MEDIUM 64 // the size of medium queue
-#define Q_SIZE_FAST 64   // the size of fast queue
+#define Q_SIZE_SLOW     64      // the size of slow queue
+#define Q_SIZE_MEDIUM   64      // the size of medium queue
+#define Q_SIZE_FAST     128     // the size of fast queue
    
    
    

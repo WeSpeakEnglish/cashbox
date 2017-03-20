@@ -6,20 +6,6 @@
 #include "simcom.h"
 #include "WASHERS.h"
 
-/* Address of saved data in EEPROM
- * Required size is: VendSession_t:
- 					 1 byte  -- uint8_t  (selected washer)   start at 0x00
-					 2 bytes -- sizeof   (SessionState_t)    start at 0x01
-					 2 bytes -- uint16_t (inserted funds)    start at 0x03
-					 8 bytes -- uint8_t  (occupancy array)   start at 0x05
-					 13 bytes total                          last byte at 0x0C
-					 Cashbox:
-					 2 bytes -- uint16_t ()					 start at 0x0D, end at 0x0E
-					 6 bytes -- password ()				     start at 0x0F, end at 0x14
-					 Clients count:
-					 1 byte  -- uint8_t  ()				     start at 0x15
- * Should be enough for 1-2 years, then just move the address offset 
- */
 //#define EEPROM_VENDSESSION_OFFSET		   (0x00)
 #define EEPROM_VendSessionStructADDR	   (0x00)
 #define EEPROM_VendSessionCashboxADDR      (0x18)
@@ -73,26 +59,7 @@ typedef struct {
 	uint16_t inserted_funds;
 	uint8_t washers_in_use[WASHERS_MAX_COUNT];
 } VendSession_t;
-/*
- * To read values from EEPROM user must first read them into RAM
- * it is simply done by calling VendSession_EEMEMGetSession(), which returns
- * a pointer to a RAM copy:
- *     VendSession_t *p_session;
- *     p_session = VendSession_EEMEMGetSession();
- *     // now you can access values in RAM by p_session->...
- 
- * To update values in EEPROM user must first update these
- * values in RAM copy via pointer, like so:
- *
- *     VendSession_t *p_session;
- *
- *     p_session = VendSession_RAMGetSession();
- *	   p_session->selected_washer = val1;
- *     p_session->current_state   = state1;
- *     p_session->inserted_funds  = funds1;
- *
- *     VendSession_EEMEMUpdateAll();
- */
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -114,13 +81,7 @@ uint32_t * VendSession_RAMGetCashbox(void);
 void VendSession_RAMAddToCashbox(uint16_t delta);
 void VendSession_RAMIncrementClientsCount(uint8_t Machine);
 
-//@@@void VendSession_RAMResetSession (void); // called from init function
-
-void VendSession_EEMEMUpdateAll (void);
-void VendSession_EEMEMUpdateSession (void);
-void VendSession_EEMEMUpdateClientsCount (void);
 void VendSession_EEMEMResetSession (void);
-void VendSession_EEMEMResetCashbox (void);
 void VendSession_EEMEMResetClientsCount (void);
 
 char * VendSession_EEMEMGetPwd (void);

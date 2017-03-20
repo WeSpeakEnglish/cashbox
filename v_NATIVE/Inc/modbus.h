@@ -2,6 +2,7 @@
 #define _MODBUS_H
 #include <stdint.h>
 #include "SimpleModbusMaster.h"
+#include "vend.h"
 
 #define BUFLEN_MODBUS 32
 
@@ -19,11 +20,18 @@ enum
   TOTAL_NO_OF_PACKETS // leave this last entry
 };
 
+typedef struct{
+ uint8_t SetCoil;    // coil symbalize (set coil command modbus) a desireble regime
+ uint8_t SlaveAddr;  // address of slave which we need to send for
+}WashingMachineCmd; // we need to send to slave command to turn mode 
+               
+
 void TranmitSlaveCmd(uint8_t Cmd);
 void ModbusBufferFree(void);
 void USART3_IRQHandler(void);
 extern MODBUS_struct Modbus;
 extern unsigned int SetCoil; // set coil
 extern Packet packets[TOTAL_NO_OF_PACKETS];
-extern unsigned int regs[10];
+extern unsigned int regs[MAX_WASHINGS + 1];
+extern WashingMachineCmd Machine;
 #endif

@@ -15,7 +15,7 @@
 #define MAX_PHONE_NUMBER_LENGTH         30
 
 #define TERMINAL_UID	8
-#define MAX_WASHINGS    8
+#define MAX_WASHINGS    9
 
  typedef struct 
 {
@@ -88,24 +88,23 @@ typedef struct {
 
 extern SIM800 Sim800;
 
+uint8_t SIM800_waitAnswer(uint8_t Cycles);      // here we wait for the answer from  SIM800
+void SIM800_IniCMD(void);                       // commands to Initialize (speed tune and getting Phone Number)
+void SIM800_SendCMD(void);                      
+void SIM800_Ini(void);                          // initialization sequence
+void SIM800_info_upload(void);                  // info upload to the server (Balance and the signal quality)
+void SIM800_collection(void);                   // collection of the money
+void SIM800_GetTimeAndLoc(void);
 
-
-uint8_t SIM800_waitAnswer(uint8_t Cycles);
-void SIM800_IniCMD(void); // farther commands to open gprs session
-void SIM800_SendCMD(void); // the send CMD operation
-void SIM800_Ini(void); // ini sequence
-void SIM800_info_upload(void); //info upload
-void SIM800_collection(void); //  collection
-
-void SIM800_init_info_upload(void); //upload initialized info to the SERVER
-void SIM800_PowerOnOff(void);
-void SIM800_GPRS_open(void); // open GPRS session
-void SIM800_GPRS_close(void); // close GPRS session
-void SIM800_get_Balance(void);
-void SIM800_get_Signal(void);
-void SIM800_pop_washing(void);
-void SIM800_command(void);
+void SIM800_init_info_upload(void);             //upload initialized info to the SERVER
+void SIM800_PowerOnOff(void);                   //to switching On/Off
+void SIM800_GPRS_open(void);                    // open GPRS session
+void SIM800_GPRS_close(void);                   // close GPRS session
+void SIM800_get_Balance(void);                  // to get Balance
+void SIM800_get_Signal(void);                   // to get the signal
+void SIM800_pop_washing(void);                  // to push the message about washing to the server
+void SIM800_command(void);                      // commands to get tariffs from server
 
 void parse_CGAT(void); 
-uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID);
+uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID); // to send messages (commands) to the SIM800 module
 #endif

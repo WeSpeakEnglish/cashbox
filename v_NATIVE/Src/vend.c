@@ -8,7 +8,7 @@
 
 //VendSession_t Vend;
 WasherSettings_t WL[MAX_WASHINGS]; 
-
+WasherSettings_t * washers_list = &WL[0]; // that is an array of structs
 
 uint16_t terminal_UID = 0; //initialValue, actual value will be get fromSD
 
@@ -22,6 +22,13 @@ uint16_t TotalClientsCounter = 0; // the total number of clients
 VendSession_t* p_session = &Session;
 
 uint16_t SD_Prices_WM[WASHERS_MAX_COUNT]={{0}};  //we store here our SD data prices as weel for triggering on the changes
+
+uint8_t selected_washer;
+SessionState_t current_state;
+SessionSubState_t current_substate;
+uint32_t tmp_substate_timeout;
+uint16_t inserted_funds;
+uint8_t washers_in_use[MAX_WASHINGS];
 
 uint8_t CheckPriceChanges(void){
  uint8_t i;
@@ -46,28 +53,7 @@ void disableCashInput(void){
     ccTalkSendCMD(CC_CLOSE);
     Delay_ms_OnFastQ(300);
 }
-//
-	uint8_t selected_washer;
-	SessionState_t current_state;
-	SessionSubState_t current_substate;
-	uint32_t tmp_substate_timeout;
-	uint16_t inserted_funds;
-	uint8_t washers_in_use[MAX_WASHINGS];
-        
-//void VendInit(void){ // simple initialization
- //uint16_t i;
- // Vend.selected_washer = 1;
- // Vend.current_state = WAIT_FOR_START;
- // Vend.current_substate = NO_SUBSTATE;
-  //Vend.inserted_funds = 0;
- // Vend.selected_washer = 1;
- // Vend.tmp_substate_timeout = 0;
-  //for(i = 0; i < MAX_WASHINGS; i++)
- //               Vend.washers_in_use[i] = 0;
-  
-//}
-
-//zero is ready 
+/*
 uint8_t CheckReadyWasher(uint8_t Washer){ // is it ready or not (by modbus register) // from 0ne to eight
   union{
     struct{
@@ -101,8 +87,12 @@ uint8_t CheckReadyWasher(uint8_t Washer){ // is it ready or not (by modbus regis
           return (uint8_t)Washers.bits.b6;
         case 8:
           return (uint8_t)Washers.bits.b7;          
-          
   }
   return 0;
 }
-
+*/
+uint8_t CheckReadyWasher(uint8_t Washer){ // is it ready or not (by modbus register) // from 0ne to eight
+  
+  if(regs[Washer] & 0x00000001)  return 1;        
+  return 0;
+}

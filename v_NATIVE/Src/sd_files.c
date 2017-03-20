@@ -55,7 +55,7 @@ void parseSD_wm(char * pData) { // we parse string like wm=150
                     }
                     pData[j++] = '\0';
                     
-                    WL[i].start_button_pin = atoi(pData);
+                    WL[i].enable = atoi(pData);
                     
                     pData = &pData[j];
                     j=0;
@@ -92,10 +92,10 @@ void SD_SetData(void) { // data has got from the server, and we need to write
                             Utoa(WL[i].price, pChar);
                             f_write(&file, pChar, strlen(pChar), &nWrite);
                             f_write(&file, ",", 1, &nWrite);
-                            Utoa(WL[i].send_signal_relay, pChar);
+                            Utoa(WL[i].enable, pChar);
                             f_write(&file, pChar, strlen(pChar), &nWrite);
                             f_write(&file, ",", 1, &nWrite);
-                            Utoa(WL[i].start_button_pin, pChar);
+                            Utoa(WL[i].send_signal_relay, pChar);
                             f_write(&file, pChar, strlen(pChar), &nWrite);          
                             f_write(&file, "\r\n", 2, &nWrite);
 

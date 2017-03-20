@@ -24,7 +24,7 @@
 #define SERVICE_MENU2_EXPIRATION                        90000
 #define SERVICE_INFO1_EXPIRATION                        90000
 
-WasherSettings_t * washers_list = &WL[0]; // that is an array of structs
+
 
 volatile uint32_t simple_timeout_tmp = 0;
 
@@ -201,7 +201,7 @@ int8_t on_enter_state(SessionState_t to)
             p_session->tmp_substate_timeout = (2500L); // ms
             enter_substate(TMP_SUBSTATE); // a little delay...
             // trying to activate the washer
-            WASHER_SendStartSignal( p_session->selected_washer );
+            WASHER_SendStartSignal( p_session->selected_washer, 1); // the second number is regime
             p_session->inserted_funds -= washers_list[ p_session->selected_washer - 1 ].price;
             success = 1; break;
         case START_WASHING_FAILED:
@@ -283,9 +283,6 @@ void waitForSelection(void)
         // selected washer is not in use then go on with cash inserted
         if ( (p_session->washers_in_use[ p_session->selected_washer - 1 ] == 0) )
         {
-            // save session changes to eeprom
-            //VendSession_EEMEMUpdateSession();
-            // switch to INSERT_FUNDS
             switch_state(INSERT_FUNDS);
         }
         else
@@ -515,7 +512,8 @@ void serviceMenu(void)
         case '9': switch_state(SERVICE_MENU2); break;
         case '0': {
             S_push(SIM800_collection);
-            VendSession_EEMEMResetCashbox();
+            CashBOX = 0;
+            SD_SetSession();
             switch_state(WAIT_FOR_START);
         }; break;
         default: break;
@@ -523,11 +521,7 @@ void serviceMenu(void)
 
     if ( ( washer_num >= 1 ) && ( washer_num <= WASHERS_MAX_COUNT ) )
     {
-        WASHER_SendStartSignal( washer_num );
-        #ifdef DEBUG_ENABLED
-            DEBUG.print( "Signal sent to washer " );
-            DEBUG.println( washer_num );
-        #endif
+        WASHER_SendStartSignal( washer_num, 1); // the second number is regime
     }
 }
 
