@@ -51,9 +51,9 @@ void WASHER_RAMSetPrice (uint8_t washer_number, uint16_t new_price)
 	washers_list[washer_number - 1].price = new_price;
 }
 
-uint8_t WASHER_ReadFeedback(uint8_t washer_number)
+uint8_t WASHER_ReadFeedback(uint8_t w_number)
 {
-  if(CheckReadyWasher(washer_number))return 0;
+  if(CheckReadyWasher(w_number))return 0;
   else return 1;
 
 }

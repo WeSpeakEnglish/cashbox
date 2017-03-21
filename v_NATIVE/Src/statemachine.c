@@ -350,7 +350,7 @@ void checkIfWashingWasStarted(void)
     // check washer feedback
     p_session->washers_in_use[ p_session->selected_washer - 1 ] = \
       ( WASHER_ReadFeedback( p_session->selected_washer ) ) ? 1 : 0;
-    if (p_session->washers_in_use[ p_session->selected_washer - 1 ])
+    if (!(p_session->washers_in_use[ p_session->selected_washer - 1 ]))
     {
 
         // increment clients count and save to eeprom
