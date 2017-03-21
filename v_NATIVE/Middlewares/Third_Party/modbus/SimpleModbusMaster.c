@@ -61,10 +61,12 @@ void modbus_update()
 		case IDLE:
                   
                   if(!Machine.SetCoil){
-                  Slave = (Slave%(MAX_WASHINGS + 1));
+                  Slave = (Slave%(WASHERS_MAX_COUNT + 1));
+                  if(Slave != Modbus.buffer[0]) 
+                    regs[Slave] = 0;
                   Slave++;
                   while (!IS_WASHER_VALID(Slave)){
-                    Slave = (Slave%(MAX_WASHINGS + 1));
+                    Slave = (Slave%(WASHERS_MAX_COUNT + 1));
                     Slave++;
                   }
                      modbus_construct(&packets[PACKET1], Slave, READ_INPUT_STATUS, 0, 8, 0); 
@@ -78,6 +80,7 @@ void modbus_update()
   		//idle();
                 packet = &packetArray[0];
                 constructPacket(); // just send it to a slave
+                Modbus.buffer[0] = 0;
 		Machine.SetCoil = 0; 
                 break;
 		case WAITING_FOR_REPLY:

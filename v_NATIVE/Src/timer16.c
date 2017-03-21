@@ -56,7 +56,7 @@ void TIM1_UP_TIM16_IRQHandler(void) {
  
   if (TIM16->SR & TIM_SR_UIF) {
     TIM16->SR &= ~TIM_SR_UIF; // сбрасываю флаг прерывани€
-    TIM16->CNT = 0; // обнул€ю счетчик... 
+  //  TIM16->CNT = 0; // обнул€ю счетчик... 
 
     //EXTI->IMR|=EXTI_IMR_MR0; //разрешаю внешние прерывани€
     // HAL_IWDG_Refresh(&hiwdg);
@@ -69,7 +69,7 @@ void TIM1_UP_TIM16_IRQHandler(void) {
 
     }
     if(!(milliseconds % 150)){
-//        F_push(modbus_update);
+        M_push(modbus_update);
 
     }
     if(!(milliseconds % 1000)){
@@ -79,6 +79,7 @@ void TIM1_UP_TIM16_IRQHandler(void) {
        if((DataTime.seconds == 0) && (!(DataTime.minutes % 5)))
          S_push(SIM800_command);
        if((DataTime.seconds == 0) && (DataTime.minutes == 0)){
+         S_push(SIM800_get_Signal);
          S_push(SIM800_get_Balance);
          S_push(SIM800_info_upload);
        }

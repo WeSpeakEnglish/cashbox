@@ -2,10 +2,10 @@
 #define _VEND_H
 
 #include <stdint.h>
-#include "VendSession.h"
+
 #include "WASHERS.H"
 
-extern WasherSettings_t WL[MAX_WASHINGS]; // that is an array of structs
+extern WasherSettings_t WL[WASHERS_MAX_COUNT]; // that is an array of structs
 extern WasherSettings_t * washers_list;
 //extern VendSession_t Vend;
 

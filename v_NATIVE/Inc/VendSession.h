@@ -12,7 +12,7 @@
 #define EEPROM_VendSessionClientsCountADDR (0x1C) // offset includes the password
 #define VendSession_EEMEMPasswordADDR	   (0x20)
 
-#define WASHERS_MAX_COUNT	8
+#define WASHERS_MAX_COUNT	9
 
 
 //#define EEPROM_WASHERS_OFFSET       (0x40)

@@ -214,6 +214,7 @@ void  SIM800_parse_Balance(void){
 void  SIM800_Parse_WM(void){
 uint8_t wm;   
 uint8_t    i = 0;
+uint8_t    j = 0;
 uint8_t i2 = 1;
 uint8_t mul = 1;
 uint8_t SetWM = 0;
@@ -225,8 +226,8 @@ while(str[i] != '\0'){
      wm = str[i] - 0x30 -1;
      if(!cleanFlag){
       cleanFlag = 1;
-      for(i = 0; i < MAX_WASHINGS; i++){
-        WL[wm].enable = 0;
+      for(j = 0; j < WASHERS_MAX_COUNT; j++){
+        WL[j].enable = 0;
       }
      }
     }

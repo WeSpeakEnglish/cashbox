@@ -8,7 +8,6 @@
 #define DISABLE                 0
 #define ENABLE                  1
 
-
 typedef struct {
 	uint16_t price;         // prices must be in eeprom
 	uint8_t  enable;                // we can enable and disable the washer from the server

@@ -7,7 +7,7 @@
 //#include "ccl"
 
 //VendSession_t Vend;
-WasherSettings_t WL[MAX_WASHINGS]; 
+WasherSettings_t WL[WASHERS_MAX_COUNT]; 
 WasherSettings_t * washers_list = &WL[0]; // that is an array of structs
 
 uint16_t terminal_UID = 0; //initialValue, actual value will be get fromSD
@@ -28,7 +28,7 @@ SessionState_t current_state;
 SessionSubState_t current_substate;
 uint32_t tmp_substate_timeout;
 uint16_t inserted_funds;
-uint8_t washers_in_use[MAX_WASHINGS];
+uint8_t washers_in_use[WASHERS_MAX_COUNT];
 
 uint8_t CheckPriceChanges(void){
  uint8_t i;

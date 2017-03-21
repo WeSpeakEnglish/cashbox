@@ -35,7 +35,7 @@ void parseSD_wm(char * pData) { // we parse string like wm=150
     uint16_t i,j = 0;
     if (pData[0] == 'w')
         if (pData[1] == 'm')
-            if ((pData[2] > 0x30) && (pData[2] < (0x30 + MAX_WASHINGS + 1))) { // MAX_WASHINGS
+            if ((pData[2] > 0x30) && (pData[2] < (0x30 + WASHERS_MAX_COUNT + 1))) { // WASHERS_MAX_COUNT
                 i = pData[2] - 0x30 - 1;
             //    WL[wm].index[i] = (i + 1); //existed index
                 if (pData[3] == '=') {
@@ -83,7 +83,7 @@ void SD_SetData(void) { // data has got from the server, and we need to write
             if (frslt == FR_OK) {
                 frslt = f_open(&file, "wm.txt", FA_WRITE | FA_CREATE_ALWAYS); //open the existed file
                 if (frslt == FR_OK) {
-                    for (i = 0; i < MAX_WASHINGS; i++) {
+                    for (i = 0; i < WASHERS_MAX_COUNT; i++) {
                        // if (VendPrices.index[i]) { // if it exist
                             f_write(&file, "wm", 2, &nWrite);
                             Utoa(i + 1, pChar);

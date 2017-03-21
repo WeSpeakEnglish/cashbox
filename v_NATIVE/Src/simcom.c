@@ -244,9 +244,11 @@ void SIM800_IniCMD(void) {
       SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
       Delay_ms_OnMediumQ(4000);
       SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
+      SIM800_waitAnswer(1);
    }
-      
-      
+     
+     Delay_ms_OnMediumQ(1000);
+     
     SIM800_get_Signal();
     SIM800_AddCMD((char *) creg_str, sizeof (creg_str), 2);
     SIM800_waitAnswer(1);
@@ -275,17 +277,17 @@ void SIM800_GetTimeAndLoc(void) { // it gets time and location
     SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
     Delay_ms_OnMediumQ(4000);
 
-    SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
+    SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 0);
     
     if(SIM800_waitAnswer(1)){
       SIM800_PowerOnOff();
       Delay_ms_OnMediumQ(3000);
       SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
       Delay_ms_OnMediumQ(4000);
-      SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 1);
+      SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 0);
    }
       
-      
+    SIM800_waitAnswer(2);  
     SIM800_get_Signal();
     SIM800_AddCMD((char *) creg_str, sizeof (creg_str), 2);
     SIM800_waitAnswer(1);

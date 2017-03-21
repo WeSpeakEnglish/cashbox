@@ -305,13 +305,13 @@ void LCDMenu_ServiceInfo1(void)
     p_cashbox = &CashBOX;
     p_clients_count = VendSession_RAMGetClientsCount();
     strcpy(lcd_line_buf, " Цены x50: ");
-    for(i = 0; i <  MAX_WASHINGS; i++){
+    for(i = 0; i <  WASHERS_MAX_COUNT; i++){
       sprintf(buffer_to_print, "%d", WL[i].price / 50);
       strcat(lcd_line_buf, buffer_to_print);
     }
 	CPY_LCD_LINE_FROM_LINEBUF(lcd_line_buf, 0);
         strcpy(lcd_line_buf," В работе: ");
-        for(i = 0; i <  MAX_WASHINGS; i++){
+        for(i = 0; i <  WASHERS_MAX_COUNT; i++){
           sprintf(buffer_to_print, "%d", p_session->washers_in_use[i]);
           strcat(lcd_line_buf, buffer_to_print);
          }

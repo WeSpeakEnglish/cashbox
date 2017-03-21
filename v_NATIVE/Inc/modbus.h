@@ -32,6 +32,6 @@ void USART3_IRQHandler(void);
 extern MODBUS_struct Modbus;
 extern unsigned int SetCoil; // set coil
 extern Packet packets[TOTAL_NO_OF_PACKETS];
-extern unsigned int regs[MAX_WASHINGS + 1];
+extern unsigned int regs[WASHERS_MAX_COUNT + 1];
 extern WashingMachineCmd Machine;
 #endif

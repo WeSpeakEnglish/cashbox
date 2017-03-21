@@ -1,6 +1,7 @@
 #ifndef _SIMCOM_H
 #define _SIMCOM_H
 #include <stdint.h>
+
 #include "dma.h"
 
 #define RX_BUFFER_SIZE 256
@@ -15,7 +16,7 @@
 #define MAX_PHONE_NUMBER_LENGTH         30
 
 #define TERMINAL_UID	8
-#define MAX_WASHINGS    9
+
 
  typedef struct 
 {
