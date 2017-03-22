@@ -56,7 +56,7 @@ void parseSD_wm(char * pData) { // we parse string like wm=150
                     pData[j++] = '\0';
                     
                     WL[i].enable = atoi(pData);
-                    
+                    SD_Enables_WM[i] = WL[i].enable;
                     pData = &pData[j];
                     j=0;
                     while(pData[j] > 0x2F){

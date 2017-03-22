@@ -22,6 +22,7 @@ uint16_t TotalClientsCounter = 0; // the total number of clients
 VendSession_t* p_session = &Session;
 
 uint16_t SD_Prices_WM[WASHERS_MAX_COUNT]={{0}};  //we store here our SD data prices as weel for triggering on the changes
+uint16_t SD_Enables_WM[WASHERS_MAX_COUNT]={{0}};
 
 uint8_t selected_washer;
 SessionState_t current_state;
@@ -34,6 +35,7 @@ uint8_t CheckPriceChanges(void){
  uint8_t i;
  for(i = 0; i < WASHERS_MAX_COUNT; i++){
   if (WL[i].price != SD_Prices_WM[i]) return 1; // Yeah! We need to write updated data 
+  if (WL[i].enable != SD_Enables_WM[i]) return 1;
  }
 return 0;
 }

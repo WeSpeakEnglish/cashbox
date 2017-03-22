@@ -17,6 +17,7 @@ extern uint16_t UserCounter[WASHERS_MAX_COUNT];
 extern uint32_t CashBOX;
 extern uint8_t Password[VendSession_PwdSize];
 extern uint16_t SD_Prices_WM[WASHERS_MAX_COUNT];
+extern uint16_t SD_Enables_WM[WASHERS_MAX_COUNT];
 extern uint16_t TotalClientsCounter;
 
 uint8_t CheckReadyWasher(uint8_t Washer);

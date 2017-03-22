@@ -16,7 +16,7 @@ stlinkfoundProbes=
 stlinkResetStyle=0
 stlinkResetStrategy=1
 [DebugChecksum]
-Checksum=625065224
+Checksum=1690933362
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -101,11 +101,6 @@ ShowTimeLog=1
 SumEnabled=0
 ShowTimeSum=1
 SumSortOrder=0
-[Disassemble mode]
-mode=0
-[Breakpoints2]
-Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\statemachine.c}.369.9" 0 0 1 "" 0 "" 0
-Count=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -113,11 +108,6 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
-[Aliases]
-A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
-A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
-Count=2
-SuppressDialog=0
 [DriverProfiling]
 Enabled=0
 Mode=3
@@ -128,3 +118,13 @@ Exclusions=
 Enabled=0
 [CallStackStripe]
 ShowTiming=1
+[Disassemble mode]
+mode=0
+[Breakpoints2]
+Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\statemachine.c}.369.9" 0 0 1 "" 0 "" 0
+Count=1
+[Aliases]
+A0=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c" ""
+A1=_ "D:\PROJECTS\STM32F303\lc_stm32\v_NATIVE\Src\main.c" ""
+Count=2
+SuppressDialog=0
