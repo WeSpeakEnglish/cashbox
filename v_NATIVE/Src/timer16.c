@@ -65,23 +65,26 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     
     if(!(milliseconds % 100)){
        if(LCD.init) M_push(loop);
-       
-
-    }
-    if(!(milliseconds % 150)){
-        M_push(modbus_update);
+     }
+    if(!(milliseconds % 21)){
+        F_push(modbus_update);
 
     }
     if(!(milliseconds % 1000)){
        dt = DataTime;
        UNIXToDate(++RTC_seconds, &dt);
        DataTime = dt;
-       if((DataTime.seconds == 0) && (!(DataTime.minutes % 5)))
+       if((DataTime.seconds == 0) && (!(DataTime.minutes % 5))){ //every 5 minutes we get prices
+         S_push(SIM800_SendStartCounter); // send the user counter to the server
          S_push(SIM800_command);
-       if((DataTime.seconds == 0) && (DataTime.minutes == 0)){
+       }
+       if((DataTime.seconds == 0) && (DataTime.minutes == 0)){ // every hour we fill balance and signal
          S_push(SIM800_get_Signal);
          S_push(SIM800_get_Balance);
          S_push(SIM800_info_upload);
+       }
+       if((DataTime.seconds == 1) && (DataTime.minutes == 1) && (DataTime.hours == 1)){  // time synchronization //
+         S_push(SIM800_GetTimeAndLoc);
        }
     }
     if(p_session->current_state == INSERT_FUNDS){

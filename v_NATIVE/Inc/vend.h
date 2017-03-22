@@ -20,10 +20,13 @@ extern uint16_t SD_Prices_WM[WASHERS_MAX_COUNT];
 extern uint16_t SD_Enables_WM[WASHERS_MAX_COUNT];
 extern uint16_t TotalClientsCounter;
 
+
+uint8_t WaitForStartWasher(uint8_t Washer);
 uint8_t CheckReadyWasher(uint8_t Washer);
 uint8_t CheckPriceChanges(void);
 void enableCashInput(void);
 void disableCashInput(void);
+extern uint8_t VendStarted;
 //void VendInit(void);
 //void MoneyParser(uint8_t * Buffer); // parse amount of the money
 #endif

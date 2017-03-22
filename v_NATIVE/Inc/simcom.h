@@ -105,6 +105,7 @@ void SIM800_get_Balance(void);                  // to get Balance
 void SIM800_get_Signal(void);                   // to get the signal
 void SIM800_pop_washing(void);                  // to push the message about washing to the server
 void SIM800_command(void);                      // commands to get tariffs from server
+void SIM800_SendStartCounter(void);             // push counters of users to the server
 
 void parse_CGAT(void); 
 uint32_t SIM800_AddCMD(char * Msg, uint16_t Length, uint16_t ParserID); // to send messages (commands) to the SIM800 module

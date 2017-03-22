@@ -26,6 +26,7 @@ uint16_t CMD_index = 0;
 
 uint16_t rx_wr_index2; //RX_buffer position indicator
 
+
 const char GSM_ATcmd[] = "AT"; // send "AT" string for gsm to set up its auto baud rade
 const char GSM_ATcmd_Disable_Echo[] = "ATE0"; // disable command echo
 //const char GSM_ATcmd_Enable_Echo[]="ATE1\r";                                // enable command echo
@@ -53,9 +54,13 @@ const char vendweb_data[] = "http://vendweb.ru/api/0.1/data";
 const char vendweb_command[] = "http://vendweb.ru/api/0.1/commands";
 const char vendweb_collection[] = "http://vendweb.ru/api/0.1/collection";
 const char vendweb_washing[] = "http://vendweb.ru/api/0.1/washing";
+const char vendweb_wsync[] = "http://vendweb.ru/api/0.1/wsync";
 
 const char sig_str[] = "&signal=";
 const char bal_str[] = "&balance=";
+
+const char counter_str[] = "&data=";
+
 
 washing_holder wash_holder;
 SIM800 Sim800;
@@ -63,7 +68,7 @@ SIM800 Sim800;
 void SIM800_info_upload(void) // upload info to the server
 {
     char post_body[35];
-    char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    char id_str[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     sprintf(id_str, "id=%d", terminal_UID);
 
@@ -73,7 +78,7 @@ void SIM800_info_upload(void) // upload info to the server
     Utoa((uint16_t) (Sim800.signal_quality), post_body + strlen(post_body));
     strcpy(post_body + strlen(post_body), bal_str);
     //SIM800_get_Balance();
-    Utoa((uint16_t) (Sim800.current_balance.rub), post_body + strlen(post_body));
+    Itoa((uint16_t) (Sim800.current_balance.rub), post_body + strlen(post_body));
     strcat(post_body, ".");
     Utoa((uint16_t) (Sim800.current_balance.cop), post_body + strlen(post_body));
     SIM800_GPRS_open();
@@ -83,10 +88,43 @@ void SIM800_info_upload(void) // upload info to the server
     SIM800_GPRS_close();
 }
 
+void SIM800_SendStartCounter(void) // upload info to the server
+{
+    char post_body[200];
+    char str[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint8_t i;
+
+    sprintf(str, "id=%d", terminal_UID);
+
+    memset(post_body, 0, 200);
+    strcat(post_body, str);
+    strcat(post_body, counter_str);
+    
+    for(i = 0; i < WASHERS_MAX_COUNT ; i++){
+     Utoa((uint16_t)(i + 1), str);
+     strcat(post_body, str);   
+     strcat(post_body, ",");  
+     Utoa((uint16_t)UserCounter[i], str); 
+     strcat(post_body, str); 
+     strcat(post_body, ",");  
+     Utoa((uint16_t)WL[i].price, str); 
+     strcat(post_body, str);  
+     if(i < WASHERS_MAX_COUNT - 1) {
+        strcat(post_body, ";");  
+      }     
+    }
+    //SIM800_get_Balance();
+
+    SIM800_GPRS_open();
+    submitHTTP_init();
+    submitHTTPRequest(POST, (char*) vendweb_wsync, post_body, 0);
+    submitHTTP_terminate();
+    SIM800_GPRS_close();
+}
 void SIM800_collection(void) // upload info to the server
 {
     char post_body[35];
-    char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    char id_str[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     sprintf(id_str, "id=%d", terminal_UID);
 
@@ -101,7 +139,7 @@ void SIM800_collection(void) // upload info to the server
 }
 void SIM800_command(void) {
     char post_body[35];
-    char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    char id_str[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     sprintf(id_str, "id=%d", terminal_UID);
 
@@ -123,7 +161,7 @@ void SIM800_get_Signal(void) {
 
 void SIM800_init_info_upload(void) {
     char post_body[64];
-    char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    char id_str[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     sprintf(id_str, "id=%d", terminal_UID);
     memset(post_body, 0, 64);
@@ -270,41 +308,16 @@ void SIM800_IniCMD(void) {
 
 
 void SIM800_GetTimeAndLoc(void) { // it gets time and location
-    __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE); //Enable IDLE
-    __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE); //Enable IDLE
-    ResParse.byte = 0; //reset parsed bits
-    Delay_ms_OnMediumQ(3000);
-    SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
-    Delay_ms_OnMediumQ(4000);
-
-    SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 0);
-    
-    if(SIM800_waitAnswer(1)){
-      SIM800_PowerOnOff();
-      Delay_ms_OnMediumQ(3000);
-      SIM800_AddCMD((char *) GSM_ATcmd, sizeof (GSM_ATcmd), 0); // AT to sinhronize
-      Delay_ms_OnMediumQ(4000);
-      SIM800_AddCMD((char *) GSM_ATcmd_Disable_Echo, sizeof (GSM_ATcmd_Disable_Echo), 0);
-   }
-      
-    SIM800_waitAnswer(2);  
-    SIM800_get_Signal();
+    Delay_ms_OnFastQ(300);
     SIM800_AddCMD((char *) creg_str, sizeof (creg_str), 2);
     SIM800_waitAnswer(1);
-
     SIM800_AddCMD((char *) cgreg_str, sizeof (cgreg_str), 2);
     SIM800_waitAnswer(1);
     SIM800_GPRS_open();
     SIM800_AddCMD((char *) gsmloc_snd_str, sizeof (gsmloc_snd_str), 3);
     SIM800_waitAnswer(1);
-    SIM800_AddCMD((char *) cusd_str, sizeof (cusd_str), 0);
     Delay_ms_OnFastQ(100);
-    SIM800_waitAnswer(2);
-    SIM800_parse_PhoneNumber(); // the phone number will be received later
-    Delay_ms_OnFastQ(100);
-
     SIM800_GPRS_close();
-
 }
 
 
@@ -313,7 +326,7 @@ void SIM800_GetTimeAndLoc(void) { // it gets time and location
 void SIM800_pop_washing(void) {
     char post_body[64];
     char str[8]; // an addition str to add
-    char id_str[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    char id_str[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     sprintf(id_str, "id=%d", terminal_UID);
     memset(post_body, 0, 64);

@@ -164,20 +164,6 @@ int8_t F_push(void (*pointerQ)(void) ){
   return 0;
 }
 
-int8_t F_push2(void (*pointerQ_1)(void),void (*pointerQ_2)(void)){
-  if ((F_last + 2)%Q_SIZE_FAST == F_first)return 1;
-  
-  if(mutexF != 0){
-         return 1;
-  }
-
-  mutexF = 1;  // enter to critical section
-  pFastQueue[F_last++] = pointerQ_1;
-  pFastQueue[F_last++] = pointerQ_2;
-  F_last%=Q_SIZE_FAST;
-  mutexF = 0; 
-  return 0;
-}
 /// GET ELEMENTs FROM THE QUEUES
 void (*S_pull(void))(void){
   void (*pullVarS)(void);
@@ -231,6 +217,7 @@ void Delay_ms_OnMediumQ(uint64_t Delay){
  while(millis() < TargetTime)
                         M_pull()(); 
 }
+
 // wait some condition but no more that, for exapmle: while (var1!=0 && WaitOnFastQ())
 void DelayOnFastQ(uint8_t WaitQFast){// set this variable and stay waiting on the fast queue
 
@@ -239,23 +226,23 @@ void DelayOnFastQ(uint8_t WaitQFast){// set this variable and stay waiting on th
     WaitQFast--; 
   }
 };
-// push several tasks from the Medium Queue
-void DelayOnMediumQ(uint8_t WaitQMedium){
+// wait some condition but no more that, for exapmle: while (var1!=0 && WaitOnMediumQ())
+void DelayOnMediumQ(uint8_t WaitQMedium){// set this variable and stay waiting on the fast queue
   while(WaitQMedium){
     M_pull()(); 
     WaitQMedium--; 
   }
 }
-// push several tasks from the Slow Queue
 
-void DelayOnSlowQ(uint8_t WaitQSlow){
+// wait some condition but no more that, for exapmle: while (var1!=0 && WaitOnSlowQ())
+void DelayOnSlowQ(uint8_t WaitQSlow){// set this variable and stay waiting on the fast queue
   while(WaitQSlow){
     S_pull()(); 
     WaitQSlow--; 
   }
 } 
 // We can use it like this:
-//  DelayUsOnProcessRoutine((main,10,1);// Initialization
+//  DelayUsOnProcessRoutine(procedure,10,1);// Initialization
 //      while(!DelayUsOnProcessRoutine(0,0,0)){/*do something by waiting*/}
 //
 //this funnction DOES NOT contain loops (linear)

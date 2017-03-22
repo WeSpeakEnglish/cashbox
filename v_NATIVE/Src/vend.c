@@ -31,6 +31,8 @@ uint32_t tmp_substate_timeout;
 uint16_t inserted_funds;
 uint8_t washers_in_use[WASHERS_MAX_COUNT];
 
+
+
 uint8_t CheckPriceChanges(void){
  uint8_t i;
  for(i = 0; i < WASHERS_MAX_COUNT; i++){
@@ -59,6 +61,18 @@ void disableCashInput(void){
 uint8_t CheckReadyWasher(uint8_t Washer){ // is it ready or not (by modbus register) // from 0ne to eight
   
   if(regs[Washer] & 0x00000001)  
-    return 1;        
+    return 1;               // ready to get
+  return 0;                 // not ready/ or started already
+}
+
+#define DELAY_MAX_VAR 100                    // how long we expecting in the worse case 
+uint8_t WaitForStartWasher(uint8_t Washer){  // if this function returns 0 - it starts me not!  if 1 - is has benn started
+  uint8_t i;
+  for(i = 0; i < DELAY_MAX_VAR; i++){
+  Delay_ms_OnFastQ(100); // descrete of waiting (we do our fast deals)
+  if(!CheckReadyWasher(Washer)){
+       return 1;
+     }
+  }
   return 0;
 }

@@ -174,6 +174,7 @@ void  SIM800_parse_Balance(void){
  char* tmpstr = NULL;
  uint16_t i;
  uint16_t index = 0;
+ uint8_t NumbFlag = 0;
  tmpstr = strstr((char const *)Sim800.pReadyBuffer, "0440002E"); // rubles
 
  if(tmpstr != NULL){
@@ -195,13 +196,22 @@ void  SIM800_parse_Balance(void){
    index = 1;
    Sim800.current_balance.rub = 0;
    for(i = 0; i < 5; i++){
-     
-     
         if(tmpstr[0] == '0')
          if(tmpstr[1] == '0')
           if(tmpstr[2] == '3')
             {
              Sim800.current_balance.rub += (tmpstr[3] - 0x30)*index;
+             NumbFlag = 1;
+           }
+          else{
+             NumbFlag = 0;
+          }
+        if(tmpstr[0] == '0')
+         if(tmpstr[1] == '0')
+          if(tmpstr[2] == '2')
+            if(tmpstr[2] == 'D')
+            {
+             if(NumbFlag)Sim800.current_balance.rub = - Sim800.current_balance.rub;
            }
         if(*(tmpstr-1) == '\"') break;
         index *=10;

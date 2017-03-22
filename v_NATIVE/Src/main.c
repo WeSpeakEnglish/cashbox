@@ -143,7 +143,9 @@ int main(void) {
     SIM800_init_info_upload();
     
     SIM800_info_upload();
+    SIM800_SendStartCounter();
     SIM800_command();
+
     
     
    // SIM800_pop_washing();

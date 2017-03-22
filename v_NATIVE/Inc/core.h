@@ -38,7 +38,6 @@ void (*M_pull(void))(void);
 ////FAST QUEUE//////////////
 void pFastQueueIni(void);
 int8_t F_push(void (*pointerQ)(void));
-int8_t F_push2(void (*pointerQ_1)(void),void (*pointerQ_2)(void));   
 void (*F_pull(void))(void);
 ///////////////////////////
 //waiting functions

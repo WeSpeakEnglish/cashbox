@@ -10,6 +10,7 @@
 #include "core.h"
 #include "sd_files.h"
 
+
 #define RET_OK 0
 #define RET_ERR 1
 #define RET_ERR_1 2
@@ -348,11 +349,11 @@ void checkIfWashingWasStarted(void)
     if (p_session->current_substate == TMP_SUBSTATE2) return; // just wait a little...
 
     // check washer feedback
+
+    if (WaitForStartWasher(p_session->selected_washer))
+    {
     p_session->washers_in_use[ p_session->selected_washer - 1 ] = \
       ( WASHER_ReadFeedback( p_session->selected_washer ) ) ? 1 : 0;
-    if (!(p_session->washers_in_use[ p_session->selected_washer - 1 ]))
-    {
-
         // increment clients count and save to eeprom
 
         VendSession_RAMIncrementClientsCount(p_session->selected_washer);
