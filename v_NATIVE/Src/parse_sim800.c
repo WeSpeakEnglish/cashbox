@@ -242,10 +242,7 @@ while(str[i] != '\0'){
      }
     }
   if(str[i] == ','){
-    //WL[wm].start =str[i+1] - 0x30;
     if(str[i+1] - 0x30){
-      //  Machine.SetCoil = 1;//wm + 1; 
-      //  Machine.SlaveAddr = wm + 1;
       WASHER_SendStartSignal(wm + 1, str[i+1] - 0x30);
     } 
     WL[wm].price = 0;

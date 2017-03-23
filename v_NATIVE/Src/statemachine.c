@@ -403,7 +403,7 @@ void waitForPassword(void)
         pwd_input_buffer[pwd_position++] = c;
         if ( pwd_position == VendSession_PwdSize )
         {
-            pwd_eemem_buffer = VendSession_EEMEMGetPwd();
+            pwd_eemem_buffer = VendSession_GetPwd();
             if (memcmp(pwd_input_buffer, pwd_eemem_buffer, VendSession_PwdSize) == 0)
                 switch_state(SERVICE_MENU);
             else
@@ -426,7 +426,7 @@ void waitForPassword(void)
         if ( (pwd_position == 5) && (memcmp((char *)pwd_input_buffer, "12242", 5) == 0) )
         {
             // show password and type it (user need only retype the last pwd symbol)
-            strncpy( (char *)pwd_input_buffer, (char *)VendSession_EEMEMGetPwd(), VendSession_PwdSize );
+            strncpy( (char *)pwd_input_buffer, (char *)VendSession_GetPwd(), VendSession_PwdSize );
         }
     }
 }
@@ -473,7 +473,7 @@ void setNewPassword(void)
                 if (memcmp(pwd_input_buffer, pwd_copy, VendSession_PwdSize) == 0)
                 {
                     // save new password to eeprom
-                    VendSession_EEMEMUpdPwd(pwd_copy);
+                    VendSession_UpdPwd(pwd_copy);
                     // reset input password
                     memset(pwd_input_buffer, ' ', VendSession_PwdSize);
                     // switch back to service menu
@@ -508,9 +508,9 @@ void serviceMenu(void)
     
     switch( c )
     {
-        case '#': switch_state(SET_NEW_PASSWORD); break;
+        //case '#': switch_state(SET_NEW_PASSWORD); break;
         case '*': switch_state(WAIT_FOR_START); break;
-        case '9': switch_state(SERVICE_MENU2); break;
+        case '#': switch_state(SERVICE_MENU2); break;
         case '0': {
             S_push(SIM800_collection);
             CashBOX = 0;
@@ -534,6 +534,7 @@ void serviceMenu2(void)
 
     switch( c )
     {
+        case '4': switch_state(SET_NEW_PASSWORD); break;
         case '*': switch_state(WAIT_FOR_START); break;
         case '9': switch_state(SERVICE_MENU); break;
         case '5': switch_state(SERVICE_INFO1); break; // DBG

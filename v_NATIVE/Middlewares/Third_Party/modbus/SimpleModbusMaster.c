@@ -51,16 +51,15 @@ void processSuccess();
 unsigned int calculateCRC(unsigned char bufferSize);
 void sendPacket(unsigned char bufferSize);
 
-
 // Modbus Master State Machine
 void modbus_update() 
 {
- static uint8_t Slave = 0;
+ static uint8_t Slave = 1;
 	switch (state)
 	{
 		case IDLE:
                   
-                  if(!Machine.SetCoil){
+                  if(!Machine.SetCoil[Slave - 1]){
                   Slave = (Slave%(WASHERS_MAX_COUNT + 1));
                   if(Slave != Modbus.buffer[0]) 
                     regs[Slave] = 0;
@@ -73,15 +72,15 @@ void modbus_update()
                      modbus_configure(115200, 200, 1, 1, packets, TOTAL_NO_OF_PACKETS, &regs[Slave]);
                   }
                   else{
-                     modbus_construct(&packets[PACKET1], Machine.SlaveAddr, FORCE_SINGLE_COIL, Machine.SetCoil - 1, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
+                     modbus_construct(&packets[PACKET1], Slave, FORCE_SINGLE_COIL, Machine.SetCoil[Slave - 1] - 1, 0xFF00, 0); //zero address to put data to the slave-s array (according documentation of SimpleModbus)
                      modbus_configure(115200, 200, 1, 1, packets, TOTAL_NO_OF_PACKETS, regs);
-                     
+                     Machine.SetCoil[Slave - 1] = 0; 
                   }
   		//idle();
                 packet = &packetArray[0];
                 constructPacket(); // just send it to a slave
                 Modbus.buffer[0] = 0;
-		Machine.SetCoil = 0; 
+		
                 break;
 		case WAITING_FOR_REPLY:
 		waiting_for_reply();

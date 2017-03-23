@@ -6,7 +6,7 @@
 
 
 
-uint16_t      * VendSession_EEMEMGetClientsCount (void);
+uint16_t      * VendSession_GetClientsCount (void);
 
 /*
  * Initiate VendSession
@@ -57,7 +57,7 @@ uint16_t * VendSession_RAMGetClientsCount(void)
 	return &TotalClientsCounter;
 }
 
-uint16_t * VendSession_EEMEMGetClientsCount(void)
+uint16_t * VendSession_GetClientsCount(void)
 {
 	uint8_t i; // calculate all the clients
         TotalClientsCounter = 0;
@@ -67,7 +67,7 @@ uint16_t * VendSession_EEMEMGetClientsCount(void)
 	return &TotalClientsCounter;
 }
 
-void VendSession_EEMEMResetClientsCount(void)
+void VendSession_ResetClientsCount(void)
 {
 uint8_t i;
   for(i = 0; i < WASHERS_MAX_COUNT; i++)
@@ -80,7 +80,7 @@ uint8_t i;
 
 // Password input functions
 // ~~~~~~~~~~~~~~~~~~~~~~~~
-char * VendSession_EEMEMGetPwd(void)
+char * VendSession_GetPwd(void)
 {
 
 	static char password[VendSession_PwdSize + 1]; // including null terminator
@@ -92,13 +92,12 @@ char * VendSession_EEMEMGetPwd(void)
 
 	return password;
 }
-void VendSession_EEMEMUpdPwd(const char *pwd_new_str)
+void VendSession_UpdPwd(const char *pwd_new_str)
 {
   uint8_t i;
   for(i=0; i < VendSession_PwdSize; i++)
                   Password[i] = pwd_new_str[i];
   
-  VendSession_EEMEMGetPwd();
   SD_SetSession();
   
 }

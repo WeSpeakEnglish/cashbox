@@ -60,14 +60,14 @@ const char set_new_pwd_str0[] = "   Введите новый    ";
 const char set_new_pwd_str1[] = "  пароль два раза:  ";
 
 const char service_str0[] = "  Сервисный  режим  ";
-const char service_str1[] = " 0 Инкассация|9 Еще ";
-const char service_str2[] = " 1-8 Старт машины   ";
-const char service_str3[] = " *Выход|#Нов.пароль ";
+const char service_str1[] = " 0 Инкассация       ";
+const char service_str2[] = " 1-9 Старт машины   ";
+const char service_str3[] = " *Выход   |   #Ещё  ";
 
 const char exit_only_str[] = " * Выход            ";
 
 const char service2_str0[] = "  Сервисный режим 2 ";
-const char service2_str1[] = " 5 Информация       ";
+const char service2_str1[] = "4 Нов.пар.|5 Информ.";
 const char service2_str2[] = "6 Обнул.текущ.баланс";
 const char service2_str3[] = " * Выход | 9 Назад  ";
 

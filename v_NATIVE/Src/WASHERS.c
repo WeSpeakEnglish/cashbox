@@ -62,6 +62,5 @@ uint8_t WASHER_ReadFeedback(uint8_t w_number)
  */
 void WASHER_SendStartSignal (uint8_t washer_number, uint8_t SetCoil)
 {
-   Machine.SetCoil = SetCoil;    // we need to change
-   Machine.SlaveAddr = washer_number;
+   Machine.SetCoil[washer_number - 1] = SetCoil;    // we need to change
 }

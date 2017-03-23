@@ -28,8 +28,6 @@ void WASHERS_Init (void);
 
 WasherSettings_t * WASHERS_RAMGetAll   (void);
 
-void WASHERS_EEMEMUpdateAll (void);
-
 void     WASHER_RAMSetPrice (uint8_t washer_number, uint16_t new_price);
 
 uint8_t WASHER_ReadFeedback (uint8_t washer_number);

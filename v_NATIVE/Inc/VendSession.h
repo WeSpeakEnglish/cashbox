@@ -81,11 +81,11 @@ uint32_t * VendSession_RAMGetCashbox(void);
 void VendSession_RAMAddToCashbox(uint16_t delta);
 void VendSession_RAMIncrementClientsCount(uint8_t Machine);
 
-void VendSession_EEMEMResetSession (void);
-void VendSession_EEMEMResetClientsCount (void);
+void VendSession_ResetSession (void);
+void VendSession_ResetClientsCount (void);
 
-char * VendSession_EEMEMGetPwd (void);
-void   VendSession_EEMEMUpdPwd (const char *pwd_new_str);
+char * VendSession_GetPwd (void);
+void   VendSession_UpdPwd (const char *pwd_new_str);
 char * VendSession_GetTypedPwd (void);
 //void   VendSession_UpdTypedPwd (char *pwd_type_buf);
 

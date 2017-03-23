@@ -66,7 +66,7 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     if(!(milliseconds % 100)){
        if(LCD.init) M_push(loop);
      }
-    if(!(milliseconds % 21)){
+    if(!(milliseconds % 31)){
         F_push(modbus_update);
 
     }

@@ -21,8 +21,8 @@ enum
 };
 
 typedef struct{
- uint8_t SetCoil;    // coil symbalize (set coil command modbus) a desireble regime
- uint8_t SlaveAddr;  // address of slave which we need to send for
+ uint8_t SetCoil[WASHERS_MAX_COUNT];    // coil symbalize (set coil command modbus) a desireble regime
+// uint8_t SlaveAddr;  // address of slave which we need to send for
 }WashingMachineCmd; // we need to send to slave command to turn mode 
                
 
