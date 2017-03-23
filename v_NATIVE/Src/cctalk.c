@@ -127,7 +127,7 @@ void ccTalkParseStatus(void) {
                             if(DeltaToAdd){
                               p_session->inserted_funds += DeltaToAdd;
                               CashBOX += DeltaToAdd; // add to the cashbox
-                              M_push(SD_SetSession); 
+                              SD_SetSession(); 
                             }
                             ccTalk.gotMoney = 0;
                         }

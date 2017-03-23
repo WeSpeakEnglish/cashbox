@@ -203,16 +203,20 @@ int8_t on_enter_state(SessionState_t to)
             enter_substate(TMP_SUBSTATE); // a little delay...
             // trying to activate the washer
             WASHER_SendStartSignal( p_session->selected_washer, 1); // the second number is regime
-            p_session->inserted_funds -= washers_list[ p_session->selected_washer - 1 ].price;
+            //p_session->inserted_funds -= washers_list[ p_session->selected_washer - 1 ].price;
+            //SD_SetSession();
             success = 1; break;
         case START_WASHING_FAILED:
             p_session->tmp_substate_timeout = (5000L); // ms
             enter_substate(TMP_SUBSTATE); // delay
-            p_session->inserted_funds += washers_list[ p_session->selected_washer - 1 ].price;
+           // p_session->inserted_funds += washers_list[ p_session->selected_washer - 1 ].price;
             success = 1; break;
+           
         case WASHING_STARTED_SUCCESSFULLY:
             p_session->tmp_substate_timeout = (12 * 1000L); // ms
             enter_substate(TMP_SUBSTATE); // delay
+            p_session->inserted_funds -= washers_list[ p_session->selected_washer - 1 ].price;
+            SD_SetSession();
             success = 1; break;
         case SERVICE_INFO1:
             p_session->tmp_substate_timeout = (30 * 1000L); // ms
